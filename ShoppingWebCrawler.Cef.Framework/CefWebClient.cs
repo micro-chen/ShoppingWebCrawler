@@ -1,0 +1,65 @@
+﻿using System;
+using System.Collections.Generic;
+using ShoppingWebCrawler.Cef.Core;
+
+namespace ShoppingWebCrawler.Cef.Framework
+{
+
+
+    public class CefWebClient : CefClient
+    {
+        private readonly CefWebBrowser _core;
+        private readonly CefWebLifeSpanHandler _lifeSpanHandler;
+        private readonly CefWebDisplayHandler _displayHandler;
+        private readonly CefWebLoadHandler _loadHandler;
+        private readonly CefWebRequestHandler _requestHandler;
+
+        public CefWebClient(CefWebBrowser core)
+        {
+            _core = core;
+            _lifeSpanHandler = new CefWebLifeSpanHandler(_core);
+            _displayHandler = new CefWebDisplayHandler(_core);
+            _loadHandler = new CefWebLoadHandler(_core);
+            _requestHandler = new CefWebRequestHandler(_core);
+        }
+
+        /// <summary>
+        /// 是否显示右键菜单
+        /// </summary>
+        internal bool IsCanShowContextMenu { get; set; }
+
+        protected CefWebBrowser Core { get { return _core; } }
+
+        protected override CefLifeSpanHandler GetLifeSpanHandler()
+        {
+            return _lifeSpanHandler;
+        }
+
+        protected override CefDisplayHandler GetDisplayHandler()
+        {
+            return _displayHandler;
+        }
+
+        protected override CefLoadHandler GetLoadHandler()
+        {
+            return _loadHandler;
+        }
+
+        protected override CefRequestHandler GetRequestHandler()
+        {
+            return _requestHandler;
+        }
+
+        /// <summary>
+        /// 右键菜单
+        /// </summary>
+        /// <returns></returns>
+        protected override CefContextMenuHandler GetContextMenuHandler()
+        {
+            var hanlerOfNotShowMenu = new DefaultContextMenuHandler(IsCanShowContextMenu);
+            return hanlerOfNotShowMenu;
+            // return base.GetContextMenuHandler();    
+        }
+
+    }
+}

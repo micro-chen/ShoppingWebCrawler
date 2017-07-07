@@ -1,0 +1,393 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+
+namespace ShoppingWebCrawler.Host.Http
+{
+
+    /// <summary>
+    /// post请求数据类型
+    /// </summary>
+    public enum PostDataContentType
+    {
+        /// <summary>
+        /// 表单键值对
+        /// </summary>
+        Form,
+        /// <summary>
+        /// json 数据体
+        /// </summary>
+        Json,
+        /// <summary>
+        /// 二进制数据
+        /// </summary>
+        Binary
+    }
+
+    /// <summary>
+    /// 服务端  请求转发代理类
+    /// 将客户端的请求 转发到指定的地址，进行ISV数据接入
+    /// </summary>
+    public class HttpServerProxy : IDisposable
+    {
+
+
+
+        #region 字段+属性
+
+        /// <summary>
+        /// https
+        /// </summary>
+        public const string HttpSchemaOfHttps = "https";
+        //UA标识键
+        public const string RequestHeaderKeyUserAgent = "User-Agent";
+        /// <summary>
+        /// cookies 容器
+        /// </summary>
+        public CookieContainer Cookies { get; set; }
+
+        /// <summary>
+        /// Web客户端
+        /// </summary>
+        public HttpClient Client { get; set; }
+
+        /// <summary>
+        /// 是否保持client 的激活
+        /// </summary>
+        public bool KeepAlive { get; set; }
+
+        #endregion
+
+        #region 私有方法
+
+        public HttpServerProxy()
+        {
+            this.KeepAlive = false;
+        }
+
+        private bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+        {
+            return true; //总是接受     
+        }
+
+        /// <summary>
+        /// 更改请求的UA标识的扩展方法
+        /// </summary>
+        public static void ChangeHttpClientUserAgent(HttpClient client, string userAgent)
+        {
+            if (!string.IsNullOrEmpty(userAgent) && null != client)
+            {
+                client.DefaultRequestHeaders.Remove(HttpServerProxy.RequestHeaderKeyUserAgent);
+                client.DefaultRequestHeaders.Add(HttpServerProxy.RequestHeaderKeyUserAgent, userAgent);
+            }
+        }
+
+        /// <summary>
+        /// 对传递过来的 数据进行初始化
+        /// </summary>
+        /// <param name="content"></param>
+        /// <param name="dataType"></param>
+        /// <param name="data"></param>
+        private HttpContent InitHttpContent(HttpContent content, PostDataContentType dataType, Dictionary<string, string> data)
+        {
+            //处理需要提交的数据
+            if (null != data && data.Count > 0)
+            {
+                switch (dataType)
+                {
+                    case PostDataContentType.Form:
+                        //直接将字典数据作为参数体
+                        content = new FormUrlEncodedContent(data);
+                        break;
+                    case PostDataContentType.Json:
+                        //json数据 直接将首个数据作为传递数据 并进行转码
+                        var realData = data.First().Value;
+                        // string decodeBody = HttpUtility.UrlEncode(realData);
+                        content = new StringContent(realData, Encoding.UTF8, "application/json");
+                        //content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                        break;
+                    case PostDataContentType.Binary:
+                        throw new NotImplementedException("未实现指定的功能.....");
+                    default:
+                        break;
+                }
+
+            }
+            return content;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private HttpClient CreateNewHttpClient()
+        {
+            HttpClient client = null;
+            HttpClientHandler handler = null;
+            if (null != this.Cookies)
+            {
+                handler = new HttpClientHandler() { CookieContainer = this.Cookies };
+            }
+            if (null != handler)
+            {
+                client = new HttpClient(handler);
+            }
+            else
+            {
+                client = new HttpClient();
+            }
+            //设定最大的容积量 防止溢出
+            client.MaxResponseContentBufferSize = 256000;
+
+            return client;
+        }
+
+        /// <summary>
+        /// 格式化转发请求的头部信息
+        /// 现在只转发 验证信息 其他不转发
+        /// </summary>
+        /// <param name="reqHeaders"></param>
+        /// <param name="fromHeaders"></param>
+        public static void FormatRequestHeader(HttpRequestHeaders reqHeaders, NameValueCollection fromHeaders)
+        {
+            if (null == fromHeaders || fromHeaders.Count <= 0)
+            {
+                return;
+            }
+            foreach (var key in fromHeaders.AllKeys)
+            {
+                var value = fromHeaders[key];
+                reqHeaders.Add(key, value);
+            }
+
+        }
+        #endregion
+
+
+        #region GET  请求转发处理
+
+
+
+        /// <summary>
+        /// get 请求转发
+        /// 同步请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="fromHeaders"></param>
+        /// <returns></returns>
+        public string GetRequestTransfer(string url, NameValueCollection fromHeaders)
+        {
+            try
+            {
+
+                var tskResponse = this.GetRequestTransferAsync(url, fromHeaders);
+
+                //等待 task执行完毕 返回结果
+                return tskResponse.Result;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+
+
+
+        /// <summary>
+        /// get 请求转发
+        /// 异步请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="fromHeaders"></param>
+        /// <returns></returns>
+        public Task<string> GetRequestTransferAsync(string url, NameValueCollection fromHeaders)
+        {
+
+
+            try
+            {
+                if (null == this.Client)
+                {
+                    this.Client = this.CreateNewHttpClient();
+                }
+
+                //修改请求对象的头信息
+                FormatRequestHeader(this.Client.DefaultRequestHeaders, fromHeaders);
+
+
+                var targetUri = new Uri(url);
+                if (targetUri.Scheme == HttpSchemaOfHttps)
+                {
+                    //开启 https 默认证书验证
+                    ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+                }
+
+                var tskResponse = this.Client.GetAsync(targetUri);
+                if (tskResponse.Result.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new Exception(string.Concat("指定的地址未能正确get响应！uri:", url));
+                }
+                return tskResponse.Result.Content.ReadAsStringAsync();
+                //return client.GetStringAsync(targetUri);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                this.Dispose();
+
+            }
+
+
+        }
+
+
+        #endregion
+
+
+        #region POST  请求转发处理
+
+
+
+        /// <summary>
+        /// post 请求转发
+        /// 同步请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public string PostRequestTransfer(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders)
+        {
+            try
+            {
+                var tskResponse = this.PostRequestTransferAsync(url, dataType, data, fromHeaders);
+
+                //等待 task执行完毕 返回结果
+                return tskResponse.Result;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+        /// <summary>
+        /// post 请求转发
+        /// 异步请求
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="data"></param>
+        /// <param name="fromHeaders"></param>
+        /// <returns></returns>
+        public Task<string> PostRequestTransferAsync(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders)
+        {
+
+            if (null == this.Client)
+            {
+                this.Client = this.CreateNewHttpClient();
+            }
+            //using (var handler = new HttpClientHandler() { CookieContainer = this.Cookies })
+            //using (var client = new HttpClient(handler))
+            //{
+            try
+            {
+
+
+                //修改请求对象的头信息
+                FormatRequestHeader(this.Client.DefaultRequestHeaders, fromHeaders);
+
+                //包装提交的数据
+                HttpContent content = null;
+
+                content = this.InitHttpContent(content, dataType, data);
+
+                var targetUri = new Uri(url);
+                if (targetUri.Scheme == HttpSchemaOfHttps)
+                {
+                    //开启 https 默认证书验证
+                    ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+                }
+                //post 响应  。异步返回内容字符串
+                var tskResponse = this.Client.PostAsync(targetUri, content);
+                if (tskResponse.Result.StatusCode != HttpStatusCode.OK)
+                {
+                    throw new Exception(string.Concat("指定的地址未能正确post响应！uri:", url));
+                }
+                return tskResponse.Result.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                this.Dispose();
+            }
+
+        }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // 要检测冗余调用
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: 释放托管状态(托管对象)。
+                }
+
+                // TODO: 释放未托管的资源(未托管的对象)并在以下内容中替代终结器。
+                // TODO: 将大型字段设置为 null。
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: 仅当以上 Dispose(bool disposing) 拥有用于释放未托管资源的代码时才替代终结器。
+        // ~HttpServerProxy() {
+        //   // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+        //   Dispose(false);
+        // }
+
+        // 添加此代码以正确实现可处置模式。
+        public void Dispose()
+        {
+            if (this.KeepAlive == false)
+            {
+                this.Client.Dispose();
+            }
+            // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+            Dispose(true);
+            // TODO: 如果在以上内容中替代了终结器，则取消注释以下行。
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
+
+
+
+
+        #endregion
+
+
+    }
+}
