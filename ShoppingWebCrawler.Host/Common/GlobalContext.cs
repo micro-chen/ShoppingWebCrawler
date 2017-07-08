@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Models;
+using ShoppingWebCrawler.Host.Ioc;
 
 namespace ShoppingWebCrawler.Host
 {
@@ -46,7 +47,7 @@ namespace ShoppingWebCrawler.Host
                     lock (_locker_SupportPlatform)
                     {
 
-                        var allPlatforms=SupportPlatform.LoadConfig();
+                        var allPlatforms = SupportPlatform.LoadConfig();
                         _SupportPlatforms = allPlatforms;
                         SupportPlatform.MonitorConfigFile((s, e) =>
                         {
@@ -61,7 +62,7 @@ namespace ShoppingWebCrawler.Host
                             {
                                 return;
                             }
-                            _SupportPlatforms=e.CurrentSupportPlatforms;
+                            _SupportPlatforms = e.CurrentSupportPlatforms;
                         });
 
                     }
@@ -72,12 +73,24 @@ namespace ShoppingWebCrawler.Host
             }
         }
 
+        /// <summary>
+        /// 所有平台的 cookie 字典容器，按照网址对Cookie进行了key区分
+        /// </summary>
+        public static IDictionary<string, IEnumerable<CefCookie>> SupportPlatformsCookiesContainer
+        {
+            get
+            {
+                return SingletonDictionary<string, IEnumerable<CefCookie>>.Instance;
+            }
+        }
+
 
         /// <summary>
         /// 处理域名下的Cookies
         /// </summary>
         /// <param name="domainName"></param>
         /// <param name="callBackHandler"></param>
+        [Obsolete("this method has been obsolete. and recomend use LazyCookieVisitor.LoadCookies()")]
         public static void OnInvokeProcessDomainCookies(string domainName, Action<IEnumerable<CefCookie>> callBackHandler)
         {
 

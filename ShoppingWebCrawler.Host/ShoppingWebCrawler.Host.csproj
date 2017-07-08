@@ -101,7 +101,6 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http">
@@ -122,6 +121,7 @@
     <Compile Include="Common\JavascriptRegex.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\RunningLocker.cs" />
+    <Compile Include="Common\Singleton.cs" />
     <Compile Include="Common\StringUtil.cs" />
     <Compile Include="Handlers\HeadLessCefLoadHandler.cs" />
     <Compile Include="Handlers\HeadLessCefRenderHandler.cs" />
@@ -202,6 +202,10 @@
     <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ScoketLibrary\NTCPMSG\NTCPMessage.csproj">
+      <Project>{d7f3e627-5eef-4aae-a23d-61e75627ef34}</Project>
+      <Name>NTCPMessage</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ShoppingWebCrawler.Cef.Core\ShoppingWebCrawler.Cef.Core.csproj">
       <Project>{703ff300-34b9-48d4-a5d6-e741f48d5f95}</Project>
       <Name>ShoppingWebCrawler.Cef.Core</Name>
@@ -218,6 +222,7 @@
     <Content Include="Configs\SupportPlatforms.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="readMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

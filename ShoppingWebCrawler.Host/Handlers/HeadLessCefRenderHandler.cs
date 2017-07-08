@@ -57,6 +57,7 @@ namespace ShoppingWebCrawler.Host.Handlers
             // Save the provided buffer (a bitmap image) as a PNG.
             //var bitmap = new Bitmap(width, height, width * 4, PixelFormat.Format32bppRgb, buffer);
             //bitmap.Save("LastOnPaint.png", ImageFormat.Png);
+            int x = 9;
         }
 
 

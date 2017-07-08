@@ -11,6 +11,7 @@ using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Headless;
 using System.Threading;
+using System.Linq;
 
 namespace ShoppingWebCrawler.Host
 {
@@ -33,6 +34,11 @@ namespace ShoppingWebCrawler.Host
         /// 定时调度器
         /// </summary>
         private System.Timers.Timer _timer;
+
+        ///// <summary>
+        ///// 定时器 用来监测请求环链，超过
+        ///// </summary>
+        //private System.Threading.Timer _timer_webbrowser_loop_monitor;
         /// <summary>
         /// 下一次 触发加载全部电商平台的时间
         /// </summary>
@@ -62,7 +68,7 @@ namespace ShoppingWebCrawler.Host
         /// <summary>
         /// 程序阻塞锁
         /// </summary>
-        private  RunningLocker locker = new  RunningLocker();
+        private RunningLocker locker = new RunningLocker();
         #endregion
 
 
@@ -86,30 +92,58 @@ namespace ShoppingWebCrawler.Host
         private void OnWebBrowserLoadEnd(object sender, LoadEndEventArgs e)
         {
 
-            // var code = e.HttpStatusCode;
-            //if (code != (int)HttpStatusCode.OK)//注意 这个 状态码这里 有bug  不要使用
-            //{
-            //    Logging.Logger.WriteToLog(new Logging.LogEventArgs { LogMessage = string.Format("未能从指定的URL 成功获取网页！状态码不是200.URL: {0} ", this.WebBrowser.GetMainFrame().Url) });
-            //}
+
 
             //---非电商链接  不做接受处理------------
             if (!_is_running_invoke_linkes)
             {
                 return;
             }
-            //超过阈值 那么表示轮链完毕一次周期
-            if (_cursor_Links >= GlobalContext.SupportPlatforms.Count-1)
+
+            var code = e.HttpStatusCode;
+            if (code == (int)HttpStatusCode.OK)//对状态为 200 成功的 将cookie  注册到全局容器
             {
+                //加载完毕后  再等待5s  因为有些网站的Cookie 是动态执行客户端的js后  产生的Cookie，而不是加载就设置了Cookie
+                locker.CancelAfter(5000);
+
+
+                string url = e.Frame.Url;
+                if (!string.IsNullOrEmpty(url))
+                {
+                    Task.Factory.StartNew(() =>
+                    {
+
+                        try
+                        {
+                            var ckVisitor = new LazyCookieVistor();
+                            var cks = ckVisitor.LoadCookies(url);
+                            GlobalContext.SupportPlatformsCookiesContainer[url] = cks;
+                        }
+                        catch
+                        {
+                           Logging.Logger.WriteToLog(new Logging.LogEventArgs { LogMessage = string.Format("未能从指定的URL 成功获取Cookies.URL: {0} ", url), LogType= Logging.LoggingType.Error});
+
+                        }
+                    });
+
+                }
+            }
+
+            //超过阈值 那么表示轮链完毕一次周期
+            if (_cursor_Links >= GlobalContext.SupportPlatforms.Count - 1)
+            {
+                //清屏
+                Console.Clear();
                 //重置状态位
                 _is_running_invoke_linkes = false;
                 //随机生成浏览器进行轮链的间隔（分钟）
-                int browserLoopLinksTimeSpan =  _randor.Next(1, 10);
+                int browserLoopLinksTimeSpan = _randor.Next(1, 10);
                 _nextInvokeAllSuuportPlatforms = DateTime.Now.AddMinutes(browserLoopLinksTimeSpan);
 
                 return;
             }
 
-            locker.CancelAfter(5000);
+
 
             //向后偏移
             _cursor_Links += 1;
@@ -129,38 +163,42 @@ namespace ShoppingWebCrawler.Host
         {
             if (null == WebBrowser)
             {
-
-                // Instruct CEF to not render to a window at all.
-                CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
-                cefWindowInfo.SetAsWindowless(IntPtr.Zero, true);
-
-                // Settings for the browser window itself (e.g. should JavaScript be enabled?).
-                var cefBrowserSettings = new CefBrowserSettings();
-
-                // Initialize some the cust interactions with the browser process.
-                // The browser window will be 1280 x 720 (pixels).
-                var cefClient = new HeadLessCefClient(1024, 720);
-                var loader = cefClient.GetCurrentLoadHandler();
-                loader.BrowserCreated += (s, e) =>
-                {
-
-                    //事件通知 当cef  browser 创建完毕
-                    //创建完毕后 保存 browser 对象的实例
-                    this.WebBrowser = e.Browser;
-                    this._is_cef_browser_has_created = true;
-                };
-                //注册  加载完毕事件handler
-                loader.LoadEnd += this.OnWebBrowserLoadEnd;
-                // Start up the browser instance.
-                string url = "about:blank";
-                CefBrowserHost.CreateBrowser(cefWindowInfo, cefClient, cefBrowserSettings, url);
-
-
+                CreateNewWebBrowser();
             }
             _timer = new System.Timers.Timer();
             _timer.Interval = 1000;
             _timer.Elapsed += handler_timer_Tick;
-            // _timer.Start();
+        }
+
+        /// <summary>
+        /// 创建一个web browser 对象，并打开一个新的空白页
+        /// </summary>
+        private void CreateNewWebBrowser()
+        {
+            // Instruct CEF to not render to a window at all.
+            CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
+            cefWindowInfo.SetAsWindowless(IntPtr.Zero, true);
+
+            // Settings for the browser window itself (e.g. should JavaScript be enabled?).
+            var cefBrowserSettings = new CefBrowserSettings();
+
+            // Initialize some the cust interactions with the browser process.
+            // The browser window will be 1280 x 720 (pixels).
+            var cefClient = new HeadLessCefClient(1024, 720);
+            var loader = cefClient.GetCurrentLoadHandler();
+            loader.BrowserCreated += (s, e) =>
+            {
+
+                //事件通知 当cef  browser 创建完毕
+                //创建完毕后 保存 browser 对象的实例
+                this.WebBrowser = e.Browser;
+                this._is_cef_browser_has_created = true;
+            };
+            //注册  加载完毕事件handler
+            loader.LoadEnd += this.OnWebBrowserLoadEnd;
+            // Start up the browser instance.
+            string url = "about:blank";
+            CefBrowserHost.CreateBrowser(cefWindowInfo, cefClient, cefBrowserSettings, url);
         }
 
         public void Start()
@@ -191,7 +229,7 @@ namespace ShoppingWebCrawler.Host
         private void handler_timer_Tick(object sender, EventArgs e)
         {
             //cef browser 对象如果未创建完毕 那么不能进行请求
-            if (this._is_cef_browser_has_created == false||_is_running_invoke_linkes == true)
+            if (this._is_cef_browser_has_created == false || _is_running_invoke_linkes == true)
             {
                 return;
             }
@@ -230,8 +268,17 @@ namespace ShoppingWebCrawler.Host
                 Logging.Logger.WriteToLog(string.Format("未能加载指定的地址：{0} ,因为CEF浏览器对象未能创建或已经销毁！", url));
                 return;
             }
-            //开始触发加载首个网址 每当加载完毕时候 触发的事件中 进行加载下一个
-            this.WebBrowser.GetMainFrame().LoadUrl(url);
+
+            try
+            {
+                //开始触发加载首个网址 每当加载完毕时候 触发的事件中 进行加载下一个
+                this.WebBrowser.GetMainFrame().LoadUrl(url);
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.WriteException(ex);
+            }
+
 
         }
 

@@ -24,9 +24,14 @@ namespace ShoppingWebCrawler.Host
             {
                 Logging.Logger.WriteException(ex);
             }
-            
 
-            Console.ReadKey();
+
+            var locker = RunningLocker.CreateNewLock();
+            locker.Pause();
+
+
+          
+            //Console.ReadKey();
 
             // Clean up CEF.
             CefRuntime.Shutdown();

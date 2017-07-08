@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ShoppingWebCrawler.Cef.Core;
+using System.Threading.Tasks;
 
 namespace ShoppingWebCrawler.Host
 {
@@ -25,6 +26,9 @@ namespace ShoppingWebCrawler.Host
     {
 
         #region 属性
+        private TaskCompletionSource<IEnumerable<CefCookie>> _tcs = null;
+        private EventHandler<CookieVistCompletedEventAgrs> _handler = null;
+
 
         private List<CefCookie> _results;
 
@@ -77,6 +81,53 @@ namespace ShoppingWebCrawler.Host
             }
 
         }
+
+
+
+        /// <summary>
+        /// 加载Cookies
+        /// </summary>
+        public IEnumerable<CefCookie> LoadCookies(string domain)
+        {
+            if (string.IsNullOrEmpty(domain))
+            {
+                return null;
+            }
+
+            ///获取异步执行的Task的结果
+            IEnumerable<CefCookie> results= this.LoadCookiesAsyc(domain)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
+
+            return results;
+
+        }
+
+
+        /// <summary>
+        /// 返回异步的获取 指定网址的cookies 的Task
+        /// </summary>
+        /// <param name="domain">指定的网址</param>
+        /// <returns></returns>
+        public Task<IEnumerable<CefCookie>> LoadCookiesAsyc(string domain)
+        {
+            this._tcs = new TaskCompletionSource<IEnumerable<CefCookie>>();
+            //事件回调
+            this._handler = (s, e) =>
+            {
+                this._tcs.TrySetResult(e.Results);
+
+            };
+            this.VistCookiesCompleted += _handler;
+
+            var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
+            ckManager.VisitUrlCookies(domain, true, this);
+             
+            return this._tcs.Task;
+        }
+
+
 
         protected override bool Visit(CefCookie cookie, int count, int total, out bool delete)
         {
