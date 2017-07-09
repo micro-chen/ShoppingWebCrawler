@@ -30,6 +30,35 @@ namespace ShoppingWebCrawler.Host
             }
         }
 
+
+        private static object _locker_SocketPort = new object();
+        static int _DefaultSocketPort;
+        /// <summary>
+        /// 远程服务套接字端口
+        /// </summary>
+        public static int SocketPort
+        {
+            get
+            {
+                if (_DefaultSocketPort <= 0)
+                {
+                    lock (_locker_SocketPort)
+                    {
+
+                        int _DefaultSocketPort = ConfigHelper.GetConfigInt("Port");
+                        if (_DefaultSocketPort <= 0)
+                        {
+                            _DefaultSocketPort = 6689;
+                        }
+
+                    }
+                }
+
+                return _DefaultSocketPort;
+            }
+        }
+
+
         private static object _locker_SupportPlatform = new object();
         private static List<SupportPlatform> _SupportPlatforms;
         /// <summary>

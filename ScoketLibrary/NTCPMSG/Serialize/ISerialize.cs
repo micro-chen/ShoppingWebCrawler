@@ -18,10 +18,10 @@ namespace NTCPMessage.Serialize
         /// </summary>
         /// <param name="data">data will be deserialized</param>
         /// <returns>object</returns>
-        object GetObject(byte[] data);
+         object GetObject(byte[] data);
     }
 
-    public interface ISerialize<T>
+    public interface ISerialize<T>: ISerialize
     {
                /// <summary>
         /// Object to bytes
@@ -35,6 +35,6 @@ namespace NTCPMessage.Serialize
         /// </summary>
         /// <param name="data">data will be deserialized</param>
         /// <returns>object</returns>
-        T GetObject(byte[] data);
+        new T GetObject(byte[] data);
     }
 }

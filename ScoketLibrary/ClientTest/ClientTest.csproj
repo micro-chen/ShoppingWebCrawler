@@ -54,6 +54,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\libs\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -67,10 +71,6 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NTCPMessage.EntityPackage\NTCPMessage.EntityPackage.csproj">
-      <Project>{3c03e656-5d1d-4e25-948a-757d29ca0ad8}</Project>
-      <Name>NTCPMessage.EntityPackage</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NTCPMSG\NTCPMessage.csproj">
       <Project>{D7F3E627-5EEF-4AAE-A23D-61E75627EF34}</Project>
       <Name>NTCPMessage</Name>

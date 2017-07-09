@@ -86,10 +86,6 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NTCPMessage.EntityPackage\NTCPMessage.EntityPackage.csproj">
-      <Project>{3c03e656-5d1d-4e25-948a-757d29ca0ad8}</Project>
-      <Name>NTCPMessage.EntityPackage</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NTCPMSG\NTCPMessage.csproj">
       <Project>{d7f3e627-5eef-4aae-a23d-61e75627ef34}</Project>
       <Name>NTCPMessage</Name>

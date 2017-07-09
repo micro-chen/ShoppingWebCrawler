@@ -7,55 +7,25 @@ using System.Runtime.Serialization;
 
 namespace NTCPMessage.Serialize
 {
-    public class XMLSerializer : ISerialize
+
+    public class XMLSerializer<T> : ISerialize<T> where T : class
     {
-        Type _DataType;
+      
 
-        public XMLSerializer(Type dataType)
-        {
-            _DataType = dataType; 
-        }
-
-        #region ISerialize Members
-
-        public byte[] GetBytes(object obj)
-        {
-            if (obj == null)
-            {
-                return null;
-            }
-
-            MemoryStream ms = new MemoryStream();
-            TextWriter writer = new StreamWriter(ms, Encoding.UTF8);
-
-            XmlSerializer ser = new XmlSerializer(obj.GetType());
-
-            ser.Serialize(writer, obj);
-            return ms.ToArray();
-        }
-
-        public object GetObject(byte[] data)
-        {
-            if (data == null)
-            {
-                return null;
-            }
-
-            MemoryStream ms = new MemoryStream(data);
-            XmlSerializer ser = new XmlSerializer(_DataType);
-            TextReader reader = new StreamReader(ms, Encoding.UTF8);
-            return ser.Deserialize(reader);
-        }
-
-        #endregion
-    }
-
-    public class XMLSerializer<T> : ISerialize<T>
-    {
         #region ISerialize Members
 
         public byte[] GetBytes(ref T obj)
         {
+            return ((ISerialize)this).GetBytes(obj);
+        }
+
+        public T GetObject(byte[] data)
+        {
+            return ((ISerialize)this).GetObject(data) as T;
+        }
+
+        byte[] ISerialize.GetBytes(object obj)
+        {
             if (obj == null)
             {
                 return null;
@@ -69,8 +39,7 @@ namespace NTCPMessage.Serialize
             ser.Serialize(writer, obj);
             return ms.ToArray();
         }
-
-        public T GetObject(byte[] data)
+        object ISerialize.GetObject(byte[] data)
         {
             if (data == null)
             {

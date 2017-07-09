@@ -6,10 +6,35 @@ using System.IO;
 
 namespace NTCPMessage.Serialize
 {
-    /// <summary>
-    /// This serializer only can be used for the class that only include simple data type properties
-    /// </summary>
-    public class SimpleBinSerializer : ISerialize
+
+    public class SimpleBinSerializer<T> : SimpleBinSerializer, ISerialize<T> where T :class
+    {
+        public SimpleBinSerializer():base(typeof(T))
+        {
+
+        }
+
+        public byte[] GetBytes(ref T obj)
+        {
+            return base.GetBytes(obj);
+        }
+
+        public new T GetObject(byte[] data)
+        {
+            if (null==data)
+            {
+                return default(T);
+            }
+
+            var obj = base.GetObject(data);
+
+            return obj as T;
+        }
+    }
+        /// <summary>
+        /// This serializer only can be used for the class that only include simple data type properties
+        /// </summary>
+        public class SimpleBinSerializer : ISerialize
     {
         #region static methods
 

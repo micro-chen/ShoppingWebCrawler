@@ -1,20 +1,4 @@
-﻿/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+﻿
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,6 +7,31 @@ using System.Net.Sockets;
 using System.Threading;
 
 using NTCPMessage.Serialize;
+using NTCPMessage.EntityPackage;
+
+/*
+
+这个类每次建立1个链接到服务器
+
+主要的方法：
+
+       AsyncSend： 这个方法发送异步消息到服务器
+
+       SyncSend： 这个方法发送同步消息到服务器
+
+       Connect： 这个方法用于和服务器建立连接时调用。这个方法有个 autoConnect 参数，如果这个参数为true，那么SingleConnection 类在和服务器断链后会尝试自动与服务器建链。这个是个比较实用的功能，调用者不需要考虑服务器连接中断后恢复的情况。
+
+主要事件:
+
+       ConnectedEventHandler: 这个事件在建立链接成功时触发
+
+       ErrorEventHandler: 这个事件在发生错误的情况下触发
+
+       RemoteDisconnected: 这个事件在和服务器断链时触发
+
+       ReceiveEventHandler: 这个事件当接收到直接从服务器推送过来的消息时触发。
+*/
+
 
 namespace NTCPMessage.Client
 {
@@ -312,6 +321,10 @@ namespace NTCPMessage.Client
 
         void ClearChannelForSync()
         {
+            if (null== _SyncMessageLock||null== _SyncMessageDict)
+            {
+                return;
+            }
             lock (_SyncMessageLock)
             {
                 foreach (SyncBlock syncBlock in _SyncMessageDict.Values)
@@ -494,8 +507,8 @@ namespace NTCPMessage.Client
             IPAddress bindIP = IPAddress.Any;
             this.BindIPEndPoint = new IPEndPoint(bindIP, 0);
             this.RemoteIPEndPoint = remoteIPEndPoint;
-            DefaultDataSerializer = new Serialize.BinSerializer();
-            DefaultReturnSerializer = new Serialize.BinSerializer();
+            DefaultDataSerializer = new Serialize.BinSerializer<object>();
+            DefaultReturnSerializer = new Serialize.JsonSerializer<DataResultContainer<object>>();
         }
 
         /// <summary>
@@ -507,8 +520,8 @@ namespace NTCPMessage.Client
         {
             this.BindIPEndPoint = new IPEndPoint(bindIPAddress, 0);
             this.RemoteIPEndPoint = remoteIPEndPoint;
-            DefaultDataSerializer = new Serialize.BinSerializer();
-            DefaultReturnSerializer = new Serialize.BinSerializer();
+            DefaultDataSerializer = new Serialize.BinSerializer<object>();
+            DefaultReturnSerializer = new Serialize.JsonSerializer<DataResultContainer<object>>();
         }
 
         /// <summary>
@@ -900,11 +913,11 @@ namespace NTCPMessage.Client
         /// <param name="evt">message event</param>
         /// <param name="obj">object need to be sent</param>
         /// <returns>object that contains the data that return from remote host</returns>
-        public object SyncSend(UInt32 evt, object obj)
+        public IDataContainer SyncSend(UInt32 evt, object obj)
         {
             byte[] ret = SyncSend(evt, 0, DefaultDataSerializer.GetBytes(obj), Timeout.Infinite);
 
-            return DefaultReturnSerializer.GetObject(ret);
+            return (IDataContainer)DefaultReturnSerializer.GetObject(ret);
         }
 
         /// <summary>
@@ -914,11 +927,11 @@ namespace NTCPMessage.Client
         /// <param name="obj">object need to be sent</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, or Timeout.Infinite (-1) to wait indefinitely. </param>
         /// <returns>object that contains the data that return from remote host</returns>
-        public object SyncSend(UInt32 evt, object obj, int millisecondsTimeout)
+        public IDataContainer SyncSend(UInt32 evt, object obj, int millisecondsTimeout)
         {
             byte[] ret = SyncSend(evt, 0, DefaultDataSerializer.GetBytes(obj), millisecondsTimeout);
 
-            return DefaultReturnSerializer.GetObject(ret);
+            return (IDataContainer)DefaultReturnSerializer.GetObject(ret);
         }
 
 
@@ -928,13 +941,13 @@ namespace NTCPMessage.Client
         /// <param name="evt">message event</param>
         /// <param name="obj">object need to be sent</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, or Timeout.Infinite (-1) to wait indefinitely. </param>
-        /// <param name="serializer">serializer for data and return data</param>
+        /// <param name="serializer">serializer for data</param>
         /// <returns>object that contains the data that return from remote host</returns>
-        public object SyncSend(UInt32 evt, object obj, int millisecondsTimeout, ISerialize serializer)
+        public IDataContainer SyncSend(UInt32 evt, object obj, int millisecondsTimeout, ISerialize serializer)
         {
             byte[] ret = SyncSend(evt, 0, serializer.GetBytes(obj), millisecondsTimeout);
 
-            return serializer.GetObject(ret);
+            return (IDataContainer)DefaultReturnSerializer.GetObject(ret);
         }
 
         /// <summary>
@@ -946,11 +959,11 @@ namespace NTCPMessage.Client
         /// <param name="dataSerializer">serializer for data</param>
         /// <param name="returnSerializer">serilaizer for return data</param>
         /// <returns>object that contains the data that return from remote host</returns>
-        public object SyncSend(UInt32 evt, object obj, int millisecondsTimeout, ISerialize dataSerializer, ISerialize returnSerializer)
+        public IDataContainer SyncSend(UInt32 evt, object obj, int millisecondsTimeout, ISerialize dataSerializer, ISerialize returnSerializer)
         {
             byte[] ret = SyncSend(evt, 0, dataSerializer.GetBytes(obj), millisecondsTimeout);
 
-            return returnSerializer.GetObject(ret);
+            return (IDataContainer)returnSerializer.GetObject(ret);
         }
 
         /// <summary>

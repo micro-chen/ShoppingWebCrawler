@@ -10,6 +10,8 @@ using NTCPMessage.Event;
 using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
 
+using Newtonsoft.Json;
+
 namespace ClientTest
 {
     class TestSingleConnectionCable
@@ -19,11 +21,18 @@ namespace ClientTest
         const int SyncTestCount = 100000;
         //const int SyncTestCount = 1000;
 
-        const int AsyncTestCount = 100000000;
+        const int AsyncTestCount = 1; //100000000;
         //const int AsyncTestCount = 1000;
 
         static string _IPAddress;
 
+        /// <summary>
+        /// 注意 这种数据接收 是接收服务器推送来的数据
+        /// 发送请求响应模式 必须用同步发送方法
+        /// 异步 是单向通信
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         static void ReceiveEventHandler(object sender, ReceiveEventArgs args)
         {
             Console.WriteLine("get event:{0}", args.Event);
@@ -67,14 +76,13 @@ namespace ClientTest
 
         static void TestASyncMessage(int count)
         {
-            Console.Write("Please input serialize type:(0:none, 1:bin, 2:xml, 3:json, 4: simplebin, 5: struct, 6: customer)");
+            Console.Write("Please input serialize type:(0:none, 1:bin, 2:xml, 3:json, 4: simplebin, 5: customer)");
             string strSerializeType = Console.ReadLine();
             int serializeType = 0;
             int.TryParse(strSerializeType, out serializeType);
 
-            ISerialize iSerializer = null;
-            ISerialize<StructMessage> iStructMessageSerializer = null;
-            ISerialize<TestMessage> iTestMessageSerializer = null;
+            ISerialize<SoapMessage> iSendMessageSerializer = null;
+            ISerialize<DataResultContainer<string>> iReturnDataSerializer = new NTCPMessage.Serialize.JsonSerializer<DataResultContainer<string>>();
 
             switch (serializeType)
             {
@@ -83,28 +91,24 @@ namespace ClientTest
                     break;
                 case 1:
                     strSerializeType = "bin";
-                    iSerializer = new BinSerializer();
-                    
+                    iSendMessageSerializer = new BinSerializer<SoapMessage>();
+
                     break;
                 case 2:
                     strSerializeType = "xml";
-                    iSerializer = new XMLSerializer(typeof(TestMessage));
+                    iSendMessageSerializer = new XMLSerializer<SoapMessage>();
                     break;
                 case 3:
                     strSerializeType = "json";
-                    iSerializer = new JsonSerializer(typeof(TestMessage));
+                    iSendMessageSerializer = new NTCPMessage.Serialize.JsonSerializer<SoapMessage>();
                     break;
                 case 4:
-                    iSerializer = new SimpleBinSerializer(typeof(TestMessage));
+                    iSendMessageSerializer = new SimpleBinSerializer<SoapMessage>();
                     strSerializeType = "simplebin";
                     break;
                 case 5:
-                    iStructMessageSerializer = new StructSerializer<StructMessage>();
-                    strSerializeType = "struct";
-                    break;
-                case 6:
-                    iTestMessageSerializer = new TestMessageSerializer();
-                     strSerializeType = "customer";
+                    iSendMessageSerializer = new SoapMessageSerializer();
+                    strSerializeType = "customer";
                     break;
 
                 default:
@@ -119,7 +123,7 @@ namespace ClientTest
             client.ReceiveEventHandler += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
             client.ErrorEventHandler += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
             client.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
-            
+
             try
             {
                 client.Connect();
@@ -132,11 +136,17 @@ namespace ClientTest
                 {
                     sw.Start();
 
+                    //---------基本类型 字符串明文消息发送-----------
                     try
                     {
                         for (int i = 0; i < count; i++)
                         {
-                            client.AsyncSend(10, buf);
+                            var buffer = Encoding.UTF8.GetBytes(DateTime.Now.ToString());
+                            var resultBytes = client.SyncSend(10, buffer);
+
+                            var str = Encoding.UTF8.GetString(resultBytes);
+
+                            Console.WriteLine(str);
                         }
                     }
                     catch (Exception e)
@@ -149,87 +159,72 @@ namespace ClientTest
                 }
                 else
                 {
-                    TestMessage testMessage = new TestMessage()
+
+                    ///标准soap消息发送
+                    var obj = new { spid = 1, ValueType = 9999 };
+                    string msg = JsonConvert.SerializeObject(obj);
+                    SoapMessage testMessage = new SoapMessage()
                     {
-                        Id = 1001,
-                        Name = "0123456789",
-                        Data = new byte[buf.Length]
+
+                        Head = "student",
+                        Body = msg
                     };
 
-                    StructMessage structMessage = new StructMessage()
-                    {
-                        Id = 1001,
-                        Name = "0123456789",
-                        //Url = "http://www.google.com",
-                        //Site = "google.com",
-                        Data = new byte[4]
-                    };
-
-                    for (int i = 0; i < testMessage.Data.Length; i++)
-                    {
-                        testMessage.Data[i] = (byte)i;
-                    }
-
-                    for (int i = 0; i < structMessage.Data.Length; i++)
-                    {
-                        structMessage.Data[i] = (byte)i;
-                    }
 
 
                     sw.Start();
 
-                    if (serializeType == 5)
+
+                    try
                     {
-                        try
+                        for (int i = 0; i < count; i++)
                         {
-                            for (int i = 0; i < count; i++)
+                            var repResult = client.SyncSend((UInt32)(20 + serializeType),
+                                testMessage,
+                                300000,
+                                iSendMessageSerializer);
+
+                            if (null != repResult)
                             {
-                                client.AsyncSend<StructMessage>((UInt32)(20 + serializeType), ref structMessage, iStructMessageSerializer);
+                                Console.WriteLine("from server response :{0}", repResult.Status);
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
                     }
-                    else if (serializeType == 6)
+                    catch (Exception e)
                     {
-                        try
-                        {
-                            for (int i = 0; i < count; i++)
-                            {
-                                client.AsyncSend<TestMessage>((UInt32)(20 + serializeType), ref testMessage, iTestMessageSerializer);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
+                        Console.WriteLine(e);
                     }
-                    else
-                    {
-                        try
-                        {
-                            for (int i = 0; i < count; i++)
-                            {
-                                client.AsyncSend((UInt32)(20 + serializeType), testMessage, iSerializer);
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-                    }
+
+                    //else
+                    //{
+                    //    try
+                    //    {
+                    //        for (int i = 0; i < count; i++)
+                    //        {
+                    //            //client.AsyncSend((UInt32)(20 + serializeType), testMessage, iSerializer);
+                    //            var repResult = client.SyncSend((UInt32)(20 + serializeType),ref testMessage, 88888888, iSendMessageSerializer, iReturnDataSerializer);
+
+                    //            if (null != repResult)
+                    //            {
+                    //                Console.WriteLine("from server response :{0}", repResult.Status);
+                    //            }
+                    //        }
+                    //    }
+                    //    catch (Exception e)
+                    //    {
+                    //        Console.WriteLine(e);
+                    //    }
+                    //}
                     sw.Stop();
                     Console.WriteLine("Finished. Elapse : {0} ms", sw.ElapsedMilliseconds);
 
                 }
-        
+
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                
+
             }
             finally
             {
@@ -299,7 +294,7 @@ namespace ClientTest
                     client.ReceiveEventHandler += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
                     client.ErrorEventHandler += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
                     client.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
-                   
+
                     client.Connect();
 
                     for (int i = 0; i < threadNumber; i++)

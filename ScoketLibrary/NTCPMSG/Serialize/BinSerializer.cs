@@ -7,11 +7,38 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace NTCPMessage.Serialize
 {
-    public class BinSerializer : ISerialize
+    public class BinSerializer<T> : ISerialize<T> where T :class
     {
+   
+
+
         #region ISerialize Members
 
-        public byte[] GetBytes(object obj)
+        public byte[] GetBytes(ref T obj)
+        {
+            return ((ISerialize)this).GetBytes(obj);
+        }
+
+        public T GetObject(byte[] data)
+        {
+            return ((ISerialize)this).GetObject(data) as T;
+        }
+
+      
+        object ISerialize.GetObject(byte[] data)
+        {
+            if (data == null)
+            {
+                return default(T);
+            }
+
+            MemoryStream ms = new MemoryStream(data);
+            IFormatter formatter = new BinaryFormatter();
+            var obj = formatter.Deserialize(ms);
+            return obj as T;
+        }
+
+         byte[] ISerialize.GetBytes(object obj)
         {
             if (obj == null)
             {
@@ -24,18 +51,6 @@ namespace NTCPMessage.Serialize
             ms.Flush();
 
             return ms.ToArray();
-        }
-
-        public object GetObject(byte[] data)
-        {
-            if (data == null)
-            {
-                return null;
-            }
-
-            MemoryStream ms = new MemoryStream(data);
-            IFormatter formatter = new BinaryFormatter();
-            return formatter.Deserialize(ms);
         }
 
         #endregion

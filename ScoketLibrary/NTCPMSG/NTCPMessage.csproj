@@ -66,6 +66,9 @@
     <Compile Include="Client\ProcessorCombine.cs" />
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
+    <Compile Include="EntityPackage\DataResultContainer.cs" />
+    <Compile Include="EntityPackage\IDataContainer.cs" />
+    <Compile Include="EntityPackage\SoapMessage.cs" />
     <Compile Include="Event\AcceptEventArgs.cs" />
     <Compile Include="Event\CableConnectedEventArgs.cs" />
     <Compile Include="Event\Delegates.cs" />
@@ -75,12 +78,20 @@
     <Compile Include="InnerEvent.cs" />
     <Compile Include="LittleEndianBitConverter.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="MessageConvert\BinMessageConvert.cs" />
+    <Compile Include="MessageConvert\CustomerSoapMessageConvert.cs" />
+    <Compile Include="MessageConvert\DefaultMessageConvert.cs" />
+    <Compile Include="MessageConvert\JsonMessageConvert.cs" />
+    <Compile Include="MessageConvert\SimpleBinMessageConvert.cs" />
+    <Compile Include="MessageConvert\XmlMessageConvert.cs" />
     <Compile Include="MessageFlag.cs" />
     <Compile Include="ProcessorThread.cs" />
     <Compile Include="Serialize\BinSerializer.cs" />
+    <Compile Include="Serialize\IMessageParse.cs" />
     <Compile Include="Serialize\ISerialize.cs" />
     <Compile Include="Serialize\JsonSerializer.cs" />
     <Compile Include="Serialize\MessageParse.cs" />
+    <Compile Include="Serialize\MessageType.cs" />
     <Compile Include="Serialize\SimpleBinSerializer.cs" />
     <Compile Include="Serialize\StructSerializer.cs" />
     <Compile Include="Serialize\XMLSerializer.cs" />
@@ -101,6 +112,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="EntityPackage\readMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\TCP-V1.3.0.0 Source code.zip" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

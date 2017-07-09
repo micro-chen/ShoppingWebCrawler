@@ -1,21 +1,4 @@
-﻿/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
@@ -25,7 +8,17 @@ using NTCPMessage.Client;
 using NTCPMessage.Event;
 
 using NTCPMessage.Serialize;
+using NTCPMessage.EntityPackage;
 
+/*
+这个类可以将多个链接绑定到一起和服务器通讯。有用TCP本身是基于滑动窗口协议的，
+单链路的发送速度受网络时延的影响，这也是TCP比UDP慢的一个原因。但由于TCP可以提供比UDP可靠的通讯，
+大部分对可靠性要求较高的系统还是要采用TCP方式发送消息。为了克服网络时延带来的性能下降，
+通过多链路同时发送是一个很好的解决方案，因为每个链路都独立维护一个窗口，链路之间是并行发送。
+实测下来，绑定多链路也确实比单链路的发送速度快很多。所以我一般推荐用 SingleConnectionCable
+这个类连接服务器。
+SingleConnectionCable 和 SingleConnection 的主要方法和事件是相同的，这里就不重复介绍了。
+*/
 namespace NTCPMessage.Client
 {
     /// <summary>
@@ -262,8 +255,8 @@ namespace NTCPMessage.Client
                 _PendingAsyncConnections.Enqueue(conn);
             }
 
-            DefaultDataSerializer = new Serialize.BinSerializer();
-            DefaultReturnSerializer = new Serialize.BinSerializer();
+            DefaultDataSerializer = new Serialize.BinSerializer<object>();
+            DefaultReturnSerializer = new Serialize.JsonSerializer<DataResultContainer<object>>();
 
             _SyncConnection = new SingleConnection(remoteIPEndPoint);
 
@@ -849,11 +842,11 @@ namespace NTCPMessage.Client
         /// <param name="evt">message event</param>
         /// <param name="obj">object need to be sent</param>
         /// <returns>object that contains the data that return from remote host</returns>
-        public object SyncSend(UInt32 evt, object obj)
+        public IDataContainer SyncSend(UInt32 evt, object obj)
         {
             byte[] ret = SyncSend(evt, DefaultDataSerializer.GetBytes(obj), Timeout.Infinite);
 
-            return DefaultReturnSerializer.GetObject(ret);
+            return (IDataContainer)DefaultReturnSerializer.GetObject(ret);
         }
 
         /// <summary>
@@ -863,11 +856,11 @@ namespace NTCPMessage.Client
         /// <param name="obj">object need to be sent</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, or Timeout.Infinite (-1) to wait indefinitely. </param>
         /// <returns>object that contains the data that return from remote host</returns>
-        public object SyncSend(UInt32 evt, object obj, int millisecondsTimeout)
+        public IDataContainer SyncSend(UInt32 evt, object obj, int millisecondsTimeout)
         {
             byte[] ret = SyncSend(evt, DefaultDataSerializer.GetBytes(obj), millisecondsTimeout);
 
-            return DefaultReturnSerializer.GetObject(ret);
+            return (IDataContainer)DefaultReturnSerializer.GetObject(ret);
         }
 
 
@@ -877,13 +870,13 @@ namespace NTCPMessage.Client
         /// <param name="evt">message event</param>
         /// <param name="obj">object need to be sent</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, or Timeout.Infinite (-1) to wait indefinitely. </param>
-        /// <param name="serializer">serializer for data and return data</param>
+        /// <param name="serializer">serializer for data</param>
         /// <returns>object that contains the data that return from remote host</returns>
-        public object SyncSend(UInt32 evt, object obj, int millisecondsTimeout, ISerialize serializer)
+        public IDataContainer SyncSend(UInt32 evt, object obj, int millisecondsTimeout, ISerialize serializer)
         {
             byte[] ret = SyncSend(evt, serializer.GetBytes(obj), millisecondsTimeout);
 
-            return serializer.GetObject(ret);
+            return (IDataContainer)DefaultReturnSerializer.GetObject(ret);
         }
 
         /// <summary>
@@ -895,11 +888,11 @@ namespace NTCPMessage.Client
         /// <param name="dataSerializer">serializer for data</param>
         /// <param name="returnSerializer">serilaizer for return data</param>
         /// <returns>object that contains the data that return from remote host</returns>
-        public object SyncSend(UInt32 evt, object obj, int millisecondsTimeout, ISerialize dataSerializer, ISerialize returnSerializer)
+        public IDataContainer SyncSend(UInt32 evt, object obj, int millisecondsTimeout, ISerialize dataSerializer, ISerialize returnSerializer)
         {
             byte[] ret = SyncSend(evt, dataSerializer.GetBytes(obj), millisecondsTimeout);
 
-            return returnSerializer.GetObject(ret);
+            return (IDataContainer)returnSerializer.GetObject(ret);
         }
 
         /// <summary>

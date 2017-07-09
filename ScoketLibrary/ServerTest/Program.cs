@@ -26,117 +26,17 @@ using NTCPMessage.Server;
 using NTCPMessage.Event;
 using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
+using NTCPMessage.MessageConvert;
 
 namespace ServerTest
 {
     class Program
     {
-        class BinMessageParse : MessageParse
-        {
-            public BinMessageParse()
-                : base(new BinSerializer(), new BinSerializer())
-            {
+      
 
-            }
+        
 
-            public override object ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, object obj)
-            {
-                //Console.WriteLine(obj);
 
-                return null;
-            }
-        }
-
-        class XmlTestMessageParse : MessageParse
-        {
-                       
-            public XmlTestMessageParse()
-                : base(new XMLSerializer(typeof(TestMessage)), new XMLSerializer(typeof(string)))
-            {
-
-            }
-
-            public override object ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, object obj)
-            {
-                //Console.WriteLine(obj);
-
-                return null;
-            }
-        }
-
-        class JsonTestMessageParse : MessageParse
-        {
-
-            public JsonTestMessageParse()
-                : base(new JsonSerializer(typeof(TestMessage)), new JsonSerializer(typeof(string)))
-            {
-
-            }
-
-            public override object ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, object obj)
-            {
-                //Console.WriteLine(obj);
-
-                return null;
-            }
-        }
-
-        class SimpleBinTestMessageParse : MessageParse
-        {
-
-            public SimpleBinTestMessageParse()
-                : base(new SimpleBinSerializer(typeof(TestMessage)), new SimpleBinSerializer(typeof(string)))
-            {
-
-            }
-
-            public override object ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, object obj)
-            {
-                //Console.WriteLine(obj);
-
-                return null;
-            }
-        }
-
-        class StructMessageParse : MessageParse<int, StructMessage>
-        {
-            /// <summary>
-            /// Constractor
-            /// </summary>
-            /// <param name="dataSerializer">serializer for input data</param>
-            /// <param name="returnSerializer">serializer for return data</param>
-            public StructMessageParse()
-                : base(new StructSerializer<StructMessage>(), new StructSerializer<int>())
-            {
-            }
-
-            public override int ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, StructMessage obj)
-            {
-                //Console.WriteLine(obj);
-
-                return 0;
-            }
-        }
-
-        class TestMessageParse : MessageParse<string, TestMessage>
-        {
-            /// <summary>
-            /// Constractor
-            /// </summary>
-            /// <param name="dataSerializer">serializer for input data</param>
-            /// <param name="returnSerializer">serializer for return data</param>
-            public TestMessageParse()
-                : base(new TestMessageSerializer(), new XMLSerializer<string>())
-            {
-            }
-
-            public override string ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, TestMessage obj)
-            {
-                //Console.WriteLine(obj);
-
-                return null;
-            }
-        }
 
 
         static NTCPMessage.Server.NTcpListener listener;
@@ -272,12 +172,12 @@ namespace ServerTest
             }
         }
 
-        static BinMessageParse _sBinParse = new BinMessageParse();
-        static XmlTestMessageParse _sXmlParse = new XmlTestMessageParse();
-        static JsonTestMessageParse _sJsonParse = new JsonTestMessageParse();
-        static SimpleBinTestMessageParse _sSimpleParse = new SimpleBinTestMessageParse();
-        static StructMessageParse _sStructMessageParse = new StructMessageParse();
-        static TestMessageParse _sCustomParse = new TestMessageParse();
+        static DefaultMessageConvert _sDefaultMsgConvert = new DefaultMessageConvert();
+        static BinMessageConvert _sBinConvert = new BinMessageConvert();
+        static XmlMessageConvert _sXmlConvert = new XmlMessageConvert();
+        static JsonMessageConvert _sJsonConvert = new JsonMessageConvert();
+        static SimpleBinMessageConvert _sSimpleConvert = new SimpleBinMessageConvert();
+        static CustomerSoapMessageConvert _sCustomConvert = new CustomerSoapMessageConvert();
 
         static void ReceiveEventHandler(object sender, ReceiveEventArgs args)
         {
@@ -287,28 +187,26 @@ namespace ServerTest
             switch (args.Event)
             {
                 case 10:
+                    _sDefaultMsgConvert.ReceiveEventHandler(sender, args);
                     break;
                 case 11:
                     //args.ReturnData = new byte[1];
                     //AddChannel(args.Channel);
                     break;
                 case 21:
-                    _sBinParse.ReceiveEventHandler(sender, args);
+                    _sBinConvert.ReceiveEventHandler(sender, args);
                     break;
                 case 22:
-                    _sXmlParse.ReceiveEventHandler(sender, args);
+                    _sXmlConvert.ReceiveEventHandler(sender, args);
                     break;
                 case 23:
-                    _sJsonParse.ReceiveEventHandler(sender, args);
+                    _sJsonConvert.ReceiveEventHandler(sender, args);
                     break;
                 case 24:
-                    _sSimpleParse.ReceiveEventHandler(sender, args);
+                    _sSimpleConvert.ReceiveEventHandler(sender, args);
                     break;
                 case 25:
-                    _sStructMessageParse.ReceiveEventHandler(sender, args);
-                    break;
-                case 26:
-                    _sCustomParse.ReceiveEventHandler(sender, args);
+                    _sCustomConvert.ReceiveEventHandler(sender, args);
                     break;
                 default:
                     break;

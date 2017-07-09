@@ -6,28 +6,15 @@ using System.Net;
 using NTCPMessage.Server;
 using NTCPMessage.Event;
 using NTCPMessage.Serialize;
-
+using NTCPMessage.MessageConvert;
+using NTCPMessage.EntityPackage;
 namespace Example
 {
     class Server
     {
-        class BinMessageParse : MessageParse
-        {
-            public BinMessageParse()
-                : base(new BinSerializer(), new BinSerializer())
-            {
+  
 
-            }
-
-            public override object ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, object obj)
-            {
-                Console.WriteLine(obj);
-
-                return null;
-            }
-        }
-
-        static BinMessageParse _sBinMessageParse = new BinMessageParse();
+        static BinMessageConvert  _sBinMessageParse = new BinMessageConvert();
 
         /// <summary>
         /// DataReceived event will be called back when server get message from client which connect to.

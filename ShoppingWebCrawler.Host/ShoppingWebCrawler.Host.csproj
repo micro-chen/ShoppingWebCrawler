@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppStart\InitApp.cs" />
+    <Compile Include="AppStart\RemoteServer.cs" />
     <Compile Include="Common\ConfigHelper.cs" />
     <Compile Include="Common\HttpServerProxy.cs" />
     <Compile Include="Common\HttpValueCollection.cs" />
@@ -142,20 +143,8 @@
     </Compile>
     <Compile Include="Headless\HeadLessWebBrowerApp.cs" />
     <Compile Include="Common\GlobalContext.cs" />
-    <Compile Include="MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\BaseForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\Form_ShowHtmlSource.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\Form_ShowHtmlSource.Designer.cs">
-      <DependentUpon>Form_ShowHtmlSource.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\SupportPlatform.cs" />
     <Compile Include="Vistors\LazyCookieVistor.cs" />
@@ -167,12 +156,6 @@
     <Compile Include="ToolStripSpringTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="UI\Form_ShowCookies.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\Form_ShowCookies.designer.cs">
-      <DependentUpon>Form_ShowCookies.cs</DependentUpon>
-    </Compile>
     <Compile Include="UI\Form_Test_Http.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -183,15 +166,6 @@
   <ItemGroup>
     <EmbeddedResource Include="UI\Form_BuyTicket.resx">
       <DependentUpon>Form_BuyTicket.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\Form_ShowCookies.resx">
-      <DependentUpon>Form_ShowCookies.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\Form_ShowHtmlSource.resx">
-      <DependentUpon>Form_ShowHtmlSource.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Form_Test_Http.resx">
       <DependentUpon>Form_Test_Http.cs</DependentUpon>
