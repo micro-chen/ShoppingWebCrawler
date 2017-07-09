@@ -28,7 +28,7 @@ namespace NTCPMessage.Event
 
         public EndPoint RemoteIPEndPoint { get; private set; }
 
-        internal MessageFlag Flag { get; private set; }
+        public MessageFlag Flag { get; private set; }
 
         public UInt16 CableId { get; private set; }
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
 
-namespace NTCPMessage.MessageConvert
+namespace Example2010.MessageConvert
 {
 
 

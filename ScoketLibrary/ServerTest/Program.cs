@@ -26,7 +26,7 @@ using NTCPMessage.Server;
 using NTCPMessage.Event;
 using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
-using NTCPMessage.MessageConvert;
+using ServerTest.MessageConvert;
 
 namespace ServerTest
 {

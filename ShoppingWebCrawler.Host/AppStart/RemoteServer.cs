@@ -9,7 +9,7 @@ using NTCPMessage.Server;
 using NTCPMessage.Event;
 using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
-using NTCPMessage.MessageConvert;
+using ShoppingWebCrawler.Host.MessageConvert;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -22,11 +22,8 @@ namespace ShoppingWebCrawler.Host.AppStart
 
 
         static NTCPMessage.Server.NTcpListener listener;
-        static Thread _Thread;
 
         static object _LockObj = new object();
-
-
 
         static List<UInt32> _Channels = new List<uint>();
 

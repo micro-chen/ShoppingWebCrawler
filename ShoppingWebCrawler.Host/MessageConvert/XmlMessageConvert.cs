@@ -1,25 +1,25 @@
-﻿using NTCPMessage.EntityPackage;
-using NTCPMessage.Serialize;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net;
+using NTCPMessage.Serialize;
+using NTCPMessage.EntityPackage;
 
-namespace NTCPMessage.MessageConvert
+namespace ShoppingWebCrawler.Host.MessageConvert
 {
 
 
     /// <summary>
-    /// 简单二进制消息转换
+    /// XML  消息转换
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class SimpleBinMessageConvert : MessageParse
-    {
+    public class XmlMessageConvert : MessageParse
+    { 
 
-        public SimpleBinMessageConvert()
-            : base(new SimpleBinSerializer<SoapMessage>(), new JsonSerializer<IDataContainer>())
+        public XmlMessageConvert()
+            : base(new XMLSerializer<SoapMessage>(), new JsonSerializer<IDataContainer>())
         {
 
         }
@@ -27,13 +27,12 @@ namespace NTCPMessage.MessageConvert
         public override IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, SoapMessage obj)
         {
             //Console.WriteLine(obj);
+
             var result = new DataResultContainer<string>();
             result.Result = "1111111111";
 
             return result;
-            
+           
         }
     }
-
-
 }

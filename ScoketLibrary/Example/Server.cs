@@ -6,8 +6,10 @@ using System.Net;
 using NTCPMessage.Server;
 using NTCPMessage.Event;
 using NTCPMessage.Serialize;
-using NTCPMessage.MessageConvert;
 using NTCPMessage.EntityPackage;
+
+using Example2010.MessageConvert;
+
 namespace Example
 {
     class Server

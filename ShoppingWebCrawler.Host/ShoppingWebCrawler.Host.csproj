@@ -134,6 +134,12 @@
     <Compile Include="Logging\LogEventArgs.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\MessageBulk.cs" />
+    <Compile Include="MessageConvert\BinMessageConvert.cs" />
+    <Compile Include="MessageConvert\CustomerSoapMessageConvert.cs" />
+    <Compile Include="MessageConvert\DefaultMessageConvert.cs" />
+    <Compile Include="MessageConvert\JsonMessageConvert.cs" />
+    <Compile Include="MessageConvert\SimpleBinMessageConvert.cs" />
+    <Compile Include="MessageConvert\XmlMessageConvert.cs" />
     <Compile Include="Models\Passenger.cs" />
     <Compile Include="UI\Form_BuyTicket.cs">
       <SubType>Form</SubType>

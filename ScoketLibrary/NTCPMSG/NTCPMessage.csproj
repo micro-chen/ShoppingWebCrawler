@@ -78,12 +78,6 @@
     <Compile Include="InnerEvent.cs" />
     <Compile Include="LittleEndianBitConverter.cs" />
     <Compile Include="Message.cs" />
-    <Compile Include="MessageConvert\BinMessageConvert.cs" />
-    <Compile Include="MessageConvert\CustomerSoapMessageConvert.cs" />
-    <Compile Include="MessageConvert\DefaultMessageConvert.cs" />
-    <Compile Include="MessageConvert\JsonMessageConvert.cs" />
-    <Compile Include="MessageConvert\SimpleBinMessageConvert.cs" />
-    <Compile Include="MessageConvert\XmlMessageConvert.cs" />
     <Compile Include="MessageFlag.cs" />
     <Compile Include="ProcessorThread.cs" />
     <Compile Include="Serialize\BinSerializer.cs" />

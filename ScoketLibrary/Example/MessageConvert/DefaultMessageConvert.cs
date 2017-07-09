@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NTCPMessage.Serialize;
 
-namespace NTCPMessage.MessageConvert
+namespace Example2010.MessageConvert
 {
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace NTCPMessage.MessageConvert
                 args.ReturnData = null;
             }
         }
-        public IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, string obj)
+        public virtual IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, string obj)
         {
             //Console.WriteLine(obj);
             var result = new DataResultContainer<string>();

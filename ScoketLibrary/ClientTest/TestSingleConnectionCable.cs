@@ -11,6 +11,7 @@ using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
 
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace ClientTest
 {
@@ -21,8 +22,7 @@ namespace ClientTest
         const int SyncTestCount = 100000;
         //const int SyncTestCount = 1000;
 
-        const int AsyncTestCount = 1; //100000000;
-        //const int AsyncTestCount = 1000;
+        const int AsyncTestCount = 10000; //100000000;
 
         static string _IPAddress;
 
@@ -177,18 +177,34 @@ namespace ClientTest
 
                     try
                     {
+                        //模拟并发
+                        Task[] tks = new Task[count];
+
                         for (int i = 0; i < count; i++)
                         {
-                            var repResult = client.SyncSend((UInt32)(20 + serializeType),
-                                testMessage,
-                                300000,
-                                iSendMessageSerializer);
+                            //client.AsyncSend((UInt32)(20 + serializeType),
+                            //    ref testMessage,
+                            //    iSendMessageSerializer);
 
-                            if (null != repResult)
+                            var t=Task<object>.Factory.StartNew(() =>
                             {
-                                Console.WriteLine("from server response :{0}", repResult.Status);
-                            }
+                                var repResult = client.SyncSend((UInt32)(20 + serializeType),
+                                testMessage, 1000,
+                               iSendMessageSerializer);
+                                return repResult;
+                            });
+                            tks[i] = t;
+
+
+
+
+                            //if (null != repResult)
+                            //{
+                            //    Console.WriteLine("from server response :{0}", repResult.Status);
+                            //}
                         }
+
+                        Task.WaitAll(tks);
                     }
                     catch (Exception e)
                     {
