@@ -2,8 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using ShoppingWebCrawler.Host.UI;
+
 
 using System.Net;
 
@@ -115,13 +114,32 @@ namespace ShoppingWebCrawler.Host
 
                         try
                         {
+                            //将cookies 放置到指定的网址 key的 CookieContainer中
                             var ckVisitor = new LazyCookieVistor();
                             var cks = ckVisitor.LoadCookies(url);
-                            GlobalContext.SupportPlatformsCookiesContainer[url] = cks;
+                            var ckContainer = new CookieContainer();
+                            foreach (CefCookie item in cks)
+                            {
+                                var name = item.Name;
+                                var value = item.Value;
+                                Cookie ck = new Cookie(name, value);
+                                ck.Domain = item.Domain;
+                                ck.Path = item.Path;
+                                ck.HttpOnly = item.HttpOnly;
+                                ck.Secure = item.Secure;
+
+                                if (null != item.Expires)
+                                {
+                                    ck.Expires = (DateTime)item.Expires;
+                                }
+                                ckContainer.Add(ck);
+
+                            }
+                            GlobalContext.SupportPlatformsCookiesContainer[url] = ckContainer;
                         }
                         catch
                         {
-                           Logging.Logger.WriteToLog(new Logging.LogEventArgs { LogMessage = string.Format("未能从指定的URL 成功获取Cookies.URL: {0} ", url), LogType= Logging.LoggingType.Error});
+                            Logging.Logger.WriteToLog(new Logging.LogEventArgs { LogMessage = string.Format("未能从指定的URL 成功获取Cookies.URL: {0} ", url), LogType = Logging.LoggingType.Error });
 
                         }
                     });

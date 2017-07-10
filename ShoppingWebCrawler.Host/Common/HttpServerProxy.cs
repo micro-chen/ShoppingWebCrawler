@@ -34,6 +34,36 @@ namespace ShoppingWebCrawler.Host.Http
         Binary
     }
 
+
+    /// <summary>
+    /// 将HttpClient的  Cookies容器暴露
+    /// </summary>
+    public class CookedHttpClient
+    {
+        public HttpClient Client { get; set; }
+
+        /// <summary>
+        /// 暴露的HttpClinet 实例的Cookies
+        /// </summary>
+        public CookieContainer Cookies { get; set; }
+
+
+        private HttpClientHandler _clientHander;
+        public CookedHttpClient() : this(2000)
+        {
+        }
+        public CookedHttpClient(int timeOut)
+        {
+
+            //保持 Cookie 容器 跟httpclient  之间的引用关系
+            this.Cookies = new CookieContainer();
+            this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies };
+            this.Client = new HttpClient(_clientHander);
+            this.Client.Timeout = TimeSpan.FromMilliseconds(2000);
+        }
+
+    }
+
     /// <summary>
     /// 服务端  请求转发代理类
     /// 将客户端的请求 转发到指定的地址，进行ISV数据接入

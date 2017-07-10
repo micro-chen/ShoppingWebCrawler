@@ -78,7 +78,7 @@ namespace ShoppingWebCrawler.Host
         {
 
             string result = null;
-            var response = this.CreateGetHttpResponse(url, 10000, null);
+            var response = this.CreateGetHttpResponse(url,"", 10000, null);
             if (null != response)
             {
                 Stream answer = response.GetResponseStream();
@@ -107,7 +107,7 @@ namespace ShoppingWebCrawler.Host
         /// <param name="userAgent">请求的客户端浏览器信息，可以为空</param>  
         /// <param name="cookies">随同HTTP请求发送的Cookie信息，如果不需要身份验证可以为空</param>  
         /// <returns></returns>  
-        public HttpWebResponse CreateGetHttpResponse(string url, int? timeout = null, CookieCollection cookies = null)
+        public HttpWebResponse CreateGetHttpResponse(string url,string tranf="", int? timeout = null, CookieCollection cookies = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -142,11 +142,16 @@ namespace ShoppingWebCrawler.Host
             request.Method = "GET";
             request.UserAgent = DefaultUserAgent;
             request.CookieContainer = GlobleCookieContainer;//设定为共享Cookie容器
-            request.Accept = "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01";
+            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8";
             request.KeepAlive = true;
             request.Timeout = 5000;
-
-
+            request.Host = "s.click.taobao.com";
+            request.Headers.Add("Upgrade-Insecure-Requests", "1");
+            request.Headers.Add("Accept-Language", "zh-CN,zh;q=0.8");
+            if (!string.IsNullOrEmpty(tranf))
+            {
+                request.Referer = tranf;
+            }
             if (timeout.HasValue)
             {
                 request.Timeout = timeout.Value;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using System.Threading;
 
 using ShoppingWebCrawler.Cef.Core;
@@ -60,7 +59,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                 LogSeverity = CefLogSeverity.Disable,
                 //LogFile = "CefGlue.log",
                 NoSandbox = true,
-            
+                UserAgent=GlobalContext.ChromeUserAgent,
                 UserDataPath =System.IO.Path.Combine(Environment.CurrentDirectory,"UserData"),
                 CachePath = System.IO.Path.Combine(Environment.CurrentDirectory, "LocalCache")
             };

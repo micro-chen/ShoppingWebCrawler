@@ -68,7 +68,9 @@
     <Compile Include="Client\SingleConnectionCable.cs" />
     <Compile Include="EntityPackage\DataResultContainer.cs" />
     <Compile Include="EntityPackage\IDataContainer.cs" />
+    <Compile Include="EntityPackage\FetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\SoapMessage.cs" />
+    <Compile Include="EntityPackage\SupportPlatform.cs" />
     <Compile Include="Event\AcceptEventArgs.cs" />
     <Compile Include="Event\CableConnectedEventArgs.cs" />
     <Compile Include="Event\Delegates.cs" />

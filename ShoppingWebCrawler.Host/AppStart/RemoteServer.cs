@@ -4,6 +4,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 using NTCPMessage.Server;
 using NTCPMessage.Event;
@@ -17,7 +18,7 @@ namespace ShoppingWebCrawler.Host.AppStart
     /// <summary>
     /// 开启套接字监听
     /// </summary>
-    internal sealed  class RemoteServer
+    internal sealed class RemoteServer
     {
 
 
@@ -64,27 +65,15 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         /// <summary>
         /// 默认的字符串消息转换器
+        /// 提供字符串 cmd的 支持
         /// </summary>
         static DefaultMessageConvert _sDefaultConvert = new DefaultMessageConvert();
-        /// <summary>
-        /// 二进制消息转换器
-        /// </summary>
-        static BinMessageConvert _sBinConvert = new BinMessageConvert();
-        /// <summary>
-        /// xml 消息转换器
-        /// </summary>
-        static XmlMessageConvert _sXmlConvert = new XmlMessageConvert();
 
         /// <summary>
         /// json 消息转换器
         /// </summary>
         static JsonMessageConvert _sJsonConvert = new JsonMessageConvert();
 
-
-        /// <summary>
-        /// 简单二进制消息转换器
-        /// </summary>
-        static SimpleBinMessageConvert _sSimpleConvert = new SimpleBinMessageConvert();
 
         /// <summary>
         /// 自定义的消息转换器
@@ -95,30 +84,39 @@ namespace ShoppingWebCrawler.Host.AppStart
         static void ReceiveEventHandler(object sender, ReceiveEventArgs args)
         {
 
+            //    case MessageType.Bin:
+            //        _sBinConvert.ReceiveEventHandler(sender, args);
+            //break;
+            //    case MessageType.Xml:
+            //        _sXmlConvert.ReceiveEventHandler(sender, args);
+            //break;
+            //    case MessageType.SimpleBin:
+            //        _sSimpleConvert.ReceiveEventHandler(sender, args);
+            //break;
+
             //注意 不支持 自定义格式的消息，因为自定义格式的消息 还需要传递 自定义格式转换器类型
-            switch ((MessageType)args.Event)
+            MessageType msgType = (MessageType)args.Event;
+            switch (msgType)
             {
                 case MessageType.None:
                     _sDefaultConvert.ReceiveEventHandler(sender, args);
                     break;
-                case MessageType.Bin:
-                    _sBinConvert.ReceiveEventHandler(sender, args);
-                    break;
-                case MessageType.Xml:
-                    _sXmlConvert.ReceiveEventHandler(sender, args);
-                    break;
+            
                 case MessageType.Json:
                     _sJsonConvert.ReceiveEventHandler(sender, args);
                     break;
-                case MessageType.SimpleBin:
-                    _sSimpleConvert.ReceiveEventHandler(sender, args);
-                    break;
+              
                 case MessageType.Customer:
                     _sCustomConvert.ReceiveEventHandler(sender, args);
                     break;
 
                 default:
-                    break;
+                    string errMsg = string.Format("未能识别的消息格式，支持 1普通字符串  2 json 和 3自定义的序列化格式！传入的格式为：{0}", msgType.ToString());
+                    var ex= new Exception(errMsg);
+                    Logging.Logger.WriteException(ex);
+                    throw ex;
+                  
+                    
             }
             //Console.WriteLine("get event:{0}", args.Event);
         }
@@ -139,23 +137,34 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// 开启套接字监听
         /// </summary>
 
-        public static void Start()
+        public static Task Start()
         {
             if (System.IO.File.Exists("channel.txt"))
             {
                 System.IO.File.Delete("channel.txt");
             }
 
+            //开启 异步的启动任务，由于在内部进行了线程阻塞，所以task 永远不会complete
+            return Task.Factory.StartNew(() =>
+            {
 
-            int port = GlobalContext.SocketPort;
-            listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
-            listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
-            listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
-            listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
+                int port = GlobalContext.SocketPort;
+                listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
+                listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
+                listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
+                listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
 
-            listener.Listen();
+                listener.Listen();
 
-            System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+                System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+
+            });
+
+
+
+
+
+
         }
 
     }

@@ -7,6 +7,8 @@ using System.Threading;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Models;
 using ShoppingWebCrawler.Host.Ioc;
+using NTCPMessage.EntityPackage;
+using System.Net;
 
 namespace ShoppingWebCrawler.Host
 {
@@ -30,9 +32,27 @@ namespace ShoppingWebCrawler.Host
             }
         }
 
+        private static string _ChromeUserAgent = string.Empty;
+        /// <summary>
+        /// 浏览器的UA标识
+        /// </summary>
+        public static string ChromeUserAgent
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_ChromeUserAgent))
+                {
+                    string uaConfig = ConfigHelper.GetConfig("UserAgent");
+                    _ChromeUserAgent = uaConfig;
+                }
+
+                return _ChromeUserAgent;
+            }
+        }
+
 
         private static object _locker_SocketPort = new object();
-        static int _DefaultSocketPort;
+        static int _DefaultSocketPort = 0;
         /// <summary>
         /// 远程服务套接字端口
         /// </summary>
@@ -45,10 +65,10 @@ namespace ShoppingWebCrawler.Host
                     lock (_locker_SocketPort)
                     {
 
-                        int _DefaultSocketPort = ConfigHelper.GetConfigInt("Port");
+                        _DefaultSocketPort = ConfigHelper.GetConfigInt("Port");
                         if (_DefaultSocketPort <= 0)
                         {
-                            _DefaultSocketPort = 6689;
+                            _DefaultSocketPort = 10086;
                         }
 
                     }
@@ -76,9 +96,9 @@ namespace ShoppingWebCrawler.Host
                     lock (_locker_SupportPlatform)
                     {
 
-                        var allPlatforms = SupportPlatform.LoadConfig();
+                        var allPlatforms = SupportPlatformLoader.LoadConfig();
                         _SupportPlatforms = allPlatforms;
-                        SupportPlatform.MonitorConfigFile((s, e) =>
+                        SupportPlatformLoader.MonitorConfigFile((s, e) =>
                         {
                             if (null == e)
                             {
@@ -105,11 +125,11 @@ namespace ShoppingWebCrawler.Host
         /// <summary>
         /// 所有平台的 cookie 字典容器，按照网址对Cookie进行了key区分
         /// </summary>
-        public static IDictionary<string, IEnumerable<CefCookie>> SupportPlatformsCookiesContainer
+        public static IDictionary<string, CookieContainer> SupportPlatformsCookiesContainer
         {
             get
             {
-                return SingletonDictionary<string, IEnumerable<CefCookie>>.Instance;
+                return SingletonDictionary<string, CookieContainer>.Instance;
             }
         }
 

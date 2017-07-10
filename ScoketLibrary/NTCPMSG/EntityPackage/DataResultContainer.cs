@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NTCPMessage.EntityPackage
 {
-    public class DataResultContainer<T>:IDataContainer
+    public class DataResultContainer<T> : IDataContainer
     {
         public DataResultContainer()
         {
@@ -27,5 +27,16 @@ namespace NTCPMessage.EntityPackage
         public T Result { get; set; }
 
 
+
+        /// <summary>
+        /// 返回空的内容消息容器
+        /// </summary>
+        /// <returns></returns>
+        public static IDataContainer CreateNullDataContainer()
+        {
+
+            return new DataResultContainer<string> { Status = 0, ErrorMsg = "参数未能被识别或者为空！" };
+
+        }
     }
 }
