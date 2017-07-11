@@ -16,16 +16,16 @@ namespace ShoppingWebCrawler.Host.Headless
         private readonly HeadLessCefLoadHandler _loadHandler;
         private readonly HeadLessCefRenderHandler _renderHandler;
         private readonly HeadLessCefWebLifeSpanHandler _lifeSpanHandler;
+        private readonly HeadLessWebRequestHandler _requestHandler;
 
 
-  
 
         public HeadLessCefClient(int windowWidth, int windowHeight)
         {
             _loadHandler = new HeadLessCefLoadHandler();
             _renderHandler = new HeadLessCefRenderHandler(windowWidth, windowHeight);
             _lifeSpanHandler = new HeadLessCefWebLifeSpanHandler();
-
+            _requestHandler = new HeadLessWebRequestHandler();
         }
 
         /// <summary>
@@ -40,6 +40,12 @@ namespace ShoppingWebCrawler.Host.Headless
         }
 
 
+
+
+        protected override CefRequestHandler GetRequestHandler()
+        {
+            return _requestHandler;
+        }
         protected override CefLifeSpanHandler GetLifeSpanHandler()
         {
             return _lifeSpanHandler;

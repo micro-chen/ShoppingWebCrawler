@@ -127,6 +127,7 @@
     <Compile Include="Handlers\HeadLessCefLoadHandler.cs" />
     <Compile Include="Handlers\HeadLessCefRenderHandler.cs" />
     <Compile Include="Handlers\HeadLessCefWebLifeSpanHandler.cs" />
+    <Compile Include="Handlers\HeadLessWebRequestHandler.cs" />
     <Compile Include="Handlers\WebCrawlerBrowserProcessHandler.cs" />
     <Compile Include="Handlers\WebCrawlerRenderProcessHandler.cs" />
     <Compile Include="HeadLessMainForm.cs" />
