@@ -3,74 +3,23 @@ using System.Collections.Generic;
 
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.AppStart;
-
+using System.Collections.Specialized;
+using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
 
 namespace ShoppingWebCrawler.Host
 { 
     internal static class Program
     {
-
-        private static string ConvertTaobaoKeUrlToCommon(string encryUrl) {
-
-            var schema = "https";
-            var qs = encryUrl.Split('?')[encryUrl.Split('?').Length - 1].Split('&');
-            var qso = new Dictionary<string, string>();
-            for (var i = 0; i < qs.Length; i++)
-            {
-                if (qs[i] != "")
-                {
-                    var tmpa = qs[i].Split('=');
-                    qso[tmpa[0]] = !string.IsNullOrEmpty(tmpa[1]) ? tmpa[1] : "";
-                }
-            }
-
-            if (!qso.ContainsKey("tu"))
-            {
-                throw new Exception(string.Concat("未能转换此加密淘宝客链接：", encryUrl));
-
-            }
-
-            string jump_url=string.Empty;
-            if (qso["tu"].IndexOf("https") == 0)
-            {
-                jump_url = qso["tu"].Substring(5);
-            }
-            else if (qso["tu"].IndexOf("http") == 0)
-            {
-                jump_url = qso["tu"].Substring(4);
-            }
-          
-
-            var jump_address = schema + jump_url;
-
-            var real_jump_address = Microsoft.JScript.GlobalObject.unescape(jump_address);
-
-            return real_jump_address;
-
-        }
+       
 
         [STAThread]
         private static void Main(string[] args)
         {
             //return InitApp.Init(args);
 
-
-            string url = "http://s.click.taobao.com/t?spm=1002.8113010.1999451596.1.197829d2jvKq9J&e=m%3D2%26s%3Dxx7h3yvW%2FlwcQipKwQzePOeEDrYVVa64szgHCoaJEBXomhrxaV0k4ZAA5CqNKnVlalBUWfSYtdXqadVuhJq1oW37Sy0WpaHc0S8eIUiNHrwNztF5RF%2BnklwTri0BQMnX1tZRX7Kk0roGkzEdSUwZLhvt%2FrpwP7nD09XRW5e8YPIgsgo%2FaWiDiMYl7w3%2FA2kb";
-
-            var httpHelper = new HttpClassicClientHelper();
-            var resp = httpHelper.CreateGetHttpResponse(url);//.// new Http.CookedHttpClient().Client.GetStringAsync(url).Result;
-
-            string tuUrl = resp.ResponseUri.AbsoluteUri;
-
-            string realUrl = ConvertTaobaoKeUrlToCommon(tuUrl);
-
-            var resp2 = httpHelper.CreateGetHttpResponse(realUrl,tuUrl,50000);
-
-           //string content = httpHelper.CreateGetHttpResponse(tuUrl, System.Text.Encoding.UTF8);
-
-            return;
-
-
+            //string url = "http://s.click.taobao.com/t?spm=1002.8113010.1999451588.1.197829d2xOjGWY&e=m%3D2%26s%3DmP8QGUZCl18cQipKwQzePOeEDrYVVa64LKpWJ%2Bin0XK3bLqV5UHdqU7FFcTKJEXpBuky%2F0Sep%2BFpvEi8xmC0PQfgGrPFD%2FD7ItsJf7xhZUukOrdzMLy3g0C9MWo3ZAy5ZtvIAOb0yL8buZkKjgqa4LRqys2RxTiLmiP8wiUuCvFDEV8PXh1a5UciGQ2l2vvBJoe7ipwP0MtRLBgaW5udaw%3D%3D";
+            //var rl = TaobaoWebPageService.GetTaobaoUnionOfficalUrl(url);
+            //return;
 
             try
             {
@@ -80,7 +29,7 @@ namespace ShoppingWebCrawler.Host
                 var appForm = new HeadLessMainForm();
                 appForm.Start();
 
-               
+
 
             }
             catch (Exception ex)
@@ -102,5 +51,6 @@ namespace ShoppingWebCrawler.Host
             // Clean up CEF.
             CefRuntime.Shutdown();
         }
+
     }
 }

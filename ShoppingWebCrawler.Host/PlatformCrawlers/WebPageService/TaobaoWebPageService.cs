@@ -54,7 +54,89 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
         }
 
+         /// <summary>
+        /// 爆淘宝联盟的链接-根据淘宝官方跳转js解析算法
+        /// 使用postman  发送淘宝客链接可以得到这个算法
+        /// </summary>
+        /// <param name="encryUrl"></param>
+        public static string GetTaobaoUnionOfficalUrl(string encryUrl)
+        {
+            //示范：下面为淘宝客加密的链接--从一淘过来的
+            //string url = "http://s.click.taobao.com/t?spm=1002.8113010.1999451596.1.197829d2jvKq9J&e=m%3D2%26s%3Dxx7h3yvW%2FlwcQipKwQzePOeEDrYVVa64szgHCoaJEBXomhrxaV0k4ZAA5CqNKnVlalBUWfSYtdXqadVuhJq1oW37Sy0WpaHc0S8eIUiNHrwNztF5RF%2BnklwTri0BQMnX1tZRX7Kk0roGkzEdSUwZLhvt%2FrpwP7nD09XRW5e8YPIgsgo%2FaWiDiMYl7w3%2FA2kb";
 
+            var httpHelper = new HttpRequestHelper();
+            var requestHeaders = new NameValueCollection();
+            requestHeaders.Add("Host", "s.click.taobao.com");
+            requestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            var resp = httpHelper.CreateGetHttpResponse(encryUrl, requestHeaders);//.// new Http.CookedHttpClient().Client.GetStringAsync(url).Result;
+
+            string tuUrl = resp.ResponseUri.AbsoluteUri;
+
+            string realUrl = TaobaoWebPageService.ConvertTaobaoKeUrlToRealUrl(tuUrl);
+
+
+            requestHeaders.Add("Referer", tuUrl);
+            var resp2 = httpHelper.CreateGetHttpResponse(realUrl, requestHeaders, 50000);
+
+            string carshedUrl = resp2.ResponseUri.AbsoluteUri;
+
+            return carshedUrl;
+        }
+
+
+        /// <summary>
+        /// 获取耳机跳转 tuUrl
+        /// </summary>
+        /// <param name="tuUrl"></param>
+        /// <returns></returns>
+        private static string ConvertTaobaoKeUrlToRealUrl(string tuUrl)
+        {
+
+            var schema = string.Empty;
+            if (tuUrl.IndexOf("https://") == 0)
+            {
+                schema = "https";
+            }
+            else
+            {
+                schema = "http";
+            }
+
+            var qs = tuUrl.Split('?')[tuUrl.Split('?').Length - 1].Split('&');
+            var qso = new Dictionary<string, string>();
+            for (var i = 0; i < qs.Length; i++)
+            {
+                if (qs[i] != "")
+                {
+                    var tmpa = qs[i].Split('=');
+                    qso[tmpa[0]] = !string.IsNullOrEmpty(tmpa[1]) ? tmpa[1] : "";
+                }
+            }
+
+            if (!qso.ContainsKey("tu"))
+            {
+                throw new Exception(string.Concat("未能转换此加密淘宝客链接：", tuUrl));
+
+            }
+
+            string jump_url = string.Empty;
+            if (qso["tu"].IndexOf("https") == 0)
+            {
+                jump_url = qso["tu"].Substring(5);
+            }
+            else if (qso["tu"].IndexOf("http") == 0)
+            {
+                jump_url = qso["tu"].Substring(4);
+            }
+
+
+            var jump_address = schema + jump_url;
+
+            var real_jump_address = Microsoft.JScript.GlobalObject.unescape(jump_address);
+
+            return real_jump_address;
+
+        }
 
         /// <summary>
         /// 查询网页

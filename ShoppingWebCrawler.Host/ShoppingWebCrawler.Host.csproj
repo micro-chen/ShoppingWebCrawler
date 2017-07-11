@@ -118,7 +118,7 @@
     <Compile Include="Common\ConfigHelper.cs" />
     <Compile Include="Common\HttpServerProxy.cs" />
     <Compile Include="Common\HttpValueCollection.cs" />
-    <Compile Include="Common\HttpClassicClientHelper.cs" />
+    <Compile Include="Common\HttpRequestHelper.cs" />
     <Compile Include="Common\JavascriptRegex.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\RunningLocker.cs" />

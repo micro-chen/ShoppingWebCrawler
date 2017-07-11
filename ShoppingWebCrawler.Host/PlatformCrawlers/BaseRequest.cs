@@ -22,7 +22,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers
         /// 静态公共头信息  由于是静态头信息，所以不要添加键值对
         /// 直接使用键 访问修改值即可
         /// </summary>
-        public static NameValueCollection GetCommonRequestHeaders()
+        protected static NameValueCollection GetCommonRequestHeaders()
         {
 
             var commonRequestHeaders = new NameValueCollection();
