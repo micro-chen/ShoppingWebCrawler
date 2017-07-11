@@ -39,8 +39,13 @@ namespace ShoppingWebCrawler.Host.Headless
             return loader;
         }
 
-
-
+        /// <summary>
+        /// 暴露此client 的请求处理实例
+        /// </summary>
+        /// <returns></returns>
+        public HeadLessWebRequestHandler GetRequestHandlerInstance() {
+            return _requestHandler;
+        }
 
         protected override CefRequestHandler GetRequestHandler()
         {

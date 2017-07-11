@@ -13,6 +13,7 @@ namespace ShoppingWebCrawler.Host.Handlers
     {
         public CefBrowser Browser { get; set; }
     }
+
     internal class HeadLessCefLoadHandler : CefLoadHandler
     {
 
@@ -29,6 +30,10 @@ namespace ShoppingWebCrawler.Host.Handlers
         /// 加载完毕事件
         /// </summary>
         public event EventHandler<LoadEndEventArgs> LoadEnd;
+
+
+
+
 
         protected override void OnLoadStart(CefBrowser browser, CefFrame frame)
         {

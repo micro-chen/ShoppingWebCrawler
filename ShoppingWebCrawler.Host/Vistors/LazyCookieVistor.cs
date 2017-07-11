@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ShoppingWebCrawler.Cef.Core;
 using System.Threading.Tasks;
+using System.Net;
 
 namespace ShoppingWebCrawler.Host
 {
@@ -83,7 +84,85 @@ namespace ShoppingWebCrawler.Host
         }
 
 
+        /// <summary>
+        /// 加载Cookies 并返回Cookeie 容器
+        /// </summary>
+        public CookieContainer LoadCookieContainer(string domain)
+        {
+            if (string.IsNullOrEmpty(domain))
+            {
+                return null;
+            }
 
+            var results = this.LoadCookiesCollection(domain);
+
+            var ckContainer = new CookieContainer();
+            foreach (Cookie item in results)
+            {
+                ckContainer.Add(item);
+            }
+            return ckContainer;
+
+        }
+
+        /// <summary>
+        /// Delete all cookies that match the specified parameters. 
+        ///  If only |url| is specified all host cookies (but not domain cookies) irrespective of path will be deleted.
+        /// If both |url| and
+        /// |cookie_name| values are specified all host and domain cookies matching
+        /// both will be deleted. If |url| is empty all
+        /// cookies for all hosts and domains will be deleted. If |callback| is
+        /// non-NULL it will be executed asnychronously on the IO thread after the
+        /// cookies have been deleted. Returns false if a non-empty invalid URL is
+        /// specified or if cookies cannot be accessed. Cookies can alternately be
+        /// deleted using the Visit*Cookies() methods.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="cookieName"></param>
+        /// <returns></returns>
+        public bool DeleteCookies(string url,string cookieName) {
+            var result = false;
+
+            try
+            {
+                var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
+                result = ckManager.DeleteCookies(url, cookieName,null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 转换 cef  cookie集合 为 CookieCollection
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        public CookieCollection LoadCookiesCollection(string domain)
+        {
+            var cks = this.LoadCookies(domain);
+            var lst = new CookieCollection();
+            foreach (CefCookie item in cks)
+            {
+                var name = item.Name;
+                var value = item.Value;
+                Cookie ck = new Cookie(name, value);
+                ck.Domain = item.Domain;
+                ck.Path = item.Path;
+                ck.HttpOnly = item.HttpOnly;
+                ck.Secure = item.Secure;
+
+                if (null != item.Expires)
+                {
+                    ck.Expires = (DateTime)item.Expires;
+                }
+                lst.Add(ck);
+            }
+            return lst;
+        }
         /// <summary>
         /// 加载Cookies
         /// </summary>
@@ -123,7 +202,9 @@ namespace ShoppingWebCrawler.Host
 
             var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
             ckManager.VisitUrlCookies(domain, true, this);
-             
+
+
+           
             return this._tcs.Task;
         }
 

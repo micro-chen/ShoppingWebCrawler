@@ -50,6 +50,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="CefWebClient.cs" />
+    <Compile Include="FilterSpecialUrlEventArgs.cs" />
     <Compile Include="Handler\CefWebLifeSpanHandler.cs" />
     <Compile Include="Handler\CefWebDisplayHandler.cs" />
     <Compile Include="Handler\CefWebLoadHandler.cs" />

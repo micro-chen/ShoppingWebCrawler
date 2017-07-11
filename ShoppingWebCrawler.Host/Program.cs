@@ -15,19 +15,24 @@ namespace ShoppingWebCrawler.Host
         [STAThread]
         private static void Main(string[] args)
         {
-            //return InitApp.Init(args);
+
+
 
             //string url = "http://s.click.taobao.com/t?spm=1002.8113010.1999451588.1.197829d2xOjGWY&e=m%3D2%26s%3DmP8QGUZCl18cQipKwQzePOeEDrYVVa64LKpWJ%2Bin0XK3bLqV5UHdqU7FFcTKJEXpBuky%2F0Sep%2BFpvEi8xmC0PQfgGrPFD%2FD7ItsJf7xhZUukOrdzMLy3g0C9MWo3ZAy5ZtvIAOb0yL8buZkKjgqa4LRqys2RxTiLmiP8wiUuCvFDEV8PXh1a5UciGQ2l2vvBJoe7ipwP0MtRLBgaW5udaw%3D%3D";
+
+            //string content = new Http.HttpServerProxy().GetRequestTransfer(url,null);
+
+            
             //var rl = TaobaoWebPageService.GetTaobaoUnionOfficalUrl(url);
-            //return;
+           // return;
 
             try
             {
                 //1 初始化CEF运行时
                 InitApp.Init(args);
                 //2 开启无窗口的浏览器 请求平台站点
-                var appForm = new HeadLessMainForm();
-                appForm.Start();
+                //var appForm = new HeadLessMainForm();
+                //appForm.Start();
 
 
 
@@ -36,6 +41,22 @@ namespace ShoppingWebCrawler.Host
             {
                 Logging.Logger.WriteException(ex);
             }
+
+
+          // var etaoWeb = new ETaoWebPageService();
+            for (int i = 0; i < 10; i++)
+            {
+                string con = new ETaoWebPageService().QuerySearchContent("大米"+i.ToString());
+
+                //Console.WriteLine(con);
+
+                //var locker1 = RunningLocker.CreateNewLock();
+                //locker1.CancelAfter(9000);
+            }
+           
+
+
+
 
 
 

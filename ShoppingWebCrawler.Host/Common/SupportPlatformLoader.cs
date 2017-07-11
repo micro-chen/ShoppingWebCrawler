@@ -89,13 +89,15 @@ namespace ShoppingWebCrawler.Host
             var cacheContainer = MemoryCache.Default;
 
             string cacheKey = "SupportPlatform-MonitorConfigFile";
-            if (cacheContainer.Contains(cacheKey) && null != callbackOnConfigChangedHandler)
+            if (cacheContainer.Contains(cacheKey))
+            {
+                cacheContainer.Remove(cacheKey);
+            }
+            if (null != callbackOnConfigChangedHandler)
             {
                 //如果已经存在这个缓存 表示已经加入了依赖监视 ，直接注册委托广播源即可
                 OnConfigFileChanged += callbackOnConfigChangedHandler;
-                return;
             }
-
 
 
             //缓存策略
@@ -112,8 +114,12 @@ namespace ShoppingWebCrawler.Host
             {
 
                 //获取最新的配置 并触发事件
-                var lstNewConfigs = SupportPlatformLoader.LoadConfig();
-                OnConfigFileChanged(null, new SupportPlatformsChangedEventArgs { CurrentSupportPlatforms = lstNewConfigs });
+                //var lstNewConfigs = SupportPlatformLoader.LoadConfig();CurrentSupportPlatforms = lstNewConfigs
+                //直接 通知订阅的事件 将内容列表清空 ，再次重新加载即可
+                if (null!=OnConfigFileChanged)
+                {
+                    OnConfigFileChanged(null, new SupportPlatformsChangedEventArgs {  });
+                }
             });
             policy.ChangeMonitors.Add(monitor);
 

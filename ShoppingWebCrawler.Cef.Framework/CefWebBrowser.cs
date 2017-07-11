@@ -12,6 +12,7 @@ namespace ShoppingWebCrawler.Cef.Framework
 
     /// <summary>
     /// winform 窗口的实现方式
+    /// 包装了 CefBrowser  ，无窗口模式下不能用这个
     /// </summary>
     [ToolboxBitmap(typeof(CefWebBrowser))]
     public class CefWebBrowser : Control

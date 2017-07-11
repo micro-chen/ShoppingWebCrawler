@@ -10,19 +10,19 @@ using ShoppingWebCrawler.Host.Http;
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers
 {
-    public abstract class BaseRequest
+    public  class BaseRequest
     {
         /// <summary>
         /// 请求地址
         /// </summary>
-        protected abstract string TargetUrl { get; set; }
+        protected virtual string TargetUrl { get; set; }
 
         /// <summary>
         /// 通用的请求头信息 
         /// 静态公共头信息  由于是静态头信息，所以不要添加键值对
         /// 直接使用键 访问修改值即可
         /// </summary>
-        protected static NameValueCollection GetCommonRequestHeaders()
+        public static NameValueCollection GetCommonRequestHeaders()
         {
 
             var commonRequestHeaders = new NameValueCollection();

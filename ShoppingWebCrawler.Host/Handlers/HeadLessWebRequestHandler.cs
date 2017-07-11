@@ -14,6 +14,11 @@ namespace ShoppingWebCrawler.Host.Handlers
     sealed class HeadLessWebRequestHandler : CefRequestHandler
     {
 
+        /// <summary>
+        /// 当开始请求指定的url地址的时候触发事件
+        /// </summary>
+        public event EventHandler<FilterSpecialUrlEventArgs> OnRequestTheMoniterdUrl;
+
 
         public HeadLessWebRequestHandler()
         {
@@ -39,7 +44,17 @@ namespace ShoppingWebCrawler.Host.Handlers
             //    return true;
             //}
 
-
+            //监视一淘的请求数据的接口地址
+            if (request.Url.Contains("apie.m.etao.com/h5/mtop.etao.fe.search"))
+            {
+                if (null!=this.OnRequestTheMoniterdUrl)
+                {
+                    this.OnRequestTheMoniterdUrl(this, new FilterSpecialUrlEventArgs { Browser = browser, Url = request.Url });
+                    //当有监听的时候 就不再请求此url了  让 监听去处理此url
+                    return CefReturnValue.Cancel;
+                }
+                
+            }
 
             var reg = new System.Text.RegularExpressions.Regex(@"(http:|https:).*\.(woff|css|jpg|jpeg|png|ttf|svg|json)\?{0,}.*", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 

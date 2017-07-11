@@ -72,8 +72,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
 
             //获取当前站点的Cookie
-            CookieContainer ckContainer = GlobalContext.SupportPlatformsCookiesContainer[zhe800SiteUrl];
-            zhe800HttpClient.Cookies = ckContainer;
+            CookieCollection cks = GlobalContext.SupportPlatformsCookiesContainer[zhe800SiteUrl];
+            zhe800HttpClient.ChangeGlobleCookies(cks, zhe800SiteUrl);
 
             string respText = this.QuerySearchContentResonseAsync(zhe800HttpClient.Client).Result;
 

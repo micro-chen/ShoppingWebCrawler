@@ -44,8 +44,9 @@ namespace ShoppingWebCrawler.Host.Http
 
         /// <summary>
         /// 暴露的HttpClinet 实例的Cookies
+        /// 智能修改 不能重新定义实例-因为这个实例容器绑定到了HttpClient的Handler的引用
         /// </summary>
-        public CookieContainer Cookies { get; set; }
+        public CookieContainer Cookies { get; private set; }
 
 
         private HttpClientHandler _clientHander;
@@ -57,9 +58,40 @@ namespace ShoppingWebCrawler.Host.Http
 
             //保持 Cookie 容器 跟httpclient  之间的引用关系
             this.Cookies = new CookieContainer();
+            
             this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies };
             this.Client = new HttpClient(_clientHander);
             this.Client.Timeout = TimeSpan.FromMilliseconds(2000);
+        }
+
+
+        /// <summary>
+        /// 更新对应域名下的Cookie设定
+        /// </summary>
+        /// <param name="cookies"></param>
+        /// <param name="domainName"></param>
+        public void ChangeGlobleCookies(CookieCollection cookies, string domainName)
+        {
+            //便利集合 ，重置对应的键值对
+            foreach (Cookie item in cookies)
+            {
+                var key = item.Name;
+                if (null != this.Cookies && !string.IsNullOrEmpty(domainName))
+                {
+                    //获取当前域名下的Cookies 
+                    var currentDomainCookies = this.Cookies.GetCookies(new Uri(domainName));
+                    //重置对应的集合下的同名的Cookie
+                    if (null != currentDomainCookies[key])
+                    {
+                        currentDomainCookies[key].Value = item.Value;
+                    }
+                    else
+                    {
+                        this.Cookies.Add(item);//不存在此键值对  那么追加到集合中--注意，此处仅仅添加了cookie实例的引用，并不是一个实例对象的副本
+                    }
+
+                }
+            }
         }
 
     }
@@ -218,19 +250,22 @@ namespace ShoppingWebCrawler.Host.Http
         /// <returns></returns>
         public string GetRequestTransfer(string url, NameValueCollection fromHeaders)
         {
+            string result = string.Empty;
             try
             {
 
                 var tskResponse = this.GetRequestTransferAsync(url, fromHeaders);
 
                 //等待 task执行完毕 返回结果
-                return tskResponse.Result;
+                result= tskResponse.Result;
             }
             catch (Exception ex)
             {
 
-                throw ex;
+                Logging.Logger.WriteException(ex);
             }
+
+            return result;
 
         }
 
@@ -277,14 +312,11 @@ namespace ShoppingWebCrawler.Host.Http
             }
             catch (Exception ex)
             {
-                throw ex;
-            }
-            finally
-            {
-                this.Dispose();
-
+                Logging.Logger.WriteException(ex);
             }
 
+
+            return null;
 
         }
 

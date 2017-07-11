@@ -91,7 +91,7 @@ namespace ShoppingWebCrawler.Host
         private void OnWebBrowserLoadEnd(object sender, LoadEndEventArgs e)
         {
 
-
+            //注意 ：不要在加载完毕事件里阻塞时间过长  当前的窗口是单个的，超时太久 会拒绝加载后续请求，表示请求超时
 
             //---非电商链接  不做接受处理------------
             if (!_is_running_invoke_linkes)
@@ -102,8 +102,7 @@ namespace ShoppingWebCrawler.Host
             var code = e.HttpStatusCode;
             if (code == (int)HttpStatusCode.OK)//对状态为 200 成功的 将cookie  注册到全局容器
             {
-                //加载完毕后  再等待5s  因为有些网站的Cookie 是动态执行客户端的js后  产生的Cookie，而不是加载就设置了Cookie
-                locker.CancelAfter(5000);
+              
 
 
                 string url = e.Frame.Url;
@@ -116,26 +115,8 @@ namespace ShoppingWebCrawler.Host
                         {
                             //将cookies 放置到指定的网址 key的 CookieContainer中
                             var ckVisitor = new LazyCookieVistor();
-                            var cks = ckVisitor.LoadCookies(url);
-                            var ckContainer = new CookieContainer();
-                            foreach (CefCookie item in cks)
-                            {
-                                var name = item.Name;
-                                var value = item.Value;
-                                Cookie ck = new Cookie(name, value);
-                                ck.Domain = item.Domain;
-                                ck.Path = item.Path;
-                                ck.HttpOnly = item.HttpOnly;
-                                ck.Secure = item.Secure;
-
-                                if (null != item.Expires)
-                                {
-                                    ck.Expires = (DateTime)item.Expires;
-                                }
-                                ckContainer.Add(ck);
-
-                            }
-                            GlobalContext.SupportPlatformsCookiesContainer[url] = ckContainer;
+                            var cks = ckVisitor.LoadCookiesCollection(url);
+                            GlobalContext.SupportPlatformsCookiesContainer[url] = cks;
                         }
                         catch
                         {

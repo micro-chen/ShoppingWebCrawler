@@ -118,16 +118,12 @@ namespace ShoppingWebCrawler.Host
         /// <param name="userAgent">请求的客户端浏览器信息，可以为空</param>  
         /// <param name="cookies">随同HTTP请求发送的Cookie信息，如果不需要身份验证可以为空</param>  
         /// <returns></returns>  
-        public HttpWebResponse CreateGetHttpResponse(string url, NameValueCollection requestHeaders,int? timeout = 5000, CookieCollection cookies = null)
+        public HttpWebResponse CreateGetHttpResponse(string url, NameValueCollection requestHeaders,int? timeout = 5000, CookieContainer cookies = null)
         {
             if (string.IsNullOrEmpty(url))
             {
                 throw new ArgumentNullException("url");
             }
-
-
-            //url = HttpUtility.HtmlEncode(url);
-
 
             //获取域名
             string domainName = GetDomainName(url);
@@ -162,32 +158,11 @@ namespace ShoppingWebCrawler.Host
             // request.Host = "s.click.taobao.com";
             // request.Headers.Add("Upgrade-Insecure-Requests", "1");
 
-            if (null!=requestHeaders)
-            {
-                if (!string.IsNullOrEmpty(requestHeaders["Referer"]))
-                {
-                    request.Referer = requestHeaders["Referer"];
-                }
-                if (!string.IsNullOrEmpty(requestHeaders["Host"]))
-                {
-                    request.Host = requestHeaders["Host"];
-                }
- 
-                //注册自定义的头
-                foreach (var key in requestHeaders.AllKeys)
-                {
-                    if (!this.NotCustomAddModifyRequestHeaders.Contains(key))
-                    {
-                       string val = requestHeaders[key];
-                        request.Headers.Add(key, val);
-                    } 
-                }
-
-            }
+            this.FormarRequestHeaders(request,requestHeaders);
 
             if (cookies != null)
             {
-                ChangeGlobleCookies(cookies, domainName);
+                request.CookieContainer = cookies;
             }
 
 
@@ -217,6 +192,7 @@ namespace ShoppingWebCrawler.Host
 
         }
 
+       
 
 
 
@@ -227,37 +203,36 @@ namespace ShoppingWebCrawler.Host
 
         /// <param name="timeout"></param>
         /// <param name="cookies"></param>
-        public void CreateGetAsync(string url, int? timeout, CookieCollection cookies = null)
+        public void CreateGetAsync(string url, NameValueCollection requestHeaders, int? timeout, CookieCollection cookies = null)
         {
 
 
             ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(CheckValidationResult);
 
 
-            HttpWebRequest webReq = (HttpWebRequest)WebRequest.Create(url);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 
-            webReq.Method = "GET";
+            request.Method = "GET";
             //webReq.ContentType = "text/html;charset=utf-8";
-            webReq.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-            webReq.UserAgent = DefaultUserAgent;
-            webReq.AllowAutoRedirect = true;
-            webReq.KeepAlive = true;
-            webReq.CookieContainer = GlobleCookieContainer;
-            webReq.Timeout = 3000;
-
+            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+            request.UserAgent = DefaultUserAgent;
+            request.AllowAutoRedirect = true;
+            request.KeepAlive = true;
+            request.CookieContainer = GlobleCookieContainer;
+            request.Timeout = 3000;
 
             if (timeout.HasValue)
             {
-                webReq.Timeout = timeout.Value;
+                request.Timeout = timeout.Value;
             }
-
+            this.FormarRequestHeaders(request, requestHeaders);
 
 
             try
             {
 
                 //开启异步请求
-                IAsyncResult result = webReq.BeginGetResponse(new AsyncCallback(EndGetResponse), webReq);
+                IAsyncResult result = request.BeginGetResponse(new AsyncCallback(EndGetResponse), request);
 
             }
             catch (Exception ex)
@@ -332,11 +307,11 @@ namespace ShoppingWebCrawler.Host
         /// <summary>  
         /// 创建POST方式的HTTP请求  
         /// </summary>  
-        public string CreatePostHttpResponse(string url, string contentType, IDictionary<string, string> parameters, Encoding encode)
+        public string CreatePostHttpResponse(string url, NameValueCollection requestHeaders, string contentType, IDictionary<string, string> parameters, Encoding encode)
         {
 
             string result = null;
-            var response = this.CreatePostHttpResponse(url, contentType, parameters, 10000, encode, null);
+            var response = this.CreatePostHttpResponse(url, requestHeaders,contentType, parameters, 10000, null);
             if (null != response)
             {
                 Stream answer = response.GetResponseStream();
@@ -369,7 +344,7 @@ namespace ShoppingWebCrawler.Host
         /// <param name="requestEncoding">发送HTTP请求时所用的编码</param>  
         /// <param name="cookies">随同HTTP请求发送的Cookie信息，如果不需要身份验证可以为空</param>  
         /// <returns></returns>  
-        public HttpWebResponse CreatePostHttpResponse(string url, string contentType, IDictionary<string, string> parameters, int? timeout = null, Encoding requestEncoding = null, CookieCollection cookies = null)
+        public HttpWebResponse CreatePostHttpResponse(string url, NameValueCollection requestHeaders, string contentType, IDictionary<string, string> parameters, int? timeout = null, CookieContainer cookies = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -381,10 +356,7 @@ namespace ShoppingWebCrawler.Host
             string domainName = GetDomainName(url);
 
             //设置默认的编码 UFT-8
-            if (requestEncoding == null)
-            {
-                requestEncoding = Encoding.UTF8;
-            }
+            Encoding requestEncoding = Encoding.UTF8;
             HttpWebRequest request = null;
 
             //如果是发送HTTPS请求  
@@ -403,19 +375,17 @@ namespace ShoppingWebCrawler.Host
             request.ContentType = contentType;
             request.CookieContainer = GlobleCookieContainer;
             request.UserAgent = DefaultUserAgent;
-
-
-
-
-
+ 
             if (timeout.HasValue)
             {
                 request.Timeout = timeout.Value;
             }
             if (cookies != null)
             {
-                ChangeGlobleCookies(cookies, domainName);
+                request.CookieContainer = cookies;
             }
+            this.FormarRequestHeaders(request, requestHeaders);
+
 
             //如果需要POST数据  
             if (!(parameters == null || parameters.Count == 0))
@@ -483,7 +453,7 @@ namespace ShoppingWebCrawler.Host
         /// <param name="requestEncoding">发送HTTP请求时所用的编码</param>  
         /// <param name="cookies">随同HTTP请求发送的Cookie信息，如果不需要身份验证可以为空</param>  
         /// <returns></returns>  
-        public void CreatePostHttpResponseAsync(string url, string contentType, IDictionary<string, string> parameters, int? timeout = null, Encoding requestEncoding = null, CookieCollection cookies = null)
+        public void CreatePostHttpResponseAsync(string url, NameValueCollection requestHeaders, string contentType, IDictionary<string, string> parameters, int? timeout = null, CookieContainer cookies = null)
         {
             if (string.IsNullOrEmpty(url))
             {
@@ -495,10 +465,8 @@ namespace ShoppingWebCrawler.Host
             string domainName = GetDomainName(url);
 
             //设置默认的编码 UFT-8
-            if (requestEncoding == null)
-            {
-                requestEncoding = Encoding.UTF8;
-            }
+            Encoding requestEncoding = Encoding.UTF8;
+
             HttpWebRequest request = null;
 
             //如果是发送HTTPS请求  
@@ -518,18 +486,16 @@ namespace ShoppingWebCrawler.Host
             request.CookieContainer = GlobleCookieContainer;
             request.UserAgent = DefaultUserAgent;
 
-
-
-
-
             if (timeout.HasValue)
             {
                 request.Timeout = timeout.Value;
             }
             if (cookies != null)
             {
-                ChangeGlobleCookies(cookies, domainName);
+                request.CookieContainer = cookies;
             }
+            this.FormarRequestHeaders(request, requestHeaders);
+
 
             //如果需要POST数据  
             if (!(parameters == null || parameters.Count == 0))
@@ -696,34 +662,36 @@ namespace ShoppingWebCrawler.Host
 
 
         /// <summary>
-        /// 更新对应域名下的Cookie设定
+        /// 格式化请求头信息
         /// </summary>
-        /// <param name="cookies"></param>
-        /// <param name="domainName"></param>
-        private void ChangeGlobleCookies(CookieCollection cookies, string domainName)
-        {
-            //便利集合 ，重置对应的键值对
-            foreach (Cookie item in cookies)
-            {
-                var key = item.Name;
-                if (null != GlobleCookieContainer && !string.IsNullOrEmpty(domainName))
-                {
-                    //获取当前域名下的Cookies 
-                    var currentDomainCookies = GlobleCookieContainer.GetCookies(new Uri(domainName));
-                    //重置对应的集合下的同名的Cookie
-                    if (null != currentDomainCookies[key])
-                    {
-                        currentDomainCookies[key].Value = item.Value;
-                    }
-                    else
-                    {
-                        GlobleCookieContainer.Add(item);//不存在此键值对  那么追加到集合中--注意，此处仅仅添加了cookie实例的引用，并不是一个实例对象的副本
-                    }
+        /// <param name="request"></param>
+        /// <param name="requestHeaders"></param>
 
+        private void FormarRequestHeaders(HttpWebRequest request, NameValueCollection requestHeaders)
+        {
+            if (null != requestHeaders)
+            {
+                if (!string.IsNullOrEmpty(requestHeaders["Referer"]))
+                {
+                    request.Referer = requestHeaders["Referer"];
                 }
+                if (!string.IsNullOrEmpty(requestHeaders["Host"]))
+                {
+                    request.Host = requestHeaders["Host"];
+                }
+
+                //注册自定义的头
+                foreach (var key in requestHeaders.AllKeys)
+                {
+                    if (!this.NotCustomAddModifyRequestHeaders.Contains(key))
+                    {
+                        string val = requestHeaders[key];
+                        request.Headers.Add(key, val);
+                    }
+                }
+
             }
         }
-
 
 
 
