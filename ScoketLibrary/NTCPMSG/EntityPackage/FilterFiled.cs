@@ -6,20 +6,19 @@ using System.Threading.Tasks;
 
 namespace NTCPMessage.EntityPackage
 {
-
     /// <summary>
-    /// 抓取网页需要的参数模型
+    /// 过滤字段
     /// </summary>
-    public class FetchWebPageArgument
+    public class FilterFiled
     {
         /// <summary>
-        /// 平台编号
+        /// 字段名称
         /// </summary>
-        public int PlataformId { get; set; }
+        public string FieldName { get; set; }
 
         /// <summary>
-        /// 查询关键词
+        /// 字段值
         /// </summary>
-        public string KeyWord { get; set; }
+        public string FieldValue { get; set; }
     }
 }

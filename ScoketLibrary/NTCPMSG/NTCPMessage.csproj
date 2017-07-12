@@ -66,9 +66,25 @@
     <Compile Include="Client\ProcessorCombine.cs" />
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
+    <Compile Include="EntityPackage\FilterFiled.cs" />
+    <Compile Include="EntityPackage\Arguments\MeilishuoFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\MogujieFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\ETaoFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\Zhe800FetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\YhdFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\OrderField.cs" />
+    <Compile Include="EntityPackage\OrderRule.cs" />
+    <Compile Include="EntityPackage\Arguments\TaobaoFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\JingdongFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\PddFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\GuomeiFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\SuningFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\DangdangFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\TmallFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\DataResultContainer.cs" />
     <Compile Include="EntityPackage\IDataContainer.cs" />
-    <Compile Include="EntityPackage\FetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\BaseFetchWebPageArgument.cs" />
+    <Compile Include="EntityPackage\IFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\SoapMessage.cs" />
     <Compile Include="EntityPackage\SupportPlatform.cs" />
     <Compile Include="Event\AcceptEventArgs.cs" />
@@ -115,6 +131,7 @@
   <ItemGroup>
     <None Include="src\TCP-V1.3.0.0 Source code.zip" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

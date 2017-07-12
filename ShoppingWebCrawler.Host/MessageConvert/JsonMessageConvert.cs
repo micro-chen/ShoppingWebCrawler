@@ -43,8 +43,8 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                     try
                     {
                         //从body 中获取参数 ，并传递到指定的Action
-                        var args = JsonConvert.DeserializeObject<FetchWebPageArgument>(obj.Body);
-                        result = this.FetchPlatformSearchWebPage(args);
+                        //var args = JsonConvert.DeserializeObject<IFetchWebPageArgument>(obj.Body);
+                        //result = this.FetchPlatformSearchWebPage(args);
                        
                     }
                     catch (Exception ex)
@@ -83,7 +83,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// 抓取指定平台的搜索结果网页
         /// </summary>
         /// <returns></returns>
-        private IDataContainer FetchPlatformSearchWebPage(FetchWebPageArgument args)
+        private IDataContainer FetchPlatformSearchWebPage(IFetchWebPageArgument args)
         {
             var result = new DataResultContainer<string>();
 

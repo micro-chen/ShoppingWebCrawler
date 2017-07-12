@@ -45,41 +45,57 @@ namespace ShoppingWebCrawler.Host.Handlers
             //}
 
             //监视一淘的请求数据的接口地址
-            if (request.Url.Contains("apie.m.etao.com/h5/mtop.etao.fe.search"))
+            string url = request.Url;
+            if (url.Contains("apie.m.etao.com/h5/mtop.etao.fe.search"))
             {
-                if (null!=this.OnRequestTheMoniterdUrl)
+                if (null != this.OnRequestTheMoniterdUrl)
                 {
-                    this.OnRequestTheMoniterdUrl(this, new FilterSpecialUrlEventArgs { Browser = browser, Url = request.Url });
-                    //当有监听的时候 就不再请求此url了  让 监听去处理此url
-                    return CefReturnValue.Cancel;
+                    //注意：必须开启在独立的线程任务上 去执行事件  ，如果在执行线程中，会导致线程死锁....
+                    Task.Factory.StartNew(() =>
+                    {
+                        this.OnRequestTheMoniterdUrl(this, new FilterSpecialUrlEventArgs { Browser = browser, Url = url });
+                        //不要返回取消 取消会出现在httpclient 异常
+                        //return CefReturnValue.Cancel;
+                    });
+
+
                 }
-                
+
             }
 
             var reg = new System.Text.RegularExpressions.Regex(@"(http:|https:).*\.(woff|css|jpg|jpeg|png|ttf|svg|json)\?{0,}.*", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-            if (reg.IsMatch(request.Url))
+            if (reg.IsMatch(url))
             {
                 return CefReturnValue.Cancel;
             }
 
-            if (request.Url.Contains("img.alicdn.com"))
+            if (url.Contains("log.mmstat.com/v.gif"))
             {
                 return CefReturnValue.Cancel;
             }
-            if (request.Url.Contains("qrlogin.taobao.com"))
+            if (url.Contains("/h5/mtop.etao.fe.hotwords/"))
             {
                 return CefReturnValue.Cancel;
             }
-            if (request.Url.Contains("tanx.com"))
+
+            if (url.Contains("img.alicdn.com"))
             {
                 return CefReturnValue.Cancel;
             }
-            if (request.Url.Contains("wwc.alicdn.com"))
+            if (url.Contains("qrlogin.taobao.com"))
             {
                 return CefReturnValue.Cancel;
             }
-            if (request.Url.Contains("wwc.alicdn.com"))
+            if (url.Contains("tanx.com"))
+            {
+                return CefReturnValue.Cancel;
+            }
+            if (url.Contains("wwc.alicdn.com"))
+            {
+                return CefReturnValue.Cancel;
+            }
+            if (url.Contains("wwc.alicdn.com"))
             {
                 return CefReturnValue.Cancel;
             }

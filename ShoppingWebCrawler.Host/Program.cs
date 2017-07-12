@@ -7,10 +7,10 @@ using System.Collections.Specialized;
 using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
 
 namespace ShoppingWebCrawler.Host
-{ 
+{
     internal static class Program
     {
-       
+
 
         [STAThread]
         private static void Main(string[] args)
@@ -22,17 +22,17 @@ namespace ShoppingWebCrawler.Host
 
             //string content = new Http.HttpServerProxy().GetRequestTransfer(url,null);
 
-            
+
             //var rl = TaobaoWebPageService.GetTaobaoUnionOfficalUrl(url);
-           // return;
+            // return;
 
             try
             {
                 //1 初始化CEF运行时
                 InitApp.Init(args);
                 //2 开启无窗口的浏览器 请求平台站点
-                //var appForm = new HeadLessMainForm();
-                //appForm.Start();
+                var appForm = new HeadLessMainForm();
+                appForm.Start();
 
 
 
@@ -41,23 +41,6 @@ namespace ShoppingWebCrawler.Host
             {
                 Logging.Logger.WriteException(ex);
             }
-
-
-          // var etaoWeb = new ETaoWebPageService();
-            for (int i = 0; i < 10; i++)
-            {
-                string con = new ETaoWebPageService().QuerySearchContent("大米"+i.ToString());
-
-                //Console.WriteLine(con);
-
-                //var locker1 = RunningLocker.CreateNewLock();
-                //locker1.CancelAfter(9000);
-            }
-           
-
-
-
-
 
 
 
