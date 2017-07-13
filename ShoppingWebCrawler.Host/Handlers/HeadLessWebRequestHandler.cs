@@ -55,10 +55,8 @@ namespace ShoppingWebCrawler.Host.Handlers
                     {
                         this.OnRequestTheMoniterdUrl(this, new FilterSpecialUrlEventArgs { Browser = browser, Url = url });
                         //不要返回取消 取消会出现在httpclient 异常
-                        //return CefReturnValue.Cancel;
+                       // return CefReturnValue.Cancel;
                     });
-
-
                 }
 
             }
@@ -71,6 +69,11 @@ namespace ShoppingWebCrawler.Host.Handlers
             }
 
             if (url.Contains("log.mmstat.com/v.gif"))
+            {
+                return CefReturnValue.Cancel;
+            }
+
+            if (url.Contains("mo.m.taobao.com/etao/pc_search_hotwords"))
             {
                 return CefReturnValue.Cancel;
             }

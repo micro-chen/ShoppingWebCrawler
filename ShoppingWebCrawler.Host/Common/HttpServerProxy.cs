@@ -59,7 +59,7 @@ namespace ShoppingWebCrawler.Host.Http
             //保持 Cookie 容器 跟httpclient  之间的引用关系
             this.Cookies = new CookieContainer();
             
-            this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies };
+            this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies, AutomaticDecompression = DecompressionMethods.GZip };
             this.Client = new HttpClient(_clientHander);
             this.Client.Timeout = TimeSpan.FromMilliseconds(2000);
         }
@@ -153,6 +153,21 @@ namespace ShoppingWebCrawler.Host.Http
                 client.DefaultRequestHeaders.Add(HttpServerProxy.RequestHeaderKeyUserAgent, userAgent);
             }
         }
+
+        ///// <summary>
+        ///// 判断是否为 gzip 请求
+        ///// 已经在请求的时候 自动处理             this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies, AutomaticDecompression = DecompressionMethods.GZip };
+        ///// </summary>
+        ///// <param name="headers"></param>
+        ///// <returns></returns>
+        //private bool IsGzipRequest(HttpRequestHeaders headers) {
+        //    if (null != headers.AcceptEncoding && headers.AcceptEncoding.Any(x => x.Value.Contains("gzip")))
+        //    {
+        //        return true;
+        //    }
+
+        //    return false;
+        //}
 
         /// <summary>
         /// 对传递过来的 数据进行初始化
@@ -306,6 +321,9 @@ namespace ShoppingWebCrawler.Host.Http
                 {
                     throw new Exception(string.Concat("指定的地址未能正确get响应！uri:", url));
                 }
+
+
+                //普通文本请求
                 return tskResponse.Result.Content.ReadAsStringAsync();
                 //return client.GetStringAsync(targetUri);
 
@@ -406,6 +424,12 @@ namespace ShoppingWebCrawler.Host.Http
 
         }
 
+
+
+
+
+        #endregion
+
         #region IDisposable Support
         private bool disposedValue = false; // 要检测冗余调用
 
@@ -443,11 +467,6 @@ namespace ShoppingWebCrawler.Host.Http
             // TODO: 如果在以上内容中替代了终结器，则取消注释以下行。
             // GC.SuppressFinalize(this);
         }
-        #endregion
-
-
-
-
         #endregion
 
 

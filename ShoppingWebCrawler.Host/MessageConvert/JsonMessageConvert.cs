@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
 using Newtonsoft.Json;
+using NTCPMessage.EntityPackage.Arguments;
 
 namespace ShoppingWebCrawler.Host.MessageConvert
 {
@@ -42,10 +43,10 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                 case "FetchPlatformSearchWebPage":
                     try
                     {
-                        //从body 中获取参数 ，并传递到指定的Action
-                        //var args = JsonConvert.DeserializeObject<IFetchWebPageArgument>(obj.Body);
-                        //result = this.FetchPlatformSearchWebPage(args);
-                       
+                        //从body 中获取参数 ，并传递到指定的Action todo  :指定命令发到指定的平台action解析
+                        var args = JsonConvert.DeserializeObject<IFetchWebPageArgument>(obj.Body);
+                        result = this.FetchPlatformSearchWebPage(args);
+
                     }
                     catch (Exception ex)
                     {

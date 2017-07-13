@@ -14,6 +14,7 @@ using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Host.Handlers;
+using ShoppingWebCrawler.Host.Common;
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
@@ -40,11 +41,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
     public class ETaoWebPageService : BaseWebPageService
     {
 
-
-        /// <summary>
-        /// 一淘请求 搜索地址页面
-        /// </summary>
-        private const string templateOfSearchUrl = "https://www.etao.com/search.htm?nq={0}&spm=1002.8113010.2698880.6862";
 
 
         /// <summary>
@@ -77,15 +73,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             }
             //格式化一个查询地址
 
-            this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
+            //this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
 
 
 
-            string respText = ETaoMixReuestLoader.Current.LoadUrlGetSearchApiContent(this.TargetUrl)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+            //string respText = ETaoMixReuestLoader.Current.LoadUrlGetSearchApiContent(this.TargetUrl)
+            //    .ConfigureAwait(false)
+            //    .GetAwaiter()
+            //    .GetResult();
 
+            string respText = ETaoMixReuestLoader.Current.LoadUrlGetSearchApiContent(keyWord);
             return respText;
         }
 
@@ -105,6 +102,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
     {
         private const string eTaoSiteUrl = "https://www.etao.com/";
 
+        /// <summary>
+        /// 一淘请求 搜索地址页面
+        /// </summary>
+        private const string templateOfSearchUrl = "https://www.etao.com/search.htm?nq={0}&spm=1002.8113010.2698880.6862";
+
+
         private static ReaderWriterLockSlim _readLock = new ReaderWriterLockSlim();
         //线程队列锁
         private static AutoResetEvent waitHandler = new AutoResetEvent(false);
@@ -114,7 +117,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         private const int cefBrowserCount = 1;
 
-
+        /// <summary>
+        /// 下次自动更新Cookie的时间
+        /// </summary>
+        private DateTime NextUpdateCookieTime = DateTime.Now.AddMinutes(5);
+        /// <summary>
+        /// 授权Cookie 默认是7天过期 ，我们定时每间隔一定分钟 30-60min 自动刷新下
+        /// </summary>
+        private System.Timers.Timer _minitor_auto_refesh_cookies;
         /// <summary>
         /// cef 实例数目上限从配置文件中：ETaoMixReuestBrowserCount 得到配置
         /// </summary>
@@ -187,13 +197,70 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             this.IntiCefWebBrowsers();
         }
 
+        public string LoadUrlGetSearchApiContent(string keyWord)
+        {
+            //生成时间戳
+            string stamp = JavascriptContext.getUnixTimestamp();
+
+            //加载Cookie
+            var ckVisitor = new LazyCookieVistor();
+            var cks = ckVisitor.LoadCookies(eTaoSiteUrl);
+
+            var _m_h5_tk = cks.FirstOrDefault(x => x.Name == "_m_h5_tk");
+            if (null==_m_h5_tk)
+            {
+                this.AutoRefeshCookie();//从新刷新页面 获取 服务器颁发的私钥
+                cks = ckVisitor.LoadCookies(eTaoSiteUrl);
+                _m_h5_tk = cks.FirstOrDefault(x => x.Name == "_m_h5_tk");
+            }
+            if (null==_m_h5_tk||string.IsNullOrEmpty(_m_h5_tk.Value))
+            {
+                throw new Exception("加载授权私钥失败！无法获取对应的cookie:_m_h5_tk ");
+            }
+            string _m_h5_tk_cookString = _m_h5_tk.Value.Split('_')[0];
+
+            string etao_appkey = "12574478";
+
+            string paras = string.Concat("{\"s\":0,\"n\":40,\"q\":\"", keyWord, "\",\"needEncode\":false,\"sort\":\"sales_desc\",\"maxPrice\":10000000,\"minPrice\":0,\"serviceList\":\"\",\"navigator\":\"all\",\"urlType\":2}");
+
+            string sign = JavascriptContext.getEtaoJSSDKSign(_m_h5_tk_cookString, stamp, etao_appkey, paras);
+
+            string url = string.Format("https://apie.m.etao.com/h5/mtop.etao.fe.search/1.0/?type=jsonp&api=mtop.etao.fe.search&v=1.0&appKey=12574478&data={0}&t={1}&sign={2}&callback=jsonp28861232595120323", paras, stamp, sign);
+
+            ETaoCefBrowser etaoBrowser = null;
+            if (!this._queueOfCefBrowser.TryDequeue(out etaoBrowser))
+            {
+                //如果没有 那么新创建一个 --监测阈值
+                if (this.HasCreateBrowserCount < limitMaxCefBrowserCount)
+                {
+                    etaoBrowser = this.CreateNewWebBrowser().ConfigureAwait(false).GetAwaiter().GetResult();
+                    this._queueOfCefBrowser.Enqueue(etaoBrowser);
+                }
+                else
+                {
+                    throw new Exception("当前请求达到了一淘处理的峰值！请稍等访问！");
+                }
+            }
+
+            string searchUrl= string.Format(templateOfSearchUrl, keyWord);
+            var client = etaoBrowser.ETaoHttpClient;
+            //修改client 的refer 头
+            client.Client.DefaultRequestHeaders.Referrer = new Uri(searchUrl);
+            // 4 发送请求
+            var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
+            string content = clientProxy.GetRequestTransfer(url, null);
+
+            return content;
+
+        }
 
         /// <summary>
-        /// 加载指定的搜索url 并拦截调用api的内容
+        /// 内部类方法加载指定的搜索url 并拦截调用api的内容
+        /// 在初始化的时候 刷新Cookie用
         /// </summary>
         /// <param name="searchUrl"></param>
         /// <returns></returns>
-        public Task<string> LoadUrlGetSearchApiContent(string searchUrl)
+        private Task<string> InnerLoadUrlGetSearchApiContent(string searchUrl)
         {
 
 
@@ -231,25 +298,25 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         throw new Exception("处理一淘监视url丢失！");
                     }
                     string url = HttpUtility.UrlDecode(e.Url);
-                        //3 使用配对的httpclient  发送请求
-                        var client = etaoBrowser.ETaoHttpClient;
-                        //修改client 的refer 头
-                        client.Client.DefaultRequestHeaders.Referrer = new Uri(searchUrl);
+                    //3 使用配对的httpclient  发送请求
+                    var client = etaoBrowser.ETaoHttpClient;
+                    //修改client 的refer 头
+                    client.Client.DefaultRequestHeaders.Referrer = new Uri(searchUrl);
 
 
-                        //加载cookies
-                        //获取当前站点的Cookie
+                    //加载cookies
+                    //获取当前站点的Cookie
 
-                        var cks = ckVisitor.LoadCookiesCollection(eTaoSiteUrl);
+                    var cks = ckVisitor.LoadCookiesCollection(eTaoSiteUrl);
                     client.ChangeGlobleCookies(cks, eTaoSiteUrl);
-                        //4 发送请求
-                        var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
+                    //4 发送请求
+                    var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
                     string content = clientProxy.GetRequestTransfer(url, null);
 
 
 
-                        //处理完毕后 一定要记得将处理程序移除掉 防止多播
-                        etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
+                    //处理完毕后 一定要记得将处理程序移除掉 防止多播
+                    etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
 
 
 
@@ -265,8 +332,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 }
                 finally
                 {
-                        //线程锁打开自动进行下一个
-                        waitHandler.Set();
+                    //线程锁打开自动进行下一个
+                    waitHandler.Set();
                 }
             };
             etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl += handlerRequest;
@@ -287,9 +354,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         private void IntiCefWebBrowsers()
         {
 
-            //先尝试清理站点的cookie 注意：这里清理的是CookieManager的Cookie ，静态类中 globalContex中的Cookie仍在
-            var ckVisitor = new LazyCookieVistor();
-            ckVisitor.DeleteCookies(eTaoSiteUrl, null);
+
 
             for (int i = 0; i < cefBrowserCount; i++)
             {
@@ -297,6 +362,35 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 this._queueOfCefBrowser.Enqueue(etaoBrowser);
             }
+
+            //首先自动刷新下查询页面 会刷新Cookie
+            AutoRefeshCookie();
+
+            //每间隔10s检查一次
+            this._minitor_auto_refesh_cookies = new System.Timers.Timer(10000);
+            this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
+            {
+
+                if (DateTime.Now > this.NextUpdateCookieTime)
+                {
+                    AutoRefeshCookie();
+                }
+
+            };
+            this._minitor_auto_refesh_cookies.Start();
+        }
+
+        private void AutoRefeshCookie()
+        {
+            //先尝试清理站点的cookie 注意：这里清理的是CookieManager的Cookie ，静态类中 globalContex中的Cookie仍在
+            var ckVisitor = new LazyCookieVistor();
+            ckVisitor.DeleteCookies(eTaoSiteUrl, null);
+
+            //然后从新加载下链接 即可刷新Cookie
+            string refreshCookieUrl = string.Format("https://www.etao.com/search.htm?nq={0}&spm=1002.8113010.2698880.6862", "洗面奶男" + DateTime.Now.Ticks.ToString());
+            this.InnerLoadUrlGetSearchApiContent(refreshCookieUrl);
+            //不定时刷新
+            this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(5, 10));
         }
 
         /// <summary>
@@ -389,6 +483,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         {
             //初始化头信息
             var requestHeaders = BaseRequest.GetCommonRequestHeaders();
+            requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
             requestHeaders.Add("Host", "apie.m.etao.com");
             requestHeaders.Add("Upgrade-Insecure-Requests", "1");
             //requestHeaders.Add("Referer", eTaoSiteUrl);
