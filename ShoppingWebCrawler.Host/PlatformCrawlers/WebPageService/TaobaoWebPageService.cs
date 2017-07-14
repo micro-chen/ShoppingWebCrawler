@@ -154,7 +154,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
 
             //获取当前站点的Cookie
-            CookieCollection cks = GlobalContext.SupportPlatformsCookiesContainer[taobaoSiteUrl];
+            var cks = GlobalContext.SupportPlatformsCookiesContainer[taobaoSiteUrl];
             taobaoHttpClient.ChangeGlobleCookies(cks, taobaoSiteUrl);
 
             string respText = this.QuerySearchContentResonseAsync(taobaoHttpClient.Client).Result;

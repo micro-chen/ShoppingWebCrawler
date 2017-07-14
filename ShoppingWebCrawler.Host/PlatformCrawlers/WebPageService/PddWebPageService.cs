@@ -72,7 +72,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
 
             //获取当前站点的Cookie
-            CookieCollection cks = GlobalContext.SupportPlatformsCookiesContainer[pddSiteUrl];
+            var cks = GlobalContext.SupportPlatformsCookiesContainer[pddSiteUrl];
             pddHttpClient.ChangeGlobleCookies(cks, pddSiteUrl);
 
             string respText = this.QuerySearchContentResonseAsync(pddHttpClient.Client).Result;

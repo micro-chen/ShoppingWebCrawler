@@ -94,7 +94,7 @@ namespace ShoppingWebCrawler.Host
                 return null;
             }
 
-            var results = this.LoadCookiesCollection(domain);
+            var results = this.LoadCookies(domain);
 
             var ckContainer = new CookieContainer();
             foreach (Cookie item in results)
@@ -136,16 +136,31 @@ namespace ShoppingWebCrawler.Host
             return result;
         }
 
+
         /// <summary>
-        /// 转换 cef  cookie集合 为 CookieCollection
+        /// 加载Cookies
+        /// 加载cefcookie到 CLR 的Cookie对象集合
         /// </summary>
-        /// <param name="domain"></param>
-        /// <returns></returns>
-        public CookieCollection LoadCookiesCollection(string domain)
+        public List<Cookie> LoadCookies(string domain)
         {
-            var cks = this.LoadCookies(domain);
-            var lst = new CookieCollection();
-            foreach (CefCookie item in cks)
+            if (string.IsNullOrEmpty(domain))
+            {
+                return null;
+            }
+
+            ///获取异步执行的Task的结果
+            IEnumerable<CefCookie> results= this.LoadCookiesAsyc(domain)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
+
+            if (null==results)
+            {
+                return null;
+            }
+
+            var lst = new List<Cookie>();
+            foreach (CefCookie item in results)
             {
                 var name = item.Name;
                 var value = item.Value;
@@ -162,24 +177,7 @@ namespace ShoppingWebCrawler.Host
                 lst.Add(ck);
             }
             return lst;
-        }
-        /// <summary>
-        /// 加载Cookies
-        /// </summary>
-        public IEnumerable<CefCookie> LoadCookies(string domain)
-        {
-            if (string.IsNullOrEmpty(domain))
-            {
-                return null;
-            }
-
-            ///获取异步执行的Task的结果
-            IEnumerable<CefCookie> results= this.LoadCookiesAsyc(domain)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
-
-            return results;
+         
 
         }
 

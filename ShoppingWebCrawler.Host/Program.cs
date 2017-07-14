@@ -56,6 +56,13 @@ namespace ShoppingWebCrawler.Host
 
             System.Diagnostics.Debug.WriteLine(con);
 
+
+             con = etaoWeb.QuerySearchContent("大米-" + DateTime.Now.Ticks.ToString());
+
+            System.Diagnostics.Debug.WriteLine(con);
+             con = etaoWeb.QuerySearchContent("大米-" + DateTime.Now.Ticks.ToString());
+
+            System.Diagnostics.Debug.WriteLine(con);
             //var locker1 = RunningLocker.CreateNewLock();
             //locker1.CancelAfter(2000);
 

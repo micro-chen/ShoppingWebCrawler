@@ -58,7 +58,7 @@ namespace ShoppingWebCrawler.Host.Http
 
             //保持 Cookie 容器 跟httpclient  之间的引用关系
             this.Cookies = new CookieContainer();
-            
+
             this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies, AutomaticDecompression = DecompressionMethods.GZip };
             this.Client = new HttpClient(_clientHander);
             this.Client.Timeout = TimeSpan.FromMilliseconds(2000);
@@ -70,7 +70,7 @@ namespace ShoppingWebCrawler.Host.Http
         /// </summary>
         /// <param name="cookies"></param>
         /// <param name="domainName"></param>
-        public void ChangeGlobleCookies(CookieCollection cookies, string domainName)
+        public void ChangeGlobleCookies(List<Cookie> cookies, string domainName)
         {
             //便利集合 ，重置对应的键值对
             foreach (Cookie item in cookies)
@@ -272,7 +272,7 @@ namespace ShoppingWebCrawler.Host.Http
                 var tskResponse = this.GetRequestTransferAsync(url, fromHeaders);
 
                 //等待 task执行完毕 返回结果
-                result= tskResponse.Result;
+                result = tskResponse.Result;
             }
             catch (Exception ex)
             {
@@ -316,11 +316,22 @@ namespace ShoppingWebCrawler.Host.Http
                     ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
                 }
 
-                var tskResponse = this.Client.GetAsync(targetUri);
-                if (tskResponse.Result.StatusCode != HttpStatusCode.OK)
+
+                Task<HttpResponseMessage> tskResponse;
+                try
                 {
-                    throw new Exception(string.Concat("指定的地址未能正确get响应！uri:", url));
+                     tskResponse = this.Client.GetAsync(targetUri);
+                    if (null == tskResponse || null == tskResponse.Result)
+                    {
+                        throw new Exception(string.Concat("指定的地址未能正确get响应！uri:", url));
+                    }
                 }
+                catch (Exception ex)
+                {
+
+                    throw ex;
+                }
+
 
 
                 //普通文本请求

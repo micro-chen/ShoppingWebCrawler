@@ -115,7 +115,7 @@ namespace ShoppingWebCrawler.Host
                         {
                             //将cookies 放置到指定的网址 key的 CookieContainer中
                             var ckVisitor = new LazyCookieVistor();
-                            var cks = ckVisitor.LoadCookiesCollection(url);
+                            var cks = ckVisitor.LoadCookies(url);
                             GlobalContext.SupportPlatformsCookiesContainer[url] = cks;
                         }
                         catch

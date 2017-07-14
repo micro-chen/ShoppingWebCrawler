@@ -136,11 +136,11 @@ namespace ShoppingWebCrawler.Host
         /// <summary>
         /// 所有平台的 cookie 字典容器，按照网址对Cookie进行了key区分
         /// </summary>
-        public static IDictionary<string, CookieCollection> SupportPlatformsCookiesContainer
+        public static IDictionary<string, List<Cookie>> SupportPlatformsCookiesContainer
         {
             get
             {
-                return SingletonDictionary<string, CookieCollection>.Instance;
+                return SingletonDictionary<string, List<Cookie>>.Instance;
             }
         }
 
