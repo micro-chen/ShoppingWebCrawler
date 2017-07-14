@@ -9,6 +9,9 @@ using System.Collections.Specialized;
 using System.Net.Http;
 using ShoppingWebCrawler.Host.Http;
 using System.Net;
+using ShoppingWebCrawler.Host.Headless;
+using System.Text;
+using System.IO;
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
@@ -17,16 +20,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
     /// </summary>
     public class TmallWebPageService : BaseWebPageService
     {
-
-        private const string tmallSiteUrl = "https://www.tmall.com/";
-
-        private const string templateOfSearchUrl = "https://list.tmall.com/search_product.htm?q={0}&type=p&vmarket=&spm=875.7931836%2FB.a2227oh.d100&xl=ip_1&from=mallfp..pc_1_suggest";
-        /// <summary>
-        /// 天猫请求客户端--保持静态单个实例，防止多次实例化 创建请求链接导致的性能损失
-        /// 不要将这个字段  抽象出来 保持跟具体的类同步
-        /// </summary>
-        private static readonly CookedHttpClient tmallHttpClient;
-
 
         /// <summary>
         /// 请求地址-根据方法传递的参数 动态格式化
@@ -44,18 +37,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         {
         }
 
-        /// <summary>
-        /// 静态构造函数
-        /// </summary>
-        static TmallWebPageService()
-        {
-            //初始化头信息
-            var requestHeaders = GetCommonRequestHeaders();
-            requestHeaders.Add("Referer", tmallSiteUrl);
-            tmallHttpClient = new CookedHttpClient();
-            HttpServerProxy.FormatRequestHeader(tmallHttpClient.Client.DefaultRequestHeaders, requestHeaders);
 
-        }
         /// <summary>
         /// 查询网页
         /// </summary>
@@ -67,19 +49,118 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             {
                 return null;
             }
-            //格式化一个查询地址
-           
-            this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
-
-            //获取当前站点的Cookie
-            var cks = GlobalContext.SupportPlatformsCookiesContainer[tmallSiteUrl];
-            tmallHttpClient.ChangeGlobleCookies(cks, tmallSiteUrl);
-
-            string respText = this.QuerySearchContentResonseAsync(tmallHttpClient.Client).Result;
-
+            string respText = TmallMixReuestLoader.Current.LoadUrlGetSearchApiContent(keyWord);
             return respText;
         }
 
+
+
+
+
+
+        ///------------内部类-----------------
+
+        /// <summary>
+        /// 天猫的混合请求类
+        /// 1 根据传入的搜索url  使用 CEF打开 指定地址
+        /// 2 拦截出来请求数据的地址
+        /// 3 拦截后 把对应的Cookie拿出来
+        /// 4  使用.net httpclient 将请求发送出去 得到相应返回
+        /// 
+        /// 为了保证性能  保持此类单个实例 
+        /// </summary>
+        public class TmallMixReuestLoader : BaseBrowserRequestLoader<TmallMixReuestLoader>
+        {
+            private const string tmallSiteUrl = "https://www.tmall.com/";
+
+            /// <summary>
+            /// 天猫请求 搜索地址页面
+            /// </summary>
+            private const string templateOfSearchUrl = "https://list.tmall.com/search_product.htm?q={0}&type=p&vmarket=&spm=875.7931836%2FB.a2227oh.d100&xl=ip_1&from=mallfp..pc_1_suggest";
+
+            /// <summary>
+            /// 请求客户端
+            /// </summary>
+            private static  CookedHttpClient TmallHttpClient;
+
+
+
+
+            /// <summary>
+            /// 静态构造函数
+            /// </summary>
+            static TmallMixReuestLoader()
+            {
+                //静态创建请求客户端
+                TmallHttpClient = new CookiedCefBrowser().BindingHttpClient;
+
+                //初始化头信息
+                var requestHeaders = BaseRequest.GetCommonRequestHeaders();
+                requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
+                requestHeaders.Add("Host", "list.tmall.com");
+                //requestHeaders.Add("Referer", TmallSiteUrl);
+                TmallHttpClient = new CookedHttpClient();
+                HttpServerProxy.FormatRequestHeader(TmallHttpClient.Client.DefaultRequestHeaders, requestHeaders);
+            }
+
+            public TmallMixReuestLoader()
+            {
+                ///天猫刷新搜索页cookie的地址
+                this.RefreshCookieUrl = string.Format("https://list.tmall.com/search_product.htm?spm=a220m.1000858.1000724.3.2a70033eTRXtEm&q={0}&sort=new&style=g&from=mallfp..pc_1_searchbutton#J_Filter", "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
+
+                this.IntiCefWebBrowser();
+            }
+
+            public string LoadUrlGetSearchApiContent(string keyWord)
+            {
+           
+
+                //加载Cookie
+                var ckVisitor = new LazyCookieVistor();
+                var cks = ckVisitor.LoadCookies(tmallSiteUrl);
+
+                
+
+
+                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
+
+                var client = TmallHttpClient;
+
+                ////加载cookies
+                ////获取当前站点的Cookie
+                client.ChangeGlobleCookies(cks, tmallSiteUrl);
+      
+                // 4 发送请求
+                var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
+                clientProxy.HttpGetForLargeFileInRightWay(searchUrl, null).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                ////使用gb2312编码获取内容字节
+                //StringBuilder sb = new StringBuilder();
+                //Byte[] buf = new byte[8192];
+                //Stream resStream = response.Result.Content.ReadAsStreamAsync().Result;
+                //string tmpString = null;
+                //int count = 0;
+                //do
+                //{
+                //    count = resStream.Read(buf, 0, buf.Length);
+                //    if (count != 0)
+                //    {
+                //        tmpString = Encoding.GetEncoding("gb2312").GetString(buf, 0, count);
+                //        sb.Append(tmpString);
+                //    }
+                //} while (count > 0);
+
+                //string content= sb.ToString();
+
+                return "";
+
+            }
+
+
+
+
+
+        }
 
     }
 }

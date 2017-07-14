@@ -50,7 +50,7 @@ namespace ShoppingWebCrawler.Host.Http
 
 
         private HttpClientHandler _clientHander;
-        public CookedHttpClient() : this(2000)
+        public CookedHttpClient() : this(5000)
         {
         }
         public CookedHttpClient(int timeOut)
@@ -59,9 +59,10 @@ namespace ShoppingWebCrawler.Host.Http
             //保持 Cookie 容器 跟httpclient  之间的引用关系
             this.Cookies = new CookieContainer();
 
-            this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies, AutomaticDecompression = DecompressionMethods.GZip };
+            this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies, AutomaticDecompression = DecompressionMethods.GZip, AllowAutoRedirect=true };
             this.Client = new HttpClient(_clientHander);
-            this.Client.Timeout = TimeSpan.FromMilliseconds(2000);
+            this.Client.Timeout = TimeSpan.FromMilliseconds(5000);
+            this.Client.MaxResponseContentBufferSize = 256000;
         }
 
 
@@ -72,6 +73,10 @@ namespace ShoppingWebCrawler.Host.Http
         /// <param name="domainName"></param>
         public void ChangeGlobleCookies(List<Cookie> cookies, string domainName)
         {
+            if (null==cookies||string.IsNullOrEmpty(domainName))
+            {
+                return;
+            }
             //便利集合 ，重置对应的键值对
             foreach (Cookie item in cookies)
             {
@@ -269,10 +274,13 @@ namespace ShoppingWebCrawler.Host.Http
             try
             {
 
-                var tskResponse = this.GetRequestTransferAsync(url, fromHeaders);
-
+                var tskResponse = this.GetResponseTransferAsync(url, fromHeaders);
+                if (null==tskResponse)
+                {
+                    return string.Empty;
+                }
                 //等待 task执行完毕 返回结果
-                result = tskResponse.Result;
+                result = tskResponse.Result.Content.ReadAsStringAsync().Result;
             }
             catch (Exception ex)
             {
@@ -286,6 +294,39 @@ namespace ShoppingWebCrawler.Host.Http
 
 
 
+        public  async Task HttpGetForLargeFileInRightWay(string url, NameValueCollection fromHeaders)
+        {
+            if (null == this.Client)
+            {
+                this.Client = this.CreateNewHttpClient();
+            }
+
+            //修改请求对象的头信息
+            FormatRequestHeader(this.Client.DefaultRequestHeaders, fromHeaders);
+
+
+            var targetUri = new Uri(url);
+            if (targetUri.Scheme == HttpSchemaOfHttps)
+            {
+                //开启 https 默认证书验证
+                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+            }
+
+
+            using (HttpClient client = this.Client)
+            {
+                //const string url = "https://github.com/tugberkugurlu/ASPNETWebAPISamples/archive/master.zip";
+                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+                using (Stream streamToReadFrom = await response.Content.ReadAsStreamAsync())
+                {
+                    string fileToWriteTo = Path.GetTempFileName();
+                    using (Stream streamToWriteTo = File.Open(fileToWriteTo, FileMode.Create))
+                    {
+                        await streamToReadFrom.CopyToAsync(streamToWriteTo);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// get 请求转发
@@ -294,7 +335,7 @@ namespace ShoppingWebCrawler.Host.Http
         /// <param name="url"></param>
         /// <param name="fromHeaders"></param>
         /// <returns></returns>
-        public Task<string> GetRequestTransferAsync(string url, NameValueCollection fromHeaders)
+        public Task<HttpResponseMessage> GetResponseTransferAsync(string url, NameValueCollection fromHeaders)
         {
 
 
@@ -320,7 +361,7 @@ namespace ShoppingWebCrawler.Host.Http
                 Task<HttpResponseMessage> tskResponse;
                 try
                 {
-                     tskResponse = this.Client.GetAsync(targetUri);
+                     tskResponse = this.Client.GetAsync(targetUri, HttpCompletionOption.ResponseContentRead);
                     if (null == tskResponse || null == tskResponse.Result)
                     {
                         throw new Exception(string.Concat("指定的地址未能正确get响应！uri:", url));
@@ -335,7 +376,7 @@ namespace ShoppingWebCrawler.Host.Http
 
 
                 //普通文本请求
-                return tskResponse.Result.Content.ReadAsStringAsync();
+                return tskResponse;
                 //return client.GetStringAsync(targetUri);
 
             }

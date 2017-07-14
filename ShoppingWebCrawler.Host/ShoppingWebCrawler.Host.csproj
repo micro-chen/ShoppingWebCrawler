@@ -133,6 +133,7 @@
     <Compile Include="Handlers\WebCrawlerBrowserProcessHandler.cs" />
     <Compile Include="Handlers\WebCrawlerRenderProcessHandler.cs" />
     <Compile Include="HeadLessMainForm.cs" />
+    <Compile Include="Headless\CookiedCefBrowser.cs" />
     <Compile Include="Headless\HeadLessCefClient.cs" />
     <Compile Include="Logging\LogEventArgs.cs" />
     <Compile Include="Logging\Logger.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="MessageConvert\JsonMessageConvert.cs" />
     <Compile Include="Models\Passenger.cs" />
     <Compile Include="Common\SupportPlatformLoader.cs" />
+    <Compile Include="PlatformCrawlers\WebPageService\BaseBrowserRequestLoader.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\ETaoWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\JingdongWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\TaobaoWebPageService.cs" />
@@ -188,6 +190,7 @@
     <Folder Include="Extensions\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Common\readMe.txt" />
     <Content Include="Configs\SupportPlatforms.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

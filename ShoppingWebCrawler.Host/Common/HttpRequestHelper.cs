@@ -60,14 +60,15 @@ namespace ShoppingWebCrawler.Host
         /// </summary>
         private readonly string[] NotCustomAddModifyRequestHeaders = new[] {
             "Method",
-            "UserAgent",
+            "User-Agent",
             "Cookie",
             "Accept",
             "KeepAlive",
             "Timeout",
             "Host",
             "Referer",
-            "Host"
+            "Host",
+            "Connection"
         };
 
 
@@ -148,7 +149,7 @@ namespace ShoppingWebCrawler.Host
             //---------固定的头--begin-----------
             request.Method = "GET";
             request.UserAgent = DefaultUserAgent;
-            request.CookieContainer = GlobleCookieContainer;//设定为共享Cookie容器
+            request.CookieContainer = cookies;//设定为共享Cookie容器
             request.Headers.Add("Accept-Language", "zh-CN,zh;q=0.8");
             //---------固定的头----end------------
 

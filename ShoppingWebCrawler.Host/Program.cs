@@ -47,24 +47,17 @@ namespace ShoppingWebCrawler.Host
             }
 
 
-
-
-
-            var etaoWeb = new ETaoWebPageService();
-
-            string con = etaoWeb.QuerySearchContent("大米-" + DateTime.Now.Ticks.ToString());
-
-            System.Diagnostics.Debug.WriteLine(con);
-
-
-             con = etaoWeb.QuerySearchContent("大米-" + DateTime.Now.Ticks.ToString());
-
-            System.Diagnostics.Debug.WriteLine(con);
-             con = etaoWeb.QuerySearchContent("大米-" + DateTime.Now.Ticks.ToString());
-
-            System.Diagnostics.Debug.WriteLine(con);
             //var locker1 = RunningLocker.CreateNewLock();
-            //locker1.CancelAfter(2000);
+            //locker1.CancelAfter(20000);
+
+
+            var etaoWeb = new TmallWebPageService();
+
+            string con = etaoWeb.QuerySearchContent("mini裙子") ;
+
+            System.Diagnostics.Debug.WriteLine(con);
+
+          
 
 
 

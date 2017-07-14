@@ -22,7 +22,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <summary>
         /// 淘宝淘宝网页搜索获取地址
         /// </summary>
-        private const string templateOfSearchUrl = "https://s.taobao.com/search?q={0}&imgfile=&commend=all&ssid=s5-e&search_type=item&sourceId=tb.index&spm=a21bo.50862.201856-taobao-item.1&ie=utf8&initiative_id=tbindexz_20170710";
+        private const string templateOfSearchUrl = "https://s.taobao.com/search?data-key=sort&data-value=default&ajax=true&_ksTS=1500016697605_872&callback=jsonp873&ie=utf8&initiative_id=staobaoz_20170714&stats_click=search_radio_all%3A1&js=1&imgfile=&q={0}&source=suggest";
 
         /// <summary>
         /// 淘宝请求客户端--保持静态单个实例，防止多次实例化 创建请求链接导致的性能损失
@@ -54,7 +54,36 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
         }
 
-         /// <summary>
+
+        /// <summary>
+        /// 查询网页
+        /// </summary>
+        /// <param name="keyWord"></param>
+        /// <returns></returns>
+        public override string QuerySearchContent(string keyWord)
+        {
+            if (string.IsNullOrEmpty(keyWord))
+            {
+                return null;
+            }
+            //格式化一个查询地址
+
+            this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
+
+            //获取当前站点的Cookie
+            List<Cookie> cks = null;
+            GlobalContext.SupportPlatformsCookiesContainer.TryGetValue(taobaoSiteUrl, out cks);
+            taobaoHttpClient.ChangeGlobleCookies(cks, taobaoSiteUrl);
+
+            string respText = this.QuerySearchContentResonseAsync(taobaoHttpClient.Client).Result;
+
+            return respText;
+        }
+
+
+
+
+        /// <summary>
         /// 爆淘宝联盟的链接-根据淘宝官方跳转js解析算法
         /// 使用postman  发送淘宝客链接可以得到这个算法
         /// </summary>
@@ -85,7 +114,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
         /// <summary>
-        /// 获取耳机跳转 tuUrl
+        /// 获取二级tu跳转 tuUrl
         /// </summary>
         /// <param name="tuUrl"></param>
         /// <returns></returns>
@@ -138,29 +167,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
         }
 
-        /// <summary>
-        /// 查询网页
-        /// </summary>
-        /// <param name="keyWord"></param>
-        /// <returns></returns>
-        public override string QuerySearchContent(string keyWord)
-        {
-            if (string.IsNullOrEmpty(keyWord))
-            {
-                return null;
-            }
-            //格式化一个查询地址
 
-            this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
-
-            //获取当前站点的Cookie
-            var cks = GlobalContext.SupportPlatformsCookiesContainer[taobaoSiteUrl];
-            taobaoHttpClient.ChangeGlobleCookies(cks, taobaoSiteUrl);
-
-            string respText = this.QuerySearchContentResonseAsync(taobaoHttpClient.Client).Result;
-
-            return respText;
-        }
 
     }
 }
