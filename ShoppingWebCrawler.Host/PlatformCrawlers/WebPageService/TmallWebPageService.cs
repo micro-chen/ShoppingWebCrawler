@@ -13,6 +13,17 @@ using ShoppingWebCrawler.Host.Headless;
 using System.Text;
 using System.IO;
 
+
+/*
+
+ var etaoWeb = new TmallWebPageService();
+
+            string con = etaoWeb.QuerySearchContent("mini裙子") ;
+
+            System.Diagnostics.Debug.WriteLine(con);
+
+
+*/
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
     /// <summary>
@@ -132,27 +143,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
       
                 // 4 发送请求
                 var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
-                clientProxy.HttpGetForLargeFileInRightWay(searchUrl, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
-                ////使用gb2312编码获取内容字节
-                //StringBuilder sb = new StringBuilder();
-                //Byte[] buf = new byte[8192];
-                //Stream resStream = response.Result.Content.ReadAsStreamAsync().Result;
-                //string tmpString = null;
-                //int count = 0;
-                //do
-                //{
-                //    count = resStream.Read(buf, 0, buf.Length);
-                //    if (count != 0)
-                //    {
-                //        tmpString = Encoding.GetEncoding("gb2312").GetString(buf, 0, count);
-                //        sb.Append(tmpString);
-                //    }
-                //} while (count > 0);
+                //注意：对于响应的内容 不要使用内置的文本 工具打开，这个工具有bug.看到的文本不全面
+                //使用json格式打开即可看到里面所有的字符串
 
-                //string content= sb.ToString();
+                string content = clientProxy.GetRequestTransfer(searchUrl, null);
 
-                return "";
+               
+
+                return content;
 
             }
 
