@@ -61,7 +61,7 @@ namespace ShoppingWebCrawler.Host.Handlers
 
             }
 
-            var reg = new System.Text.RegularExpressions.Regex(@"(http:|https:).*\.(woff|css|jpg|jpeg|png|ttf|svg|json)\?{0,}.*", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var reg = new System.Text.RegularExpressions.Regex(@"(http:|https:).*\.(woff|css|jpg|jpeg|png|ttf|svg|json|ico)\?{0,}.*", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
             if (reg.IsMatch(url))
             {
@@ -102,7 +102,10 @@ namespace ShoppingWebCrawler.Host.Handlers
             {
                 return CefReturnValue.Cancel;
             }
-
+            if (url.Contains(".mogucdn.com"))
+            {
+                return CefReturnValue.Cancel;
+            }
             return base.OnBeforeResourceLoad(browser, frame, request, callback);
         }
 

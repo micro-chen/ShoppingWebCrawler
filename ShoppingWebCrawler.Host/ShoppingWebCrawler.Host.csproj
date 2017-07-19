@@ -122,6 +122,7 @@
     <Compile Include="Common\HttpValueCollection.cs" />
     <Compile Include="Common\HttpRequestHelper.cs" />
     <Compile Include="Common\JavascriptContext.cs" />
+    <Compile Include="Common\LZString.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\RunningLocker.cs" />
     <Compile Include="Common\Singleton.cs" />
@@ -154,7 +155,7 @@
     <Compile Include="PlatformCrawlers\WebPageService\MeilishuoWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\MogujieWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\Zhe800WebPageService.cs" />
-    <Compile Include="PlatformCrawlers\WebPageService\YiHaoDianWebPageService.cs" />
+    <Compile Include="PlatformCrawlers\WebPageService\YhdWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\TmallWebPageService.cs" />
     <Compile Include="PlatformCrawlers\BaseRequest.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\BaseWebPageService.cs" />

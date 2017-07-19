@@ -9,6 +9,8 @@ namespace NTCPMessage.EntityPackage
     /// </summary>
     public interface IFetchWebPageArgument
     {
+
+        SupportPlatformEnum Platform { get; set; }
         /// <summary>
         /// 关键词
         /// </summary>

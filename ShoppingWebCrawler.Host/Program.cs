@@ -17,29 +17,23 @@ namespace ShoppingWebCrawler.Host
         {
 
 
-         
 
 
-                //破解淘宝客加密的链接
 
-                //string url = "http://s.click.taobao.com/t?spm=1002.8113010.1999451588.1.197829d2xOjGWY&e=m%3D2%26s%3DmP8QGUZCl18cQipKwQzePOeEDrYVVa64LKpWJ%2Bin0XK3bLqV5UHdqU7FFcTKJEXpBuky%2F0Sep%2BFpvEi8xmC0PQfgGrPFD%2FD7ItsJf7xhZUukOrdzMLy3g0C9MWo3ZAy5ZtvIAOb0yL8buZkKjgqa4LRqys2RxTiLmiP8wiUuCvFDEV8PXh1a5UciGQ2l2vvBJoe7ipwP0MtRLBgaW5udaw%3D%3D";
+            //破解淘宝客加密的链接
 
-                //string content = new Http.HttpServerProxy().GetRequestTransfer(url,null);
+            //string url = "http://s.click.taobao.com/t?spm=1002.8113010.1999451588.1.197829d2xOjGWY&e=m%3D2%26s%3DmP8QGUZCl18cQipKwQzePOeEDrYVVa64LKpWJ%2Bin0XK3bLqV5UHdqU7FFcTKJEXpBuky%2F0Sep%2BFpvEi8xmC0PQfgGrPFD%2FD7ItsJf7xhZUukOrdzMLy3g0C9MWo3ZAy5ZtvIAOb0yL8buZkKjgqa4LRqys2RxTiLmiP8wiUuCvFDEV8PXh1a5UciGQ2l2vvBJoe7ipwP0MtRLBgaW5udaw%3D%3D";
+
+            //string content = new Http.HttpServerProxy().GetRequestTransfer(url,null);
 
 
-                //var rl = TaobaoWebPageService.GetTaobaoUnionOfficalUrl(url);
-                // return;
+            //var rl = TaobaoWebPageService.GetTaobaoUnionOfficalUrl(url);
+            // return;
 
-                try
-                {
+            try
+            {
                 //1 初始化CEF运行时
                 InitApp.Init(args);
-                //2 开启无窗口的浏览器 请求平台站点
-                //var appForm = new HeadLessMainForm();
-                //appForm.Start();
-
-
-
             }
             catch (Exception ex)
             {
@@ -51,13 +45,15 @@ namespace ShoppingWebCrawler.Host
             //locker1.CancelAfter(20000);
 
 
-            var etaoWeb = new TmallWebPageService();
+            var etaoWeb = new TaobaoWebPageService();
 
-            string con = etaoWeb.QuerySearchContent("mini裙子") ;
+            var paras = new NTCPMessage.EntityPackage.Arguments.TaobaoFetchWebPageArgument { KeyWord = "洗面奶男" };
 
-            System.Diagnostics.Debug.WriteLine(con);
+            var con = etaoWeb.QuerySearchContent(paras);
 
-          
+            System.Diagnostics.Debug.WriteLine(con.Result);
+
+
 
 
 

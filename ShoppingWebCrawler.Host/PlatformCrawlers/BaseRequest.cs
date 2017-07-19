@@ -12,10 +12,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers
 {
     public  class BaseRequest
     {
-        /// <summary>
-        /// 请求地址
-        /// </summary>
-        protected virtual string TargetUrl { get; set; }
+
 
         /// <summary>
         /// 通用的请求头信息 
@@ -36,19 +33,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers
         }
 
 
-        /// <summary>
-        /// 发送异步请求
-        /// </summary>
-        /// <returns></returns>
-        protected Task<string> SendRequesntAsync(HttpClient client, CookieContainer cookies = null)
-        {
-            var clientProxy = new HttpServerProxy() { Client = client, KeepAlive = true, Cookies = cookies };
-            return clientProxy.GetResponseTransferAsync(TargetUrl, null)
-                .Result
-                .Content
-                .ReadAsStringAsync();
-
-        }
 
 
     }

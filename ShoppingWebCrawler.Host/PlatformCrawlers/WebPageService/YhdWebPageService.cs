@@ -11,30 +11,28 @@ using ShoppingWebCrawler.Host.Http;
 using System.Net;
 using ShoppingWebCrawler.Host.Headless;
 using NTCPMessage.EntityPackage;
-
-
 /*
-   var etaoWeb = new SuningWebPageService();
+var etaoWeb = new YihaodianWebPageService();
 
-            string con = etaoWeb.QuerySearchContent("洗面奶男") ;
+string con = etaoWeb.QuerySearchContent("洗面奶男") ;
 
-            System.Diagnostics.Debug.WriteLine(con);
-
+System.Diagnostics.Debug.WriteLine(con);
 */
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
     /// <summary>
-    /// 苏宁搜索页面抓取
+    /// 一号店搜索页面抓取
     /// </summary>
-    public class SuningWebPageService : BaseWebPageService
+    public class YhdWebPageService : BaseWebPageService
     {
 
 
         
 
-        public SuningWebPageService()
+        public YhdWebPageService()
         {
         }
+
 
         /// <summary>
         /// 覆盖抽象属性实现自身的http加载器
@@ -43,15 +41,20 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         {
             get
             {
-                return SuningMixReuestLoader.Current;
+                return YhdMixReuestLoader.Current;
             }
         }
+
+
+
+
+
 
 
         ///------------内部类-----------------
 
         /// <summary>
-        /// 苏宁的混合请求类
+        /// 一号店的混合请求类
         /// 1 根据传入的搜索url  使用 CEF打开 指定地址
         /// 2 拦截出来请求数据的地址
         /// 3 拦截后 把对应的Cookie拿出来
@@ -59,18 +62,19 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// 
         /// 为了保证性能  保持此类单个实例 
         /// </summary>
-        public class SuningMixReuestLoader : BaseBrowserRequestLoader<SuningMixReuestLoader>
+        public class YhdMixReuestLoader : BaseBrowserRequestLoader<YhdMixReuestLoader>
         {
-            private const string SuningSiteUrl = "https://www.suning.com/";
+            private const string YihaodianSiteUrl = "http://www.yhd.com/";
 
             /// <summary>
-            /// 苏宁请求 搜索地址页面
+            /// 一号店请求 搜索地址页面
             /// </summary>
-            private const string templateOfSearchUrl = "https://search.suning.com/{0}/";
+            private const string templateOfSearchUrl = "http://search.yhd.com/c0-0/k{0}/?tp=1.1.12.0.3.LpPTkdw-10-93L!6";
+
             /// <summary>
             /// 请求客户端
             /// </summary>
-            private static CookedHttpClient SuningHttpClient;
+            private static CookedHttpClient YihaodianHttpClient;
 
 
 
@@ -78,24 +82,24 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <summary>
             /// 静态构造函数
             /// </summary>
-            static SuningMixReuestLoader()
+            static YhdMixReuestLoader()
             {
                 //静态创建请求客户端
-                SuningHttpClient = new CookiedCefBrowser().BindingHttpClient;
+                YihaodianHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();
                 requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
-                requestHeaders.Add("Host", "search.suning.com");
+                requestHeaders.Add("Host", "search.yhd.com");
                 requestHeaders.Add("Upgrade-Insecure-Requests", "1");
-                requestHeaders.Add("Referer", SuningSiteUrl);
-                SuningHttpClient = new CookedHttpClient();
-                HttpServerProxy.FormatRequestHeader(SuningHttpClient.Client.DefaultRequestHeaders, requestHeaders);
+                
+                YihaodianHttpClient = new CookedHttpClient();
+                HttpServerProxy.FormatRequestHeader(YihaodianHttpClient.Client.DefaultRequestHeaders, requestHeaders);
             }
 
-            public SuningMixReuestLoader()
+            public YhdMixReuestLoader()
             {
-                ///苏宁刷新搜索页cookie的地址
+                ///一号店刷新搜索页cookie的地址
                 this.RefreshCookieUrl = string.Format(templateOfSearchUrl, "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
 
                 this.IntiCefWebBrowser();
@@ -111,21 +115,20 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 }
 
 
-
                 //加载Cookie
                 var ckVisitor = new LazyCookieVistor();
-                var cks = ckVisitor.LoadCookies(SuningSiteUrl);
+                var cks = ckVisitor.LoadCookies(YihaodianSiteUrl);
 
 
 
 
                 string searchUrl = string.Format(templateOfSearchUrl, keyWord);
 
-                var client = SuningHttpClient;
-
+                var client = YihaodianHttpClient;
+                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://search.yhd.com/c0-0/k{0}/?tp=1.1.12.0.3.LpPV5SK-10-93L!6", keyWord));
                 ////加载cookies
                 ////获取当前站点的Cookie
-                client.ChangeGlobleCookies(cks, SuningSiteUrl);
+                client.ChangeGlobleCookies(cks, YihaodianSiteUrl);
 
                 // 4 发送请求
                 var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };

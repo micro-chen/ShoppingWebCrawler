@@ -9,8 +9,27 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// <summary>
     /// 【淘宝】搜索页面 参数
     /// </summary>
-    public class TaobaoFetchWebPageArgument : BaseFetchWebPageArgument
+    public sealed class TaobaoFetchWebPageArgument : BaseFetchWebPageArgument
     {
+        public TaobaoFetchWebPageArgument()
+        {
+            this.Platform = SupportPlatformEnum.Taobao;
+        }
+        /// <summary>
+        /// 平台标识
+        /// </summary>
+        public override SupportPlatformEnum Platform
+        {
+            get
+            {
+                return base.Platform;   
+            }
+
+             set
+            {
+                base.Platform = value;
+            }
+        }
         /// <summary>
         /// 获取【淘宝】平台支持的排序字段列表
         /// </summary>

@@ -12,6 +12,7 @@ using System.Net;
 using ShoppingWebCrawler.Host.Headless;
 using System.Text;
 using System.IO;
+using NTCPMessage.EntityPackage;
 
 
 /*
@@ -32,14 +33,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
     public class TmallWebPageService : BaseWebPageService
     {
 
-        /// <summary>
-        /// 请求地址-根据方法传递的参数 动态格式化
-        /// </summary>
-        protected override string TargetUrl
-        {
-            get;set;
-        }
-
 
 
         
@@ -50,21 +43,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
         /// <summary>
-        /// 查询网页
+        /// 覆盖抽象属性实现自身的http加载器
         /// </summary>
-        /// <param name="keyWord"></param>
-        /// <returns></returns>
-        public override string QuerySearchContent(string keyWord)
+        public override IBrowserRequestLoader RequestLoader
         {
-            if (string.IsNullOrEmpty(keyWord))
+            get
             {
-                return null;
+                return TmallMixReuestLoader.Current;
             }
-            string respText = TmallMixReuestLoader.Current.LoadUrlGetSearchApiContent(keyWord);
-            return respText;
         }
-
-
 
 
 
@@ -122,9 +109,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 this.IntiCefWebBrowser();
             }
 
-            public string LoadUrlGetSearchApiContent(string keyWord)
+            public override string LoadUrlGetSearchApiContent(IFetchWebPageArgument queryParas)
             {
-           
+
+                string keyWord = queryParas.KeyWord;
+                if (string.IsNullOrEmpty(keyWord))
+                {
+                    return string.Empty;
+                }
+
 
                 //加载Cookie
                 var ckVisitor = new LazyCookieVistor();

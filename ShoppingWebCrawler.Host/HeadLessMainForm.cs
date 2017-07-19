@@ -12,17 +12,27 @@ using ShoppingWebCrawler.Host.Headless;
 using System.Threading;
 using System.Linq;
 
+/*
+
+废弃 在 启动的时候注册cef窗口
+ //2 开启无窗口的浏览器 请求平台站点
+                //var appForm = new HeadLessMainForm();
+                //appForm.Start();
+*/
 namespace ShoppingWebCrawler.Host
 {
 
 
     /// <summary>
+    /// ---------------这种一开始就刷新全部注册的url的方式不再适用，新的方式是为每个页面请求实例，单例模式
+    /// 并且绑定一个cef browser实例 定时刷新-----------------------------
     /// 无头模式的窗口入口
     /// 1 加载 一个空白的cefbrowser 对象
     /// 2 对配置中的站点列表进行 Next方式打开
     /// 3 Next 链 完毕后，开始随机定时，到触发点后，继续轮询URL
     /// （如果进入新的一轮 那么采用强制刷新的方式 无缓存的方式）
     /// </summary>
+    [Obsolete("这种一开始就刷新全部注册的url的方式不再适用，新的方式是为每个页面请求实例，单例模式, 并且绑定一个cef browser实例 定时刷新")]
     public sealed class HeadLessMainForm
     {
 

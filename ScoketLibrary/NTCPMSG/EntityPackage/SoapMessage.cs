@@ -76,7 +76,7 @@ namespace NTCPMessage.EntityPackage
         public string Id { get; set; }
 
         /// <summary>
-        /// 消息头（指定使用的正文实体类类型 类名称）
+        /// 消息头（指定使用的Action）
         /// </summary>
         public string Head { get; set; }
 

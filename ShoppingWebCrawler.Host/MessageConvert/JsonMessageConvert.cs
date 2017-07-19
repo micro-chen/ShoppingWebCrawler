@@ -9,6 +9,7 @@ using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
 using Newtonsoft.Json;
 using NTCPMessage.EntityPackage.Arguments;
+using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
 
 namespace ShoppingWebCrawler.Host.MessageConvert
 {
@@ -18,7 +19,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
     /// json 消息转换
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class JsonMessageConvert : MessageParse 
+    public class JsonMessageConvert : MessageParse
     {
 
         public JsonMessageConvert()
@@ -29,7 +30,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
 
         public override IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, SoapMessage obj)
         {
-            if (null==obj)
+            if (null == obj)
             {
                 return DataResultContainer<string>.CreateNullDataContainer();
             }
@@ -44,7 +45,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                     try
                     {
                         //从body 中获取参数 ，并传递到指定的Action todo  :指定命令发到指定的平台action解析
-                        var args = JsonConvert.DeserializeObject<IFetchWebPageArgument>(obj.Body);
+                        var args = JsonConvert.DeserializeObject<BaseFetchWebPageArgument>(obj.Body);
                         result = this.FetchPlatformSearchWebPage(args);
 
                     }
@@ -86,14 +87,34 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// <returns></returns>
         private IDataContainer FetchPlatformSearchWebPage(IFetchWebPageArgument args)
         {
-            var result = new DataResultContainer<string>();
+            IDataContainer result = DataResultContainer<string>.CreateNullDataContainer();
+            //解析参数的Web蜘蛛服务
+            BaseWebPageService webPageService = BaseWebPageService.CreateWebPaeServer(args.Platform);
+          
 
-            var allPlatforms = GlobalContext.SupportPlatforms;
+            if (null != webPageService)
+            {
+                try
+                {
+                  result=  webPageService.QuerySearchContent(args);
+                }
+                catch (Exception ex)
+                {
+                    
+                    Logging.Logger.WriteException(ex);
+                }
+            }
+            if (null== result)
+            {
+                result = DataResultContainer<string>.CreateNullDataContainer();
+            }
 
-            result.Result = JsonConvert.SerializeObject(allPlatforms);
 
             return result;
         }
+
+
+
     }
 
 

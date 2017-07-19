@@ -62,7 +62,7 @@ namespace ShoppingWebCrawler.Host.Http
             this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies, AutomaticDecompression = DecompressionMethods.GZip, AllowAutoRedirect = true };
             this.Client = new HttpClient(_clientHander);
             this.Client.Timeout = TimeSpan.FromMilliseconds(5000);
-            this.Client.MaxResponseContentBufferSize = 256000;
+           // this.Client.MaxResponseContentBufferSize = 256000;
         }
 
 
@@ -229,8 +229,6 @@ namespace ShoppingWebCrawler.Host.Http
             {
                 client = new HttpClient();
             }
-            //设定最大的容积量 防止溢出
-            client.MaxResponseContentBufferSize = 256000;
 
             return client;
         }

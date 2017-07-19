@@ -14,6 +14,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
 
     /// <summary>
     /// 默认的消息转换
+    /// 客户端发送过来的命令进行相应，如：ping
     /// 统一为基本字符串消息
     /// </summary>
     public class DefaultMessageConvert : IMessageParse<string>

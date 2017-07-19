@@ -15,6 +15,7 @@ using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Host.Handlers;
 using ShoppingWebCrawler.Host.Common;
+using NTCPMessage.EntityPackage;
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
@@ -43,16 +44,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
 
-        /// <summary>
-        /// 请求地址-根据方法传递的参数 动态格式化
-        /// </summary>
-        protected override string TargetUrl
-        {
-            get; set;
-        }
-
-
-
 
 
         public ETaoWebPageService()
@@ -61,31 +52,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
         /// <summary>
-        /// 查询网页
+        /// 覆盖抽象属性实现自身的http加载器
         /// </summary>
-        /// <param name="keyWord"></param>
-        /// <returns></returns>
-        public override string QuerySearchContent(string keyWord)
+        public override IBrowserRequestLoader RequestLoader
         {
-            if (string.IsNullOrEmpty(keyWord))
+            get
             {
-                return null;
+                return ETaoMixReuestLoader.Current;
             }
-            //格式化一个查询地址
-
-            //this.TargetUrl = string.Format(templateOfSearchUrl, keyWord);
-
-
-
-            //string respText = ETaoMixReuestLoader.Current.LoadUrlGetSearchApiContent(this.TargetUrl)
-            //    .ConfigureAwait(false)
-            //    .GetAwaiter()
-            //    .GetResult();
-
-            string respText = ETaoMixReuestLoader.Current.LoadUrlGetSearchApiContent(keyWord);
-            return respText;
         }
-
 
 
         ///------------内部类-----------------
@@ -143,8 +118,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 this.IntiCefWebBrowser();
             }
 
-            public string LoadUrlGetSearchApiContent(string keyWord)
+            public override string LoadUrlGetSearchApiContent(IFetchWebPageArgument queryParas)
             {
+
+                string keyWord = queryParas.KeyWord;
+                if (string.IsNullOrEmpty(keyWord))
+                {
+                    return string.Empty;
+                }
                 //生成时间戳
                 string timestamp = JavascriptContext.getUnixTimestamp();
 

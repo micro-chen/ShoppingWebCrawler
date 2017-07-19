@@ -26,5 +26,18 @@ namespace NTCPMessage.EntityPackage
         /// 站点地址
         /// </summary>
         public string SiteUrl { get; set; }
+
+        /// <summary>
+        /// 平台枚举根据id编码走
+        /// </summary>
+        public SupportPlatformEnum Platform
+        {
+            get
+            {
+                return (SupportPlatformEnum)this.Id;
+            }
+        }
+
+
     }
 }

@@ -10,8 +10,30 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// 【国美】搜索页面 参数
     /// 具体详细的搜索面板 回头慢慢完善
     /// </summary>
-    public class GuomeiFetchWebPageArgument : BaseFetchWebPageArgument
+    public sealed class GuomeiFetchWebPageArgument : BaseFetchWebPageArgument
     {
+
+        public GuomeiFetchWebPageArgument()
+        {
+            this.Platform = SupportPlatformEnum.Guomei;
+        }
+
+        /// <summary>
+        /// 平台标识
+        /// </summary>
+        public override SupportPlatformEnum Platform
+        {
+            get
+            {
+                return base.Platform;
+            }
+
+             set
+            {
+                base.Platform = value;
+            }
+        }
+
         /// <summary>
         /// 获取【国美】平台支持的排序字段列表
         /// </summary>

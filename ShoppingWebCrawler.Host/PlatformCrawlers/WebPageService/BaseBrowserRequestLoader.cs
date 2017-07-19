@@ -1,4 +1,5 @@
-﻿using ShoppingWebCrawler.Cef.Framework;
+﻿using NTCPMessage.EntityPackage;
+using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Headless;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
@@ -13,11 +15,20 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
     /// 基于绑定浏览器的请求基类
     /// 需要浏览器内核支持刷新页面Cookie
     /// </summary>
-    public interface IBrowserRequestLoader { }
+    public interface IBrowserRequestLoader
+    {
+
+        /// <summary>
+        /// 使用指定的参数产生请求，返回请求的http响应内容
+        /// </summary>
+        /// <param name="queryParas"></param>
+        /// <returns></returns>
+        string LoadUrlGetSearchApiContent(IFetchWebPageArgument queryParas);
+    }
     /// <summary>
     /// 请求加载基类
     /// </summary>
-    public class BaseBrowserRequestLoader<T>: IBrowserRequestLoader where T :IBrowserRequestLoader, new()
+    public abstract class BaseBrowserRequestLoader<T> : IBrowserRequestLoader where T : IBrowserRequestLoader, new()
     {
 
         /// <summary>
@@ -59,17 +70,20 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             {
                 if (null == _current)
                 {
+                    _readLock.EnterReadLock();
 
                     try
                     {
-                        _readLock.EnterReadLock();
                         _current = new T();
-
                     }
                     catch { }
                     finally
                     {
-                        _readLock.ExitReadLock();
+                        if (_readLock.IsReadLockHeld)
+                        {
+                            _readLock.ExitReadLock();
+                        }
+
                     }
                 }
                 return _current;
@@ -84,7 +98,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
         public BaseBrowserRequestLoader()
         {
-          
+
         }
 
 
@@ -100,7 +114,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 if (null == mixdBrowser)
                 {
                     _readLock_mixdBrowser.EnterReadLock();
-                    mixdBrowser =  CookiedCefBrowser.CreateNewWebBrowser()
+                    mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
                         .ConfigureAwait(false)
                         .GetAwaiter()
                         .GetResult();
@@ -109,7 +123,11 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             catch { }
             finally
             {
-                _readLock_mixdBrowser.ExitReadLock();
+                if (_readLock_mixdBrowser.IsReadLockHeld)
+                {
+                    _readLock_mixdBrowser.ExitReadLock();
+                }
+
             }
 
 
@@ -139,13 +157,13 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         protected void AutoRefeshCookie(string refreshCookieUrl)
         {
 
-           
+
             if (string.IsNullOrEmpty(refreshCookieUrl))
             {
                 throw new Exception("自动刷新Cookie的刷新地址不能为空！");
             }
             //然后从新加载下链接 即可刷新Cookie
-            
+
             this.InnerLoadUrlGetSearchApiContent(refreshCookieUrl);
             //不定时刷新
             this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(5, 10));
@@ -200,10 +218,10 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                     #endregion
 
-
+                    string url = HttpUtility.UrlDecode(e.Frame.Url);
                     //设置返回结果为固定的内容
                     tcs.SetResult("loaded");
-
+                    System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
                     //处理完毕后 一定要记得将处理程序移除掉 防止多播
                     //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
                     mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
@@ -233,6 +251,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
         }
 
+
+        /// <summary>
+        /// 使用指定的参数产生请求，返回请求的http响应内容
+        /// 抽象方法
+        /// </summary>
+        /// <param name="queryParas"></param>
+        /// <returns></returns>
+        public abstract string LoadUrlGetSearchApiContent(IFetchWebPageArgument queryParas);
 
     }
 }

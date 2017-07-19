@@ -10,8 +10,30 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// 【拼多多】搜索页面 参数
     /// 具体详细的搜索面板 回头慢慢完善
     /// </summary>
-    public class PddFetchWebPageArgument : BaseFetchWebPageArgument
+    public sealed class PddFetchWebPageArgument : BaseFetchWebPageArgument
     {
+        public PddFetchWebPageArgument()
+        {
+            this.Platform = SupportPlatformEnum.Pdd;
+        }
+
+        /// <summary>
+        /// 平台标识
+        /// </summary>
+        public override SupportPlatformEnum Platform
+        {
+            get
+            {
+                return base.Platform;
+            }
+
+             set
+            {
+                base.Platform = value;
+            }
+        }
+
+
         /// <summary>
         /// 获取【拼多多】平台支持的排序字段列表
         /// </summary>

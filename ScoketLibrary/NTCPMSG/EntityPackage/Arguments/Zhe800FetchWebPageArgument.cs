@@ -10,8 +10,31 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// 【zhe800】搜索页面 参数
     /// 具体详细的搜索面板 回头慢慢完善
     /// </summary>
-    public class Zhe800FetchWebPageArgument : BaseFetchWebPageArgument
+    public sealed class Zhe800FetchWebPageArgument : BaseFetchWebPageArgument
     {
+
+
+        public Zhe800FetchWebPageArgument()
+        {
+            this.Platform = SupportPlatformEnum.Zhe800;
+        }
+
+        /// <summary>
+        /// 平台标识
+        /// </summary>
+        public override SupportPlatformEnum Platform
+        {
+            get
+            {
+                return base.Platform;
+            }
+
+             set
+            {
+                base.Platform = value;
+            }
+        }
+
         /// <summary>
         /// 获取【zhe800】平台支持的排序字段列表
         /// </summary>

@@ -87,6 +87,7 @@
     <Compile Include="EntityPackage\IFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\SoapMessage.cs" />
     <Compile Include="EntityPackage\SupportPlatform.cs" />
+    <Compile Include="EntityPackage\SupportPlatformEnum.cs" />
     <Compile Include="Event\AcceptEventArgs.cs" />
     <Compile Include="Event\CableConnectedEventArgs.cs" />
     <Compile Include="Event\Delegates.cs" />

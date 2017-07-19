@@ -14,12 +14,13 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 状态 0 失败，1 成功
         /// </summary>
-         int Status { get; set; }
+        int Status { get; set; }
 
         /// <summary>
         /// 错误消息
         /// </summary>
-         string ErrorMsg { get; set; }
+        string ErrorMsg { get; set; }
+
 
     }
 }

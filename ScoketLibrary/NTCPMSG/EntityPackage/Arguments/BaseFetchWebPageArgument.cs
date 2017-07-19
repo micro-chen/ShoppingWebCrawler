@@ -8,8 +8,12 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// 抓取网页需要的基础参数模型
     /// TODO：第一阶段只是按照各个平台官网的排序进行排序，筛选勾选字段 暂时没有实现
     /// </summary>
-    public abstract class BaseFetchWebPageArgument : IFetchWebPageArgument
+    public class BaseFetchWebPageArgument : IFetchWebPageArgument
     {
+        /// <summary>
+        /// 归属平台
+        /// </summary>
+        public virtual SupportPlatformEnum Platform { get;  set; }
 
         /// <summary>
         /// 查询关键词
@@ -36,9 +40,17 @@ namespace NTCPMessage.EntityPackage.Arguments
 
         /// <summary>
         /// 获取当前平台支持的排序字段列表
+        /// 注意：此为虚方法，继承类可以实现重写
         /// </summary>
         /// <returns></returns>
-        public abstract List<OrderField> GetCurrentPlatformSupportOrderFields();
+        public virtual List<OrderField> GetCurrentPlatformSupportOrderFields()
+        {
+
+            return null;
+        }
+
+        
+
 
     }
 }

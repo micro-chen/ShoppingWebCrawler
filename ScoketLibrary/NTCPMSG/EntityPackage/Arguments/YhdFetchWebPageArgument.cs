@@ -10,8 +10,30 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// 【一号店】搜索页面 参数
     /// 具体详细的搜索面板 回头慢慢完善
     /// </summary>
-    public class YhdFetchWebPageArgument: BaseFetchWebPageArgument
+    public sealed class YhdFetchWebPageArgument: BaseFetchWebPageArgument
     {
+
+
+        public YhdFetchWebPageArgument()
+        {
+            this.Platform = SupportPlatformEnum.Yhd;
+        }
+
+        /// <summary>
+        /// 平台标识
+        /// </summary>
+        public override SupportPlatformEnum Platform
+        {
+            get
+            {
+                return base.Platform;   
+            }
+
+             set
+            {
+                base.Platform = value;
+            }
+        }
         /// <summary>
         /// 获取【一号店】平台支持的排序字段列表
         /// </summary>

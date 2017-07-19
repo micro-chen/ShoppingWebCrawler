@@ -24,7 +24,7 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 返回客户端的结果容器
         /// </summary>
-        public T Result { get; set; }
+        public  T Result { get; set; }
 
 
 
