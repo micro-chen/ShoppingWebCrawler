@@ -157,7 +157,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <summary>
             /// 淘宝淘宝网页搜索获取地址
             /// </summary>
-            private const string templateOfSearchUrl = "https://s.taobao.com/search?q={0}&imgfile=&commend=all&ssid=s5-e&search_type=item&sourceId=tb.index&spm=a21bo.50862.201856-taobao-item.1&ie=utf8&initiative_id=tbindexz_20170710";
+            private const string templateOfSearchUrl = "https://s.taobao.com/search?data-key=sort&data-value=renqi-desc&ajax=true&_ksTS=1500517782768_897&callback=jsonp898&q={0}&commend=all&ssid=s5-e&search_type=item&sourceId=tb.index&spm=a21bo.50862.201856-taobao-item.1&ie=utf8&initiative_id=tbindexz_20170720";
 
 
             /// <summary>

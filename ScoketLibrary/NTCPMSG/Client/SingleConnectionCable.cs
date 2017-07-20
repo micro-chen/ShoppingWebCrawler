@@ -256,7 +256,7 @@ namespace NTCPMessage.Client
             }
 
             DefaultDataSerializer = new Serialize.BinSerializer<object>();
-            DefaultReturnSerializer = new Serialize.JsonSerializer<DataResultContainer<object>>();
+            DefaultReturnSerializer = new Serialize.JsonSerializer<DataContainer>();
 
             _SyncConnection = new SingleConnection(remoteIPEndPoint);
 

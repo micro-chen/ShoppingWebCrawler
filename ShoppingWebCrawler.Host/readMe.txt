@@ -6,7 +6,7 @@
 
 
 	//取消了GPU的功能  在无头模式下 gp 加速会出现崩溃的问题 
-	
+	https://bitbucket.org/xilium/xilium.cefglue/commits/4146c2b46923593f55d28c7435f017631f86dca0
 	protected override void OnBeforeCommandLineProcessing(string processType, CefCommandLine commandLine)
         {
             //禁止使用gpu 加速 在headless 模式下  gpu 有问题

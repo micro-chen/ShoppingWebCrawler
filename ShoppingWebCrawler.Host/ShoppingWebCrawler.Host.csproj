@@ -115,6 +115,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppStart\ConsoleClean.cs" />
     <Compile Include="AppStart\InitApp.cs" />
     <Compile Include="AppStart\RemoteServer.cs" />
     <Compile Include="Common\ConfigHelper.cs" />
@@ -122,7 +123,6 @@
     <Compile Include="Common\HttpValueCollection.cs" />
     <Compile Include="Common\HttpRequestHelper.cs" />
     <Compile Include="Common\JavascriptContext.cs" />
-    <Compile Include="Common\LZString.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\RunningLocker.cs" />
     <Compile Include="Common\Singleton.cs" />

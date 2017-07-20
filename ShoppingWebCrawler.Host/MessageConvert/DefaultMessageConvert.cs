@@ -56,7 +56,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             //return result;
             if (string.IsNullOrEmpty(obj))
             {
-                return DataResultContainer<string>.CreateNullDataContainer();
+                return DataContainer.CreateNullDataContainer();
             }
 
             IDataContainer result = null;
@@ -65,7 +65,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             {
                 case "ping": result = this.PingCmdProcessor(); break;
                 default:
-                    result = DataResultContainer<string>.CreateNullDataContainer();
+                    result = DataContainer.CreateNullDataContainer();
                     break;
             }
 
@@ -80,7 +80,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// <returns></returns>
         private IDataContainer PingCmdProcessor()
         {
-            var result = new DataResultContainer<string>();
+            var result = new DataContainer();
             result.Result = "pong";
 
             return result;

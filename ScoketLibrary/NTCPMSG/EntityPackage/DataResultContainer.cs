@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace NTCPMessage.EntityPackage
 {
-    public class DataResultContainer<T> : IDataContainer
+    public class DataContainer : IDataContainer
     {
-        public DataResultContainer()
+        public DataContainer()
         {
             this.Status = 1;
         }
@@ -22,9 +22,10 @@ namespace NTCPMessage.EntityPackage
         /// </summary>
         public string ErrorMsg { get; set; }
         /// <summary>
-        /// 返回客户端的结果容器
+        /// 返回客户端的结果
+        /// 如果是对象请转为json格式
         /// </summary>
-        public  T Result { get; set; }
+        public  string Result { get; set; }
 
 
 
@@ -35,7 +36,7 @@ namespace NTCPMessage.EntityPackage
         public static IDataContainer CreateNullDataContainer()
         {
 
-            return new DataResultContainer<string> { Status = 0, ErrorMsg = "参数未能被识别或者为空！" };
+            return new DataContainer { Status = 0, ErrorMsg = "参数未能被识别或者为空！" };
 
         }
     }

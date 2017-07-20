@@ -508,7 +508,7 @@ namespace NTCPMessage.Client
             this.BindIPEndPoint = new IPEndPoint(bindIP, 0);
             this.RemoteIPEndPoint = remoteIPEndPoint;
             DefaultDataSerializer = new Serialize.BinSerializer<object>();
-            DefaultReturnSerializer = new Serialize.JsonSerializer<DataResultContainer<object>>();
+            DefaultReturnSerializer = new Serialize.JsonSerializer<DataContainer>();
         }
 
         /// <summary>
@@ -521,7 +521,7 @@ namespace NTCPMessage.Client
             this.BindIPEndPoint = new IPEndPoint(bindIPAddress, 0);
             this.RemoteIPEndPoint = remoteIPEndPoint;
             DefaultDataSerializer = new Serialize.BinSerializer<object>();
-            DefaultReturnSerializer = new Serialize.JsonSerializer<DataResultContainer<object>>();
+            DefaultReturnSerializer = new Serialize.JsonSerializer<DataContainer>();
         }
 
         /// <summary>

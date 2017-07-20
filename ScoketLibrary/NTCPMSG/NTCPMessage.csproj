@@ -96,6 +96,7 @@
     <Compile Include="Event\ReceiveEventArgs.cs" />
     <Compile Include="InnerEvent.cs" />
     <Compile Include="LittleEndianBitConverter.cs" />
+    <Compile Include="Compress\LZString.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageFlag.cs" />
     <Compile Include="ProcessorThread.cs" />

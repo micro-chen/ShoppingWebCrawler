@@ -33,7 +33,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         {
             //Console.WriteLine(obj);
 
-            var result = new DataResultContainer<string>();
+            var result = new DataContainer();
             result.Result = "this has not been suppot";
 
             return result;

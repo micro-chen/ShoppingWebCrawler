@@ -169,28 +169,31 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(5, 10));
         }
 
+
         /// <summary>
         /// 内部类方法加载指定的搜索url 并拦截调用api的内容
         /// 在初始化的时候 刷新Cookie用
         /// </summary>
-        /// <param name="searchUrl"></param>
+        /// <param name="searchUrl">请求指定的地址</param>
+        /// <param name="timeOut">超时时间，不小于3000毫秒，超时将返回加载超时</param>
         /// <returns></returns>
-        private Task<string> InnerLoadUrlGetSearchApiContent(string searchUrl)
+        private Task<string> InnerLoadUrlGetSearchApiContent(string searchUrl,int timeOut=6000)
         {
 
+            if (timeOut<=1000)
+            {
+                timeOut = 3000;
+            }
 
-
+        
+            //将事件消息模式转换为 task同步消息
             var tcs = new TaskCompletionSource<string>();
 
-
-            //2 开始发送请求LoadString
-            // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
+            //注册请求处理委托
             EventHandler<LoadEndEventArgs> handlerRequest = null;
-            var ckVisitor = new LazyCookieVistor();
-            handlerRequest = (s, e) =>
-            {
-
-
+            Action<string> disposeHandler = null;
+            //资源释放委托
+            disposeHandler=(state) => {
                 try
                 {
                     #region 废弃代码
@@ -218,13 +221,17 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                     #endregion
 
-                    string url = HttpUtility.UrlDecode(e.Frame.Url);
+
                     //设置返回结果为固定的内容
-                    tcs.SetResult("loaded");
-                    System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
+                    tcs.SetResult(state);
+
                     //处理完毕后 一定要记得将处理程序移除掉 防止多播
                     //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
-                    mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
+                    if (null!=handlerRequest)
+                    {
+                        mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
+
+                    }
 
                 }
                 catch (Exception ex)
@@ -238,14 +245,38 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     waitHandler.Set();
                 }
             };
+
+            //2 开始发送请求LoadString
+            // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
+            
+            var ckVisitor = new LazyCookieVistor();
+            handlerRequest = (s, e) =>
+            {
+
+                string url = HttpUtility.UrlDecode(e.Frame.Url);
+                System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
+
+
+                disposeHandler("loaded");
+                
+            };
             //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl += handlerRequest;
 
             //必须等待页面加载完毕，否则过期的Cookie无法刷新到最新
             mixdBrowser.CefLoader.LoadEnd += handlerRequest;
             mixdBrowser.CefBrowser.GetMainFrame().LoadUrl(searchUrl);
+
+            //回调终结请求阻塞
+            TimerCallback resetHandler = (state) => {
+                disposeHandler("timeout");
+            };
+            //超时监听
+            var timeBong = new System.Threading.Timer(resetHandler, null, timeOut, Timeout.Infinite);
             //进入当前线程锁定模式
             waitHandler.WaitOne();
 
+            //线程后续执行后，表示任务完毕或者超时，释放定时器资源
+            timeBong.Dispose();
             return tcs.Task;
 
 

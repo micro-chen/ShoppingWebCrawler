@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net;
 using System.Threading.Tasks;
 using NTCPMessage.EntityPackage;
+using NTCPMessage.Compress;
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
@@ -26,23 +27,23 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         /// <param name="queryParas"></param>
         /// <returns></returns>
-        public DataResultContainer<string> QuerySearchContent(IFetchWebPageArgument queryParas)
+        public DataContainer QuerySearchContent(IFetchWebPageArgument queryParas)
         {
 
             if (null == queryParas)
             {
                 return null;
             }
-            var container = new DataResultContainer<string>();
+            var container = new DataContainer();
 
             string respText = RequestLoader.LoadUrlGetSearchApiContent(queryParas);
-            string compressedString = string.Empty;
-            if (!string.IsNullOrEmpty(respText))
-            {
-                compressedString = LZString.Compress(respText, false);
-            }
-            container.Result = compressedString;
-
+            //string compressedString = string.Empty;
+            //if (!string.IsNullOrEmpty(respText))
+            //{
+            //    compressedString = LZString.CompressToBase64(respText);
+            //}
+            //container.Result = compressedString;
+            container.Result = respText;
             return container;
         }
 
@@ -67,7 +68,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         /// <param name="platform"></param>
         /// <returns></returns>
-        public static BaseWebPageService CreateWebPaeServer(SupportPlatformEnum platform)
+        public static BaseWebPageService CreateWebPageService(SupportPlatformEnum platform)
         {
             BaseWebPageService webPageService = null;
             switch (platform)

@@ -21,6 +21,9 @@ namespace NTCPMessage.EntityPackage
         /// </summary>
         string ErrorMsg { get; set; }
 
-
+        /// <summary>
+        /// 响应的消息
+        /// </summary>
+        string Result { get; set; }
     }
 }

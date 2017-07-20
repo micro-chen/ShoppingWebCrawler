@@ -38,7 +38,7 @@ namespace Example2010.MessageConvert
         public virtual IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, string obj)
         {
             //Console.WriteLine(obj);
-            var result = new DataResultContainer<string>();
+            var result = new DataContainer();
             result.Result = string.Format("server time is:{0}", DateTime.Now.ToString());
 
             return result;

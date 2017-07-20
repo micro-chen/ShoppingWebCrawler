@@ -13,20 +13,19 @@ namespace ShoppingWebCrawler.Host.AppStart
     {
         public static int Init(string[] args)
         {
-            //设定当前程序运行的主上下文
+            //1 设定当前程序运行的主上下文
             GlobalContext.SyncContext = SynchronizationContext.Current;
 
 
+            //2 初始化CEF运行时
+            #region 初始化CEF运行时
+
+         
             try
             {
                 //加载CEF 运行时  lib cef
                 CefRuntime.Load();
-            }
-            catch (Exception ex)
-            {
-                Logging.Logger.WriteException(ex);
-                return 3;
-            }
+           
 
 
           
@@ -75,26 +74,24 @@ namespace ShoppingWebCrawler.Host.AppStart
             //初始化  CEF进程参数设置
             CefRuntime.Initialize(mainArgs, settings, app, IntPtr.Zero);
 
-            #region winform 有窗口的加载渲染方式
+            }
+            catch (Exception ex)
+            {
+                Logging.Logger.WriteException(ex);
+                return 3;
+            }
+
+            #endregion
 
 
-            //Application.EnableVisualStyles();
-            //Application.SetCompatibleTextRenderingDefault(false);
 
-            //if (!multiThreadedMessageLoop)
-            //{
-            //    Application.Idle += (sender, e) => { CefRuntime.DoMessageLoopWork(); };
-            //}
+            //3 开启总控TCP端口，用来接收站点的请求--开启后 会阻塞进程 防止结束
+            // 总控端口 负责 1 收集请求 响应请求 2 收集分布的采集客户端 登记注册可用的端，用来做CDN 任务分发，做负载均衡
+            RemoteServer.Start();
 
-            //Application.Run(new MainForm());//--调试程序窗口页面
-            //Application.Run(new HeadLessMainForm());
-
-
-            ////注销CEF app
-            //app.Dispose();
-
-            /////终止CEF 线程
-            //CefRuntime.Shutdown();
+            //4 定时清理器
+            #region 定时清理控制台
+            ConsoleClean.Start();
             #endregion
 
             return 0;

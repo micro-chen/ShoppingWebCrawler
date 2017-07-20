@@ -32,12 +32,17 @@ namespace ShoppingWebCrawler.Host
 
             try
             {
-                //1 初始化CEF运行时
+                //初始化CEF运行时 等操作
                 InitApp.Init(args);
             }
             catch (Exception ex)
             {
+                
+                // Clean up CEF.
+                CefRuntime.Shutdown();
+                Logging.Logger.WriteException(new Exception("未能正确启动CEF爬行蜘蛛！异常信息如下："));
                 Logging.Logger.WriteException(ex);
+                return;
             }
 
 
@@ -45,22 +50,21 @@ namespace ShoppingWebCrawler.Host
             //locker1.CancelAfter(20000);
 
 
-            var etaoWeb = new TaobaoWebPageService();
+            //BaseWebPageService etaoWeb = new TaobaoWebPageService();
 
-            var paras = new NTCPMessage.EntityPackage.Arguments.TaobaoFetchWebPageArgument { KeyWord = "洗面奶男" };
+            //var paras = new NTCPMessage.EntityPackage.Arguments.TaobaoFetchWebPageArgument { KeyWord = "洗面奶男" };
 
-            var con = etaoWeb.QuerySearchContent(paras);
+            //var con = etaoWeb.QuerySearchContent(paras);
 
-            System.Diagnostics.Debug.WriteLine(con.Result);
+            //System.Diagnostics.Debug.WriteLine(con.Result);
+
+            //etaoWeb = new JingdongWebPageService();
+
+            // con = etaoWeb.QuerySearchContent(paras);
 
 
 
-
-
-            //3 开启总控TCP端口，用来接收站点的请求--开启后 会阻塞进程 防止结束
-            // 总控端口 负责 1 收集请求 响应请求 2 收集分布的采集客户端 登记注册可用的端，用来做CDN 任务分发，做负载均衡
-            //RemoteServer.Start();
-
+            Console.WriteLine("ShoppingWebCrawler.Host is started.....");
             var locker = RunningLocker.CreateNewLock();
             locker.Pause();
 

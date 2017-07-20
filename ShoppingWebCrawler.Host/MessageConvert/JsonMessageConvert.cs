@@ -32,7 +32,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         {
             if (null == obj)
             {
-                return DataResultContainer<string>.CreateNullDataContainer();
+                return DataContainer.CreateNullDataContainer();
             }
 
             IDataContainer result = null;
@@ -57,7 +57,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                     break;
 
                 default:
-                    result = DataResultContainer<string>.CreateNullDataContainer();
+                    result = DataContainer.CreateNullDataContainer();
                     break;
             }
 
@@ -71,7 +71,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// <returns></returns>
         private IDataContainer GetAllSupportPlatforms()
         {
-            var result = new DataResultContainer<string>();
+            var result = new DataContainer();
 
             var allPlatforms = GlobalContext.SupportPlatforms;
 
@@ -87,9 +87,9 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// <returns></returns>
         private IDataContainer FetchPlatformSearchWebPage(IFetchWebPageArgument args)
         {
-            IDataContainer result = DataResultContainer<string>.CreateNullDataContainer();
+            IDataContainer result = DataContainer.CreateNullDataContainer();
             //解析参数的Web蜘蛛服务
-            BaseWebPageService webPageService = BaseWebPageService.CreateWebPaeServer(args.Platform);
+            BaseWebPageService webPageService = BaseWebPageService.CreateWebPageService(args.Platform);
           
 
             if (null != webPageService)
@@ -106,7 +106,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             }
             if (null== result)
             {
-                result = DataResultContainer<string>.CreateNullDataContainer();
+                result = DataContainer.CreateNullDataContainer();
             }
 
 

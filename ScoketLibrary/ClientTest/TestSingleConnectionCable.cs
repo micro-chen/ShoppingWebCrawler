@@ -82,7 +82,7 @@ namespace ClientTest
             int.TryParse(strSerializeType, out serializeType);
 
             ISerialize<SoapMessage> iSendMessageSerializer = null;
-            ISerialize<DataResultContainer<string>> iReturnDataSerializer = new NTCPMessage.Serialize.JsonSerializer<DataResultContainer<string>>();
+            ISerialize<DataContainer> iReturnDataSerializer = new NTCPMessage.Serialize.JsonSerializer<DataContainer>();
 
             switch (serializeType)
             {

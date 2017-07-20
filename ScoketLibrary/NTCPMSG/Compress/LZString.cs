@@ -21,7 +21,7 @@ var wc = new System.Diagnostics.Stopwatch ();
 
 			Console.ReadKey ();
 */
-namespace ShoppingWebCrawler.Host
+namespace NTCPMessage.Compress
 {
     /// <summary>
     /// Converted from lz-string 1.4.4
@@ -101,7 +101,7 @@ namespace ShoppingWebCrawler.Host
         /// <param name="uncompressed">要加密的字符串</param>
         /// <param name="isHexFormat">是否为16进制字符串</param>
         /// <returns></returns>
-        public static string Compress(string uncompressed, bool isHexFormat)
+        public static string Compress(string uncompressed, bool isHexFormat=false)
         {
             var compressedSring = Compress(uncompressed, 16, code => (char)code);
             if (true == isHexFormat)
@@ -405,7 +405,7 @@ namespace ShoppingWebCrawler.Host
         /// <param name="compressed"></param>
         /// <param name="isHexFormat"></param>
         /// <returns></returns>
-        public static string Decompress(string compressed, bool isHexFormat)
+        public static string Decompress(string compressed, bool isHexFormat=false)
         {
             if (compressed == null) throw new ArgumentNullException(nameof(compressed));
             if (isHexFormat == true)

@@ -33,7 +33,7 @@ namespace Example2010.MessageConvert
         {
             //Console.WriteLine(obj);
 
-            var result = new DataResultContainer<string>();
+            var result = new DataContainer();
             result.Result = "1111111111";
 
             return result;

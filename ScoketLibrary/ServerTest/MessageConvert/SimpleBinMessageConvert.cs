@@ -27,7 +27,7 @@ namespace ServerTest.MessageConvert
         public override IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, SoapMessage obj)
         {
             //Console.WriteLine(obj);
-            var result = new DataResultContainer<string>();
+            var result = new DataContainer();
             result.Result = "1111111111";
 
             return result;
