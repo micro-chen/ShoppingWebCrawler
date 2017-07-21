@@ -103,7 +103,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public PddMixReuestLoader()
             {
                 ///拼多多刷新搜索页cookie的地址
-                this.RefreshCookieUrl = string.Format("http://mobile.yangkeduo.com/search_result.html?search_key={0}&search_src=new&refer_page_name=search&refer_page_id=search_1500439537429_yr7sonlWB0", "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
+                this.RefreshCookieUrlTemplate = "http://mobile.yangkeduo.com/search_result.html?search_key={0}&search_src=new&refer_page_name=search&refer_page_id=search_1500439537429_yr7sonlWB0";
 
                 this.IntiCefWebBrowser();
             }

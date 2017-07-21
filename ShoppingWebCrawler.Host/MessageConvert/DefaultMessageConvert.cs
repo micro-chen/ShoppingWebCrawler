@@ -14,22 +14,21 @@ namespace ShoppingWebCrawler.Host.MessageConvert
 
     /// <summary>
     /// 默认的消息转换
-    /// 客户端发送过来的命令进行相应，如：ping
+    /// 客户端发送过来的字符串命令进行相应，如：ping
     /// 统一为基本字符串消息
     /// </summary>
-    public class DefaultMessageConvert : IMessageParse<string>
+    public class DefaultMessageConvert: IMessageParse<string, string>
     {
         public void ReceiveEventHandler(object sender, ReceiveEventArgs args)
         {
 
             string clientData = Encoding.UTF8.GetString(args.Data);
-            object ret = ProcessMessage(args.SCBID, args.RemoteIPEndPoint, args.Flag, args.CableId, args.Channel, args.Event,
+            string ret = ProcessMessage(args.SCBID, args.RemoteIPEndPoint, args.Flag, args.CableId, args.Channel, args.Event,
                 clientData);
 
             if (ret != null)
             {
-                string jsonMsg = JsonConvert.SerializeObject(ret);
-                args.ReturnData = Encoding.UTF8.GetBytes(jsonMsg);
+                args.ReturnData = Encoding.UTF8.GetBytes(ret);
             }
             else
             {
@@ -47,25 +46,20 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// <param name="Event"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public virtual IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, string obj)
+        public virtual string ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, string obj)
         {
-            //Console.WriteLine(obj);
-            //var result = new DataResultContainer<string>();
-            //result.Result = string.Format("server time is:{0}", DateTime.Now.ToString());
-
-            //return result;
             if (string.IsNullOrEmpty(obj))
             {
-                return DataContainer.CreateNullDataContainer();
+                return string.Empty;
             }
 
-            IDataContainer result = null;
+            string result = null;
             //对消息命令内容进行分支处理
             switch (obj)
             {
                 case "ping": result = this.PingCmdProcessor(); break;
                 default:
-                    result = DataContainer.CreateNullDataContainer();
+                    result = string.Empty;
                     break;
             }
 
@@ -78,12 +72,9 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// 接受ping 命令 返回pong
         /// </summary>
         /// <returns></returns>
-        private IDataContainer PingCmdProcessor()
+        private string PingCmdProcessor()
         {
-            var result = new DataContainer();
-            result.Result = "pong";
-
-            return result;
+            return  "pong";
         }
 
 

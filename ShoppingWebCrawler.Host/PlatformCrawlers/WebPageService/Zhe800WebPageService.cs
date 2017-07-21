@@ -96,7 +96,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public Zhe800MixReuestLoader()
             {
                 ///折800刷新搜索页cookie的地址
-                this.RefreshCookieUrl = string.Format(templateOfSearchUrl, "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
+                this.RefreshCookieUrlTemplate = templateOfSearchUrl ;
 
                 this.IntiCefWebBrowser();
             }

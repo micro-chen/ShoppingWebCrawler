@@ -16,7 +16,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
 
 
     /// <summary>
-    /// json 消息转换
+    /// json 接收处理消息转换
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class JsonMessageConvert : MessageParse

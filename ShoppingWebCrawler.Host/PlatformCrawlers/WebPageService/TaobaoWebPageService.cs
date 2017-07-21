@@ -188,7 +188,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public TaobaoMixReuestLoader()
             {
                 ///淘宝刷新搜索页cookie的地址
-                this.RefreshCookieUrl = string.Format(templateOfSearchUrl, "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
+                this.RefreshCookieUrlTemplate =string.Concat("https://s.taobao.com/search?initiative_id=tbindexz_",DateTime.Now.ToString("yyyyMMdd"),"&ie=utf8&spm=a21bo.50862.201856-taobao-item.2&sourceId=tb.index&search_type=item&ssid=s5-e&commend=all&imgfile=&q={0}&suggest=history_1&_input_charset=utf-8&wq=&suggest_query=&source=suggest") ;
 
                 this.IntiCefWebBrowser();
             }

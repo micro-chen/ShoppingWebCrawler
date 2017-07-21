@@ -16,33 +16,29 @@ namespace ServerTest.MessageConvert
     /// 默认的消息
     /// 统一为基本字符串消息
     /// </summary>
-    public class DefaultMessageConvert: IMessageParse<string>
+    public class DefaultMessageConvert: IMessageParse<string,string>
     {
         public void ReceiveEventHandler(object sender, ReceiveEventArgs args)
         {
 
             string clientData = Encoding.UTF8.GetString(args.Data);
-            object ret = ProcessMessage(args.SCBID, args.RemoteIPEndPoint, args.Flag, args.CableId, args.Channel, args.Event,
+            string ret = ProcessMessage(args.SCBID, args.RemoteIPEndPoint, args.Flag, args.CableId, args.Channel, args.Event,
                 clientData);
 
             if (ret != null)
             {
-                string jsonMsg = JsonConvert.SerializeObject(ret);
-                args.ReturnData = Encoding.UTF8.GetBytes(jsonMsg);
+                
+                args.ReturnData = Encoding.UTF8.GetBytes(ret);
             }
             else
             {
                 args.ReturnData = null;
             }
         }
-        public virtual IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, string obj)
+        public virtual string ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, NTCPMessage.MessageFlag Flag, ushort CableId, uint Channel, uint Event, string obj)
         {
-            //Console.WriteLine(obj);
-            var result = new DataContainer();
-            result.Result = string.Format("server time is:{0}", DateTime.Now.ToString());
+            return string.Format("server time is:{0}", DateTime.Now.ToString());
 
-            return result;
-         
         }
     }
 }

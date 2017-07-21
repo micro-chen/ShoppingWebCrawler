@@ -97,7 +97,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public GuomeiMixReuestLoader()
             {
                 ///国美刷新搜索页cookie的地址
-                this.RefreshCookieUrl = string.Format(templateOfSearchUrl, "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
+                this.RefreshCookieUrlTemplate = templateOfSearchUrl;
 
                 this.IntiCefWebBrowser();
             }

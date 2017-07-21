@@ -12,7 +12,7 @@ namespace NTCPMessage.Serialize
     /// <summary>
     /// SOAP消息处理基类
     /// </summary>
-    public abstract class MessageParse: IMessageParse<SoapMessage>
+    public abstract class MessageParse: IMessageParse<SoapMessage, IDataContainer>
     {
         ISerialize _DataSerializer;
         ISerialize _ReturnSerializer;

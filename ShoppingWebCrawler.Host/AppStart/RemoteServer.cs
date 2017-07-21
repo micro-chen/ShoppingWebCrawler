@@ -67,51 +67,33 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// 默认的字符串消息转换器
         /// 提供字符串 cmd的 支持
         /// </summary>
-        static DefaultMessageConvert _sDefaultConvert = new DefaultMessageConvert();
+        static DefaultMessageConvert defaultConvertProcesso = new DefaultMessageConvert();
 
         /// <summary>
         /// json 消息转换器
         /// </summary>
-        static JsonMessageConvert _sJsonConvert = new JsonMessageConvert();
+        static JsonMessageConvert jsonConvertProcessor = new JsonMessageConvert();
 
-
-        /// <summary>
-        /// 自定义的消息转换器
-        /// </summary>
-        static CustomerSoapMessageConvert _sCustomConvert = new CustomerSoapMessageConvert();
 
 
         static void ReceiveEventHandler(object sender, ReceiveEventArgs args)
         {
 
-            //    case MessageType.Bin:
-            //        _sBinConvert.ReceiveEventHandler(sender, args);
-            //break;
-            //    case MessageType.Xml:
-            //        _sXmlConvert.ReceiveEventHandler(sender, args);
-            //break;
-            //    case MessageType.SimpleBin:
-            //        _sSimpleConvert.ReceiveEventHandler(sender, args);
-            //break;
 
             //注意 不支持 自定义格式的消息，因为自定义格式的消息 还需要传递 自定义格式转换器类型
             MessageType msgType = (MessageType)args.Event;
             switch (msgType)
             {
                 case MessageType.None:
-                    _sDefaultConvert.ReceiveEventHandler(sender, args);
+                    defaultConvertProcesso.ReceiveEventHandler(sender, args);
                     break;
             
                 case MessageType.Json:
-                    _sJsonConvert.ReceiveEventHandler(sender, args);
-                    break;
-              
-                case MessageType.Customer:
-                    _sCustomConvert.ReceiveEventHandler(sender, args);
+                    jsonConvertProcessor.ReceiveEventHandler(sender, args);
                     break;
 
                 default:
-                    string errMsg = string.Format("未能识别的消息格式，支持 1普通字符串  2 json 和 3自定义的序列化格式！传入的格式为：{0}", msgType.ToString());
+                    string errMsg = string.Format("未能识别的消息格式，支持 1普通字符串  2 json格式！传入的格式为：{0}", msgType.ToString());
                     var ex= new Exception(errMsg);
                     Logging.Logger.WriteException(ex);
                     throw ex;
@@ -123,8 +105,8 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         static void DisconnectEventHandler(object sender, DisconnectEventArgs args)
         {
-            Logging.Logger.WriteToLog(string.Format("Remote socket:{0} disconnected.", args.RemoteIPEndPoint));
-            Console.WriteLine("Remote socket:{0} disconnected.", args.RemoteIPEndPoint);
+            //Logging.Logger.WriteToLog(string.Format("Remote socket:{0} disconnected.", args.RemoteIPEndPoint));
+            //Console.WriteLine("Remote socket:{0} disconnected.", args.RemoteIPEndPoint);
         }
 
         static void ErrorEventHandler(object sender, ErrorEventArgs args)
@@ -139,10 +121,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         public static Task Start()
         {
-            if (System.IO.File.Exists("channel.txt"))
-            {
-                System.IO.File.Delete("channel.txt");
-            }
+           
 
             //开启 异步的启动任务，由于在内部进行了线程阻塞，所以task 永远不会complete
             return Task.Factory.StartNew(() =>

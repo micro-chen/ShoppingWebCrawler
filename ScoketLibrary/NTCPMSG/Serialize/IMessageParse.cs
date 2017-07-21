@@ -9,7 +9,7 @@ namespace NTCPMessage.Serialize
     /// <summary>
     /// 消息接受处理转换接口
     /// </summary>
-    public interface IMessageParse<T>
+    public interface IMessageParse<T,U>
     {
         /// <summary>
         /// 接受数据并转换
@@ -29,7 +29,8 @@ namespace NTCPMessage.Serialize
         /// <param name="Event"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        IDataContainer ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, MessageFlag Flag,
+        U ProcessMessage(int SCBID, EndPoint RemoteIPEndPoint, MessageFlag Flag,
                    UInt16 CableId, UInt32 Channel, UInt32 Event, T obj);
+
     }
 }

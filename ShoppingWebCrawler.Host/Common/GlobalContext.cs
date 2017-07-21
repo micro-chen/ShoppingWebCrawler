@@ -78,6 +78,21 @@ namespace ShoppingWebCrawler.Host
             }
         }
 
+        private static List<string> _HotWords;
+        /// <summary>
+        /// 热搜词集合
+        /// </summary>
+        public static List<string> HotWords
+        {
+            get
+            {
+                if (null == _HotWords || _HotWords.Count <= 0)
+                {
+                    _HotWords = HotWordsLoader.LoadConfig();
+                }
+                return _HotWords;
+            }
+        }
 
         private static object _locker_SupportPlatform = new object();
         private static List<SupportPlatform> _SupportPlatforms;
@@ -108,12 +123,12 @@ namespace ShoppingWebCrawler.Host
                                   return;
                               }
                               //不管有没有 都要清除掉
-                              if (null!=_SupportPlatforms)
+                              if (null != _SupportPlatforms)
                               {
                                   _SupportPlatforms.Clear();
                                   _SupportPlatforms = null;
                               }
-                          
+
                               //if (null == e.CurrentSupportPlatforms || e.CurrentSupportPlatforms.Count <= 0)
                               //{
                               //    return;

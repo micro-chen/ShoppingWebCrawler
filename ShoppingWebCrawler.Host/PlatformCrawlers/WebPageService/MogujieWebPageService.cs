@@ -105,7 +105,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public MogujieMixReuestLoader()
             {
                 ///蘑菇街刷新搜索页cookie的地址
-                this.RefreshCookieUrl = string.Format(templateOfListSearchPageUrl, "裙子" + DateTime.Now.Ticks.ToString()); ;
+                this.RefreshCookieUrlTemplate = templateOfListSearchPageUrl;
 
                 this.IntiCefWebBrowser();
             }

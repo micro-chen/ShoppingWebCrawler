@@ -18,7 +18,6 @@ namespace ShoppingWebCrawler.Client
 {
     class TestClient
     {
-        static byte[] buf;
 
         const int SyncTestCount = 100000;
         //const int SyncTestCount = 1000;
@@ -105,7 +104,7 @@ namespace ShoppingWebCrawler.Client
 
         static void TestASyncMessage(int count)
         {
-            Console.Write("Please input serialize type(Default 3:json)   : (3:json,  5: customer ,0:none)");
+            Console.Write("Please input serialize type(Default 3:json)   : (3:json, 0:none)");
             string strSerializeType = Console.ReadLine();
             if (string.IsNullOrEmpty(strSerializeType))
             {
@@ -126,11 +125,6 @@ namespace ShoppingWebCrawler.Client
                     strSerializeType = "json";
                     iSendMessageSerializer = new NTCPMessage.Serialize.JsonSerializer<SoapMessage>();
                     break;
-                case 5:
-                    iSendMessageSerializer = new SoapMessageSerializer();
-                    strSerializeType = "customer";
-                    break;
-
                 default:
                     serializeType = 0;
                     strSerializeType = "none";
@@ -161,7 +155,7 @@ namespace ShoppingWebCrawler.Client
                     {
                         for (int i = 0; i < count; i++)
                         {
-                            var buffer = Encoding.UTF8.GetBytes(DateTime.Now.ToString());
+                            var buffer = Encoding.UTF8.GetBytes("ping");
                             var resultBytes = client.SyncSend((UInt32)MessageType.None, buffer);
 
                             var str = Encoding.UTF8.GetString(resultBytes);
@@ -181,7 +175,7 @@ namespace ShoppingWebCrawler.Client
                 {
 
                     ///标准soap消息发送
-                    var paras = new NTCPMessage.EntityPackage.Arguments.JingdongFetchWebPageArgument
+                    var paras = new NTCPMessage.EntityPackage.Arguments.MeilishuoFetchWebPageArgument
                     {
                         KeyWord = "洗面奶女"
                     };

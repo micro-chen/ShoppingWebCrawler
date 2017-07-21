@@ -91,9 +91,36 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         }
 
         /// <summary>
-        /// 刷新Cookie的页面地址
+        ///  刷新Cookie的页面地址，搜索关键词为随机分配
         /// </summary>
-        protected string RefreshCookieUrl { get; set; }
+        protected string RefreshCookieUrl
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_RefreshCookieUrlTemplate))
+                {
+                    throw new Exception("未设置刷新url模板地址！");
+                }
+                string mixWord = HotWordsLoader.GetRandHotWord();
+                return string.Format(_RefreshCookieUrlTemplate, mixWord);
+            }
+        }
+
+        private string _RefreshCookieUrlTemplate;
+        /// <summary>
+        /// 刷新Cookie的页面地址模板
+        /// </summary>
+        protected string RefreshCookieUrlTemplate
+        {
+            get
+            {
+                return _RefreshCookieUrlTemplate;
+            }
+            set
+            {
+                _RefreshCookieUrlTemplate = value;
+            }
+        }
 
 
         public BaseBrowserRequestLoader()
@@ -166,7 +193,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             this.InnerLoadUrlGetSearchApiContent(refreshCookieUrl);
             //不定时刷新
-            this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(5, 10));
+            this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(1, 5));
         }
 
 
@@ -177,15 +204,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <param name="searchUrl">请求指定的地址</param>
         /// <param name="timeOut">超时时间，不小于3000毫秒，超时将返回加载超时</param>
         /// <returns></returns>
-        private Task<string> InnerLoadUrlGetSearchApiContent(string searchUrl,int timeOut=6000)
+        private Task<string> InnerLoadUrlGetSearchApiContent(string searchUrl, int timeOut = 6000)
         {
 
-            if (timeOut<=1000)
+            if (timeOut <= 1000)
             {
                 timeOut = 3000;
             }
 
-        
+
             //将事件消息模式转换为 task同步消息
             var tcs = new TaskCompletionSource<string>();
 
@@ -193,7 +220,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             EventHandler<LoadEndEventArgs> handlerRequest = null;
             Action<string> disposeHandler = null;
             //资源释放委托
-            disposeHandler=(state) => {
+            disposeHandler = (state) =>
+            {
                 try
                 {
                     #region 废弃代码
@@ -227,7 +255,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                     //处理完毕后 一定要记得将处理程序移除掉 防止多播
                     //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
-                    if (null!=handlerRequest)
+                    if (null != handlerRequest)
                     {
                         mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
 
@@ -248,7 +276,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             //2 开始发送请求LoadString
             // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
-            
+
             var ckVisitor = new LazyCookieVistor();
             handlerRequest = (s, e) =>
             {
@@ -258,7 +286,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
                 disposeHandler("loaded");
-                
+
             };
             //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl += handlerRequest;
 
@@ -267,7 +295,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             mixdBrowser.CefBrowser.GetMainFrame().LoadUrl(searchUrl);
 
             //回调终结请求阻塞
-            TimerCallback resetHandler = (state) => {
+            TimerCallback resetHandler = (state) =>
+            {
                 disposeHandler("timeout");
             };
             //超时监听

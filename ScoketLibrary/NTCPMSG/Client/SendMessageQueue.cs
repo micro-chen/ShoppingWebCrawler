@@ -220,7 +220,7 @@ namespace NTCPMessage.Client
                                 }
                                 catch(Exception e)
                                 {
-                                    Console.WriteLine(e);
+                                    //Console.WriteLine(e);
                                     Closed = true;
                                     return;
                                 }

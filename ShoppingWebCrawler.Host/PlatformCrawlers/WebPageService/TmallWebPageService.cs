@@ -104,7 +104,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public TmallMixReuestLoader()
             {
                 ///天猫刷新搜索页cookie的地址
-                this.RefreshCookieUrl = string.Format("https://list.tmall.com/search_product.htm?spm=a220m.1000858.1000724.3.2a70033eTRXtEm&q={0}&sort=new&style=g&from=mallfp..pc_1_searchbutton#J_Filter", "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
+                this.RefreshCookieUrlTemplate = "https://list.tmall.com/search_product.htm?spm=a220m.1000858.1000724.3.2a70033eTRXtEm&q={0}&sort=new&style=g&from=mallfp..pc_1_searchbutton#J_Filter" ;
 
                 this.IntiCefWebBrowser();
             }

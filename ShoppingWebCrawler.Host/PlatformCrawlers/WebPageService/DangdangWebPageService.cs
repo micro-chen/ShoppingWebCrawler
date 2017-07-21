@@ -88,7 +88,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public DangdangMixReuestLoader()
             {
                 ///当当刷新搜索页cookie的地址
-                this.RefreshCookieUrl = string.Format(templateOfSearchUrl, "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
+                this.RefreshCookieUrlTemplate = templateOfSearchUrl;
 
                 this.IntiCefWebBrowser();
             }

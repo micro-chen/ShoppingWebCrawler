@@ -113,7 +113,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public ETaoMixReuestLoader()
             {
                 ///一淘刷新搜索页cookie的地址
-                this.RefreshCookieUrl = string.Format("https://www.etao.com/search.htm?nq={0}&spm=1002.8113010.2698880.6862", "洗面奶男" + DateTime.Now.Ticks.ToString()); ;
+                this.RefreshCookieUrlTemplate = "https://www.etao.com/search.htm?nq={0}&spm=1002.8113010.2698880.6862";
 
                 this.IntiCefWebBrowser();
             }
