@@ -10,7 +10,9 @@ using NTCPMessage.Server;
 using NTCPMessage.Event;
 using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
+using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.MessageConvert;
+using ShoppingWebCrawler.Host.Common;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -95,7 +97,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                 default:
                     string errMsg = string.Format("未能识别的消息格式，支持 1普通字符串  2 json格式！传入的格式为：{0}", msgType.ToString());
                     var ex= new Exception(errMsg);
-                    Logging.Logger.WriteException(ex);
+                    Logger.WriteException(ex);
                     throw ex;
                   
                     
@@ -111,7 +113,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         static void ErrorEventHandler(object sender, ErrorEventArgs args)
         {
-            Logging.Logger.WriteException(args.ErrorException);
+            Logger.WriteException(args.ErrorException);
             Console.WriteLine(args.ErrorException);
         }
 

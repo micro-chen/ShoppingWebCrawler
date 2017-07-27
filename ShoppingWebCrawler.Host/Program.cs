@@ -5,6 +5,8 @@ using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.AppStart;
 using System.Collections.Specialized;
 using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
+using ShoppingWebCrawler.Host.Common.Logging;
+using ShoppingWebCrawler.Host.Common;
 
 namespace ShoppingWebCrawler.Host
 {
@@ -37,11 +39,11 @@ namespace ShoppingWebCrawler.Host
             }
             catch (Exception ex)
             {
-                
+
                 // Clean up CEF.
                 CefRuntime.Shutdown();
-                Logging.Logger.WriteException(new Exception("未能正确启动CEF爬行蜘蛛！异常信息如下："));
-                Logging.Logger.WriteException(ex);
+                Logger.WriteException(new Exception("未能正确启动CEF爬行蜘蛛！异常信息如下："));
+                Logger.WriteException(ex);
                 return;
             }
 
@@ -62,6 +64,12 @@ namespace ShoppingWebCrawler.Host
 
             // con = etaoWeb.QuerySearchContent(paras);
 
+            //var headlessForm = new HeadLessMainForm();
+            //headlessForm.NavigateToUrl("https://pub.alimama.com/myunion.htm?spm=a219t.7900221/1.1998910419.dbb742793.21214865YeCJuR#!/promo/self/items");
+
+            //------测试客户端获取 远程Cookie
+            //var ckpender = new CookiePender.AlimamaCookiePenderClient();
+            //var cks = ckpender.GetCookiesFromRemoteServer();
 
 
             Console.WriteLine("ShoppingWebCrawler.Host is started.....");

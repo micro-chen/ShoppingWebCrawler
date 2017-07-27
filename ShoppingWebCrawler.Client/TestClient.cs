@@ -175,7 +175,7 @@ namespace ShoppingWebCrawler.Client
                 {
 
                     ///标准soap消息发送
-                    var paras = new NTCPMessage.EntityPackage.Arguments.MeilishuoFetchWebPageArgument
+                    var paras = new NTCPMessage.EntityPackage.Arguments.ETaoFetchWebPageArgument
                     {
                         KeyWord = "洗面奶女"
                     };
@@ -183,7 +183,7 @@ namespace ShoppingWebCrawler.Client
                     SoapMessage testMessage = new SoapMessage()
                     {
 
-                        Head = "FetchPlatformSearchWebPage",
+                        Head = "fetchpage",
                         Body = msg
                     };
 

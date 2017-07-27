@@ -7,10 +7,11 @@ using Newtonsoft.Json;
 
 using System.Collections.Specialized;
 using System.Net.Http;
-using ShoppingWebCrawler.Host.Http;
+using ShoppingWebCrawler.Host.Common.Http;
 using System.Net;
 using ShoppingWebCrawler.Host.Headless;
 using NTCPMessage.EntityPackage;
+using ShoppingWebCrawler.Host.Common;
 
 /*
            var etaoWeb = new MeilishuoWebPageService();

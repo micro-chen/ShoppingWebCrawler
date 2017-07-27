@@ -6,6 +6,8 @@ using System.Threading;
 
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Headless;
+using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.Common.Logging;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -77,7 +79,7 @@ namespace ShoppingWebCrawler.Host.AppStart
             }
             catch (Exception ex)
             {
-                Logging.Logger.WriteException(ex);
+                Logger.WriteException(ex);
                 return 3;
             }
 

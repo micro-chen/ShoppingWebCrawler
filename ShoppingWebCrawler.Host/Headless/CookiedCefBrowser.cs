@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Handlers;
-using ShoppingWebCrawler.Host.Http;
+using ShoppingWebCrawler.Host.Common.Http;
 using ShoppingWebCrawler.Host.PlatformCrawlers;
 
 namespace ShoppingWebCrawler.Host.Headless

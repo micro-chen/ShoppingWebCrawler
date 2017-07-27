@@ -1,5 +1,7 @@
 ﻿using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Cef.Framework;
+using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.Headless;
 using System;
 using System.Collections.Generic;
@@ -265,7 +267,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 catch (Exception ex)
                 {
 
-                    Logging.Logger.WriteException(ex);
+                   Logger.WriteException(ex);
                 }
                 finally
                 {

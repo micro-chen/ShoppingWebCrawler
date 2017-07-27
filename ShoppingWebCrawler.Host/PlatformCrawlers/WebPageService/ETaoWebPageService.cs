@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Net;
 using System.Web;
-using ShoppingWebCrawler.Host.Http;
+using ShoppingWebCrawler.Host.Common.Http;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Headless;

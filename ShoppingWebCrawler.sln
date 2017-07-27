@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example2010", "ScoketLibrar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingWebCrawler.Client", "ShoppingWebCrawler.Client\ShoppingWebCrawler.Client.csproj", "{BF325389-3CB7-4A43-A150-088D1C8B10EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingWebCrawler.Host.DeskTop", "ShoppingWebCrawler.Host.DeskTop\ShoppingWebCrawler.Host.DeskTop.csproj", "{6F2915FC-5DBF-44B5-AFDD-630425B931EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingWebCrawler.Host.Common", "ShoppingWebCrawler.Host.Common\ShoppingWebCrawler.Host.Common.csproj", "{09E590E4-7FB7-4308-A19E-C33D36B166D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +99,22 @@ Global
 		{BF325389-3CB7-4A43-A150-088D1C8B10EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BF325389-3CB7-4A43-A150-088D1C8B10EA}.Release|x86.ActiveCfg = Release|Any CPU
 		{BF325389-3CB7-4A43-A150-088D1C8B10EA}.Release|x86.Build.0 = Release|Any CPU
+		{6F2915FC-5DBF-44B5-AFDD-630425B931EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F2915FC-5DBF-44B5-AFDD-630425B931EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F2915FC-5DBF-44B5-AFDD-630425B931EA}.Debug|x86.ActiveCfg = Debug|x86
+		{6F2915FC-5DBF-44B5-AFDD-630425B931EA}.Debug|x86.Build.0 = Debug|x86
+		{6F2915FC-5DBF-44B5-AFDD-630425B931EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F2915FC-5DBF-44B5-AFDD-630425B931EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F2915FC-5DBF-44B5-AFDD-630425B931EA}.Release|x86.ActiveCfg = Release|Any CPU
+		{6F2915FC-5DBF-44B5-AFDD-630425B931EA}.Release|x86.Build.0 = Release|Any CPU
+		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Debug|x86.Build.0 = Debug|Any CPU
+		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Release|x86.ActiveCfg = Release|Any CPU
+		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -63,9 +63,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\BaseSoapTcpClient.cs" />
     <Compile Include="Client\ProcessorCombine.cs" />
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
+    <Compile Include="EntityPackage\Arguments\YouhuiquanFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\FilterFiled.cs" />
     <Compile Include="EntityPackage\Arguments\MeilishuoFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\Arguments\MogujieFetchWebPageArgument.cs" />

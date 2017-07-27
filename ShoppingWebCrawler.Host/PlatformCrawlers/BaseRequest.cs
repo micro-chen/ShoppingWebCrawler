@@ -5,8 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ShoppingWebCrawler.Host.Http;
-
+using ShoppingWebCrawler.Host.Common.Http;
+using ShoppingWebCrawler.Host.Common;
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers
 {
