@@ -8,6 +8,7 @@ using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.Common.Logging;
+using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -96,6 +97,19 @@ namespace ShoppingWebCrawler.Host.AppStart
             ConsoleClean.Start();
             #endregion
 
+            //5 阿里妈妈等平台登录
+            #region  阿里妈妈等平台登录
+            //------测试客户端获取 远程Cookie
+       
+            System.Threading.Tasks.Task.Factory.StartNew(() =>{
+                //var ckpender = new CookiePender.AlimamaCookiePenderClient();
+                //var cks = ckpender.GetCookiesFromRemoteServer();
+                var alimama = new AlimamaWebPageService();
+                var loader = alimama.RequestLoader;
+
+            });
+         
+            #endregion
             return 0;
         }
 

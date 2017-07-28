@@ -130,6 +130,7 @@
     <Compile Include="Headless\HeadLessCefClient.cs" />
     <Compile Include="MessageConvert\DefaultMessageConvert.cs" />
     <Compile Include="MessageConvert\JsonMessageConvert.cs" />
+    <Compile Include="PlatformCrawlers\WebPageService\AlimamaWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\BaseBrowserRequestLoader.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\ETaoWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\JingdongWebPageService.cs" />

@@ -61,7 +61,7 @@ namespace ShoppingWebCrawler.Host.Handlers
 
             }
 
-            var reg = new System.Text.RegularExpressions.Regex(@"(http:|https:).*\.(woff|css|jpg|jpeg|png|ttf|svg|json|ico)\?{0,}.*", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var reg = new System.Text.RegularExpressions.Regex(@"(http:|https:).*\.(woff|css|jpg|jpeg|png|ttf|svg|ico)\?{0,}.*", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
             if (reg.IsMatch(url))
             {

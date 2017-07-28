@@ -1,4 +1,5 @@
 ﻿using NTCPMessage.EntityPackage;
+using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.Common.Logging;
@@ -103,8 +104,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
                     throw new Exception("未设置刷新url模板地址！");
                 }
-                string mixWord = HotWordsLoader.GetRandHotWord();
-                return string.Format(_RefreshCookieUrlTemplate, mixWord);
+                //包含占位符的时候  进行格式化字符串
+                if (_RefreshCookieUrlTemplate.IndexOf('{')>-1)
+                {
+                    string mixWord = HotWordsLoader.GetRandHotWord();
+                    return string.Format(_RefreshCookieUrlTemplate, mixWord);
+                }
+
+                return _RefreshCookieUrlTemplate;
+               
             }
         }
 
@@ -198,7 +206,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(1, 5));
         }
 
-
+        /// <summary>
+        /// 虚方法  要使用的话 子类必须实重写此方法
+        /// </summary>
+        /// <param name="loginCookieCollection"></param>
+        public virtual void SetLogin(List<CefCookie> loginCookieCollection)
+        {
+            //throw new NotImplementedException();
+        }
         /// <summary>
         /// 内部类方法加载指定的搜索url 并拦截调用api的内容
         /// 在初始化的时候 刷新Cookie用
@@ -279,7 +294,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //2 开始发送请求LoadString
             // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
 
-            var ckVisitor = new LazyCookieVistor();
+            //var ckVisitor = new LazyCookieVistor();
             handlerRequest = (s, e) =>
             {
 

@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.Common.Logging;
+using ShoppingWebCrawler.Cef.Core;
 
 namespace ShoppingWebCrawler.Host.CookiePender
 {
@@ -41,9 +42,9 @@ namespace ShoppingWebCrawler.Host.CookiePender
         /// </summary>
         /// <returns></returns>
 
-        public List<Cookie> GetCookiesFromRemoteServer()
+        public List<CefCookie> GetCookiesFromRemoteServer()
         {
-            List<Cookie> result = null;
+            List<CefCookie> result = null;
             var paras = new SoapMessage() { Head = "alimamatoken" };
             try
             {
@@ -55,7 +56,7 @@ namespace ShoppingWebCrawler.Host.CookiePender
                     return result;
                 }
 
-                result = JsonConvert.DeserializeObject<List<Cookie>>(data.Result);
+                result = JsonConvert.DeserializeObject<List<CefCookie>>(data.Result);
 
             }
             catch (Exception ex)
@@ -67,5 +68,6 @@ namespace ShoppingWebCrawler.Host.CookiePender
 
         }
 
+     
     }
 }

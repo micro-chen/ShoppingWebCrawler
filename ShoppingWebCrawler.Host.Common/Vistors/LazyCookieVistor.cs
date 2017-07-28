@@ -106,6 +106,39 @@ namespace ShoppingWebCrawler.Host.Common
         }
 
         /// <summary>
+        /// 注册Cookie到目标站点地址
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="toRegisterCookies"></param>
+        /// <returns></returns>
+        public bool RegisterCookieToCookieManager(string url, List<CefCookie> toRegisterCookies) {
+            bool result = false;
+            if (string.IsNullOrEmpty(url)||toRegisterCookies==null)
+            {
+                return result;
+            }
+
+            try
+            {
+                var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
+                foreach (var item in toRegisterCookies)
+                {
+                    ckManager.SetCookie(url, item, null);
+                }
+
+                result = true;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+          
+
+            return result;
+        }
+
+        /// <summary>
         /// Delete all cookies that match the specified parameters. 
         ///  If only |url| is specified all host cookies (but not domain cookies) irrespective of path will be deleted.
         /// If both |url| and

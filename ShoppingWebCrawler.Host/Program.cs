@@ -67,10 +67,7 @@ namespace ShoppingWebCrawler.Host
             //var headlessForm = new HeadLessMainForm();
             //headlessForm.NavigateToUrl("https://pub.alimama.com/myunion.htm?spm=a219t.7900221/1.1998910419.dbb742793.21214865YeCJuR#!/promo/self/items");
 
-            //------测试客户端获取 远程Cookie
-            //var ckpender = new CookiePender.AlimamaCookiePenderClient();
-            //var cks = ckpender.GetCookiesFromRemoteServer();
-
+        
 
             Console.WriteLine("ShoppingWebCrawler.Host is started.....");
             var locker = RunningLocker.CreateNewLock();

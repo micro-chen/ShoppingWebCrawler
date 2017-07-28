@@ -159,6 +159,11 @@ namespace ShoppingWebCrawler.Host.Common
         }
 
 
+
+        /// <summary>
+        /// 淘宝联盟推广站-阿里妈妈
+        /// </summary>
+        public const string AlimamaSiteURL = "https://pub.alimama.com/";
         /// <summary>
         /// 处理域名下的Cookies
         /// </summary>
