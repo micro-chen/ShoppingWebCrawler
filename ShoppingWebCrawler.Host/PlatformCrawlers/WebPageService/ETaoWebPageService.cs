@@ -98,7 +98,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static ETaoMixReuestLoader()
             {
                 //静态创建请求客户端
-                etaoHttpClient = new CookiedCefBrowser().BindingHttpClient;
+               // etaoHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

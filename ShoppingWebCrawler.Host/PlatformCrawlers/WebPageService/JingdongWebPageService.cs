@@ -86,7 +86,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static JingdongMixReuestLoader()
             {
                 //静态创建请求客户端
-                JingdongHttpClient = new CookiedCefBrowser().BindingHttpClient;
+                //JingdongHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

@@ -20,5 +20,6 @@ namespace NTCPMessage.EntityPackage
         Mogujie = 10,//蘑菇街
         Zhe800 = 11,//折800
         ETao = 12,//一淘
+        Alimama=13//阿里妈妈
     }
 }

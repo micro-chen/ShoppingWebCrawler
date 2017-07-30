@@ -75,7 +75,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static DangdangMixReuestLoader()
             {
                 //静态创建请求客户端
-                DangdangHttpClient = new CookiedCefBrowser().BindingHttpClient;
+                //DangdangHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

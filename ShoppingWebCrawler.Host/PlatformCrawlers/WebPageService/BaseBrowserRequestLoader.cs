@@ -27,6 +27,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <param name="queryParas"></param>
         /// <returns></returns>
         string LoadUrlGetSearchApiContent(IFetchWebPageArgument queryParas);
+
+        /// <summary>
+        /// 导航到指定的地址
+        /// </summary>
+        /// <param name="searchUrl"></param>
+        void NavigateUrlByCefBrowser(string searchUrl);
     }
     /// <summary>
     /// 请求加载基类
@@ -73,10 +79,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             {
                 if (null == _current)
                 {
-                    _readLock.EnterReadLock();
-
                     try
                     {
+                        _readLock.EnterReadLock();
                         _current = new T();
                     }
                     catch { }
@@ -105,14 +110,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     throw new Exception("未设置刷新url模板地址！");
                 }
                 //包含占位符的时候  进行格式化字符串
-                if (_RefreshCookieUrlTemplate.IndexOf('{')>-1)
+                if (_RefreshCookieUrlTemplate.IndexOf('{') > -1)
                 {
                     string mixWord = HotWordsLoader.GetRandHotWord();
                     return string.Format(_RefreshCookieUrlTemplate, mixWord);
                 }
 
                 return _RefreshCookieUrlTemplate;
-               
+
             }
         }
 
@@ -201,7 +206,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             }
             //然后从新加载下链接 即可刷新Cookie
 
-            this.InnerLoadUrlGetSearchApiContent(refreshCookieUrl);
+            this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
             //不定时刷新
             this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(1, 5));
         }
@@ -215,13 +220,13 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //throw new NotImplementedException();
         }
         /// <summary>
-        /// 内部类方法加载指定的搜索url 并拦截调用api的内容
-        /// 在初始化的时候 刷新Cookie用
+        /// 内部类方法加载指定的搜索url 
+        /// 比如：在初始化的时候 刷新Cookie用 或者刷新 Cookie 获取其他
         /// </summary>
         /// <param name="searchUrl">请求指定的地址</param>
         /// <param name="timeOut">超时时间，不小于3000毫秒，超时将返回加载超时</param>
         /// <returns></returns>
-        private Task<string> InnerLoadUrlGetSearchApiContent(string searchUrl, int timeOut = 6000)
+        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 6000)
         {
 
             if (timeOut <= 1000)
@@ -282,7 +287,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 catch (Exception ex)
                 {
 
-                   Logger.WriteException(ex);
+                    Logger.WriteException(ex);
                 }
                 finally
                 {
@@ -325,6 +330,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             timeBong.Dispose();
             return tcs.Task;
 
+
+        }
+
+        /// <summary>
+        /// 导航到指定的地址
+        /// </summary>
+        /// <param name="searchUrl"></param>
+        public void NavigateUrlByCefBrowser(string searchUrl)
+        {
+            mixdBrowser.CefBrowser.GetMainFrame().LoadUrl(searchUrl);
 
         }
 

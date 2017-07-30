@@ -91,7 +91,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static TmallMixReuestLoader()
             {
                 //静态创建请求客户端
-                TmallHttpClient = new CookiedCefBrowser().BindingHttpClient;
+                //TmallHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

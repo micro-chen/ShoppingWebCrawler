@@ -83,7 +83,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static GuomeiMixReuestLoader()
             {
                 //静态创建请求客户端
-                GuomeiHttpClient = new CookiedCefBrowser().BindingHttpClient;
+                //GuomeiHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

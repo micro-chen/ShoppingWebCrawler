@@ -90,7 +90,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static PddMixReuestLoader()
             {
                 //静态创建请求客户端
-                PddHttpClient = new CookiedCefBrowser().BindingHttpClient;
+               // PddHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

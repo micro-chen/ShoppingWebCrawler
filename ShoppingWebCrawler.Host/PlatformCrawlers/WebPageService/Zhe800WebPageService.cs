@@ -82,7 +82,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static Zhe800MixReuestLoader()
             {
                 //静态创建请求客户端
-                Zhe800HttpClient = new CookiedCefBrowser().BindingHttpClient;
+               // Zhe800HttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

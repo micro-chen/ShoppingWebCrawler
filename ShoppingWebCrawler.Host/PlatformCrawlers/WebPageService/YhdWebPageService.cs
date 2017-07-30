@@ -86,7 +86,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static YhdMixReuestLoader()
             {
                 //静态创建请求客户端
-                YihaodianHttpClient = new CookiedCefBrowser().BindingHttpClient;
+               // YihaodianHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

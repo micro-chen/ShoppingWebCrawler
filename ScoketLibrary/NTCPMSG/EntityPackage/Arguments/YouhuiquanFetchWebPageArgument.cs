@@ -11,15 +11,25 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// </summary>
     public class YouhuiquanFetchWebPageArgument
     {
-        
-        /// <summary>
-        /// 卖家Id
-        /// </summary>
-        public long SellerId { get; set; }
 
         /// <summary>
-        /// 商品Id
+        /// 参数列表
+        /// 批量查询卖家的商品的优惠券
         /// </summary>
-        public long ItemId { get; set; }
+        public List<QuanArgument> ArgumentsList { get; set; }
+
+
+        public class QuanArgument {
+            /// <summary>
+            /// 卖家Id
+            /// </summary>
+            public long SellerId { get; set; }
+
+            /// <summary>
+            /// 商品Id
+            /// </summary>
+            public long ItemId { get; set; }
+        }
+ 
     }
 }

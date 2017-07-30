@@ -153,7 +153,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class TaobaoMixReuestLoader : BaseBrowserRequestLoader<TaobaoMixReuestLoader>
         {
-            private const string TaobaoSiteUrl = "https://www.taobao.com/";
+            public const string TaobaoSiteUrl = "https://www.taobao.com/";
 
             /// <summary>
             /// 淘宝淘宝网页搜索获取地址
@@ -175,13 +175,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static TaobaoMixReuestLoader()
             {
                 //静态创建请求客户端
-                TaobaoHttpClient = new CookiedCefBrowser().BindingHttpClient;
+                //TaobaoHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();
                 requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
                 requestHeaders.Add("upgrade-insecure-requests", "1");
                 requestHeaders.Add("Referer", TaobaoSiteUrl);
+                requestHeaders.Add("Host", "www.taobao.com");
                 TaobaoHttpClient = new CookedHttpClient();
                 HttpServerProxy.FormatRequestHeader(TaobaoHttpClient.Client.DefaultRequestHeaders, requestHeaders);
             }

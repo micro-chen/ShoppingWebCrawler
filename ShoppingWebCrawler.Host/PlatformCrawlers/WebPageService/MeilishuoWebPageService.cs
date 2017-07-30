@@ -84,7 +84,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             static MeilishuoMixReuestLoader()
             {
                 //静态创建请求客户端
-                MeilishuoHttpClient = new CookiedCefBrowser().BindingHttpClient;
+                //MeilishuoHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();

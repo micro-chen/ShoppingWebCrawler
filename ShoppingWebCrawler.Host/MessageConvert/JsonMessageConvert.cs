@@ -38,7 +38,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             }
 
             IDataContainer result = null;
-          
+
             try
             {
                 //对消息命令内容进行分支处理
@@ -80,13 +80,26 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         private IDataContainer FetchYouhuiquan(YouhuiquanFetchWebPageArgument args_yuohuiquan)
         {
             IDataContainer result = DataContainer.CreateNullDataContainer();
-            if (null==args_yuohuiquan)
+            if (null == args_yuohuiquan)
             {
                 return result;
             }
 
             //抓取优惠券信息
-          //todo
+            //解析参数的Web蜘蛛服务
+            AlimamaWebPageService webPageService = new AlimamaWebPageService();
+
+
+            try
+            {
+                result = webPageService.QueryYouhuiquan(args_yuohuiquan);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteException(ex);
+            }
+
+
             return result;
         }
 

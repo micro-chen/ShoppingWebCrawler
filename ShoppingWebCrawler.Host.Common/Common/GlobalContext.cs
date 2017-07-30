@@ -164,6 +164,26 @@ namespace ShoppingWebCrawler.Host.Common
         /// 淘宝联盟推广站-阿里妈妈
         /// </summary>
         public const string AlimamaSiteURL = "https://pub.alimama.com/";
+
+        private static string _Pid = string.Empty;
+        /// <summary>
+        /// 阿里妈妈推广id
+        /// </summary>
+        public static string Pid
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_Pid))
+                {
+                    string uaConfig = ConfigHelper.GetConfig("Pid");
+                    _Pid = uaConfig;
+                }
+
+                return _Pid;
+            }
+        }
+
+
         /// <summary>
         /// 处理域名下的Cookies
         /// </summary>

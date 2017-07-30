@@ -106,6 +106,11 @@ namespace ShoppingWebCrawler.Host.AppStart
                 //var cks = ckpender.GetCookiesFromRemoteServer();
                 var alimama = new AlimamaWebPageService();
                 var loader = alimama.RequestLoader;
+                if (null!=loader)
+                {
+                    //登录成功后 模拟导航到券列表页面-用来获取优惠券的Cookie -ctoken
+                    loader.NavigateUrlByCefBrowser(alimama.TaobaoQuanListPageUrl);
+                }
 
             });
          

@@ -71,7 +71,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// </summary>
         /// <param name="cookies"></param>
         /// <param name="domainName"></param>
-        public void ChangeGlobleCookies(List<Cookie> cookies, string domainName)
+        public void ChangeGlobleCookies(IEnumerable<Cookie> cookies, string domainName)
         {
             if (null == cookies || string.IsNullOrEmpty(domainName))
             {
@@ -451,9 +451,12 @@ namespace ShoppingWebCrawler.Host.Common.Http
             try
             {
                 var tskResponse = this.PostRequestTransferAsync(url, dataType, data, fromHeaders);
-
+                if (null == tskResponse)
+                {
+                    return string.Empty;
+                }
                 //等待 task执行完毕 返回结果
-                return tskResponse.Result;
+                return tskResponse.Result.Content.ReadAsStringAsync().Result;
             }
             catch (Exception ex)
             {
@@ -470,7 +473,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// <param name="data"></param>
         /// <param name="fromHeaders"></param>
         /// <returns></returns>
-        public Task<string> PostRequestTransferAsync(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders)
+        public Task<HttpResponseMessage> PostRequestTransferAsync(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders)
         {
 
             if (null == this.Client)
@@ -500,11 +503,8 @@ namespace ShoppingWebCrawler.Host.Common.Http
                 }
                 //post 响应  。异步返回内容字符串
                 var tskResponse = this.Client.PostAsync(targetUri, content);
-                if (tskResponse.Result.StatusCode != HttpStatusCode.OK)
-                {
-                    throw new Exception(string.Concat("指定的地址未能正确post响应！uri:", url));
-                }
-                return tskResponse.Result.Content.ReadAsStringAsync();
+
+                return tskResponse;
             }
             catch (Exception ex)
             {
