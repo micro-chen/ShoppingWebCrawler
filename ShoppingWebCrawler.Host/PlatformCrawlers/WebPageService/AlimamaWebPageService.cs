@@ -524,6 +524,11 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     //异步任务字符串数据返回
                     var tskResult = Task.Factory.StartNew(() =>
                     {
+                        if (respContent.IndexOf("<html>")>0)
+                        {
+                            //TODO:发送邮件通知 登录淘宝失效了 ，因为正常返回的是价格阶梯的json
+                            return null;
+                        }
                         PriceVolumesResult dataList = JsonConvert.DeserializeObject<PriceVolumesResult>(respContent);
                         if (null == dataList || dataList.priceVolumes == null || dataList.priceVolumes.Count <= 0)
                         {
