@@ -45,6 +45,7 @@
             this.tabContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newTabContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeTabContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.taobaoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -57,7 +58,8 @@
             this.menu_Cookies,
             this.menu_Test_Http,
             this.verisonCheckToolStripMenuItem,
-            this.showSourceToolStripMenuItem});
+            this.showSourceToolStripMenuItem,
+            this.taobaoToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.Size = new System.Drawing.Size(770, 25);
@@ -179,6 +181,13 @@
             this.closeTabContextMenuItem.Text = "Close tab";
             this.closeTabContextMenuItem.Click += new System.EventHandler(this.closeTabAction);
             // 
+            // taobaoToolStripMenuItem
+            // 
+            this.taobaoToolStripMenuItem.Name = "taobaoToolStripMenuItem";
+            this.taobaoToolStripMenuItem.Size = new System.Drawing.Size(65, 21);
+            this.taobaoToolStripMenuItem.Text = "Taobao";
+            this.taobaoToolStripMenuItem.Click += new System.EventHandler(this.taobaoToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -220,5 +229,6 @@
         private System.Windows.Forms.ToolStripMenuItem menu_Test_Http;
         private System.Windows.Forms.ToolStripMenuItem verisonCheckToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showSourceToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem taobaoToolStripMenuItem;
     }
 }

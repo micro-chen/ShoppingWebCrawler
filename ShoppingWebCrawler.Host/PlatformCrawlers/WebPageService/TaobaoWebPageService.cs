@@ -12,6 +12,8 @@ using System.Net;
 using ShoppingWebCrawler.Host.Headless;
 using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.CookiePender;
+using ShoppingWebCrawler.Cef.Core;
 
 /*
 
@@ -32,7 +34,17 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
     /// </summary>
     public class TaobaoWebPageService : BaseWebPageService
     {
-       
+
+        private static System.Timers.Timer _timer_refresh_login_cookie;
+
+        private static TaobaoCookiePenderClient cookiePender_taobao;
+
+        public static bool IsHasLoginTaobao= false;
+
+        static TaobaoWebPageService()
+        {
+            BeginTryToLogin();
+        }
 
         public TaobaoWebPageService()
         {
@@ -49,6 +61,87 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 return TaobaoMixReuestLoader.Current;
             }
         }
+
+        /// <summary>
+        /// 尝试登录
+        /// </summary>
+        private static void BeginTryToLogin()
+        {
+            if (null != _timer_refresh_login_cookie)
+            {
+                //有定时任务进行监听的时候 不要重复定时监听
+                return;
+            }
+            cookiePender_taobao = new TaobaoCookiePenderClient();
+            //-----------首先尝试登录一次，登录不成功，那么进入定时任务中----------
+            //表示已经登录 那么刷新登录Cookie
+            var cks_taobao= cookiePender_taobao.GetCookiesFromRemoteServer();
+            if (null != cks_taobao && cks_taobao.FirstOrDefault(x => x.Name == "_nk_") != null)
+            {
+                //表示已经登录 那么刷新登录Cookie
+                SetLogin(cks_taobao);
+
+            }
+            else
+            {
+
+                //开启定时任务刷新登录阿里妈妈Cookie
+                _timer_refresh_login_cookie = new System.Timers.Timer(5000);
+                _timer_refresh_login_cookie.Elapsed += (s, e) =>
+                {
+                    cks_taobao = cookiePender_taobao.GetCookiesFromRemoteServer();
+                    if (null != cks_taobao && cks_taobao.FirstOrDefault(x => x.Name == "_nk_") != null)
+                    {
+                        //表示已经登录 那么刷新登录Cookie
+                        SetLogin(cks_taobao);
+                        //一旦登录成功不再定时从远程获取，后续让自身无头浏览器 刷新登录Cookie
+                        _timer_refresh_login_cookie.Stop();
+                        _timer_refresh_login_cookie.Dispose();
+                        _timer_refresh_login_cookie = null;
+                    }
+                };
+                _timer_refresh_login_cookie.Start();
+            }
+        }
+
+        /// <summary>
+        /// 静态登录Cookie注册
+        /// </summary>
+        /// <param name="loginCookieCollection">需要提供的已经登录的Cookie集合</param>
+        private static void SetLogin(List<CefCookie> loginCookieCollection)
+        {
+            if (null != loginCookieCollection)
+            {
+                //注册cookie集合到全局Cookie容器内
+                new LazyCookieVistor().RegisterCookieToCookieManager(GlobalContext.TaobaoSiteURL, loginCookieCollection);
+
+
+                IsHasLoginTaobao= true;
+            }
+
+
+
+
+        }
+
+        /// <summary>
+        /// 强制从新登录
+        /// </summary>
+        public static bool ForceLogin()
+        {
+            bool success = false;
+            var cks = cookiePender_taobao.GetCookiesFromRemoteServer();
+            if (null != cks && cks.FirstOrDefault(x => x.Name == "_nk_") != null)
+            {
+                //表示已经登录 那么刷新登录Cookie
+                SetLogin(cks);
+
+                success = true;
+            }
+
+            return success;
+        }
+
 
 
         /// <summary>

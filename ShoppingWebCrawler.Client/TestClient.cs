@@ -9,6 +9,7 @@ using NTCPMessage.Client;
 using NTCPMessage.Event;
 using NTCPMessage.Serialize;
 using NTCPMessage.EntityPackage;
+using NTCPMessage.EntityPackage.Arguments;
 using NTCPMessage.Compress;
 
 using Newtonsoft.Json;
@@ -175,15 +176,26 @@ namespace ShoppingWebCrawler.Client
                 {
 
                     ///标准soap消息发送
-                    var paras = new NTCPMessage.EntityPackage.Arguments.ETaoFetchWebPageArgument
+                    //var paras = new NTCPMessage.EntityPackage.Arguments.ETaoFetchWebPageArgument
+                    //{
+                    //    KeyWord = "洗面奶女"
+                    //};
+                    var paras = new YouhuiquanFetchWebPageArgument
                     {
-                        KeyWord = "洗面奶女"
+                        ArgumentsList = new List<YouhuiquanFetchWebPageArgument.QuanArgument>
+                         {
+                              new YouhuiquanFetchWebPageArgument.QuanArgument
+                              {
+                                   SellerId=2688573078,
+                                   ItemId=544531921668
+                              }
+                         }
                     };
                     string msg = JsonConvert.SerializeObject(paras);
                     SoapMessage testMessage = new SoapMessage()
                     {
 
-                        Head = "fetchpage",
+                        Head = "fetchquan",
                         Body = msg
                     };
 
@@ -200,11 +212,8 @@ namespace ShoppingWebCrawler.Client
                         {
 
                             var repResult = client.SyncSend((UInt32)MessageType.Json,
-                            testMessage, 18000,
+                            testMessage, 1800000,
                            iSendMessageSerializer);
-
-
-
 
 
                             if (null != repResult)

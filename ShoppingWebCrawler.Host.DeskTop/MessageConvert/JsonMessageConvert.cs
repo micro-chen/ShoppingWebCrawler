@@ -49,6 +49,10 @@ namespace ShoppingWebCrawler.Host.DeskTop.MessageConvert
                         //获取阿里妈妈登录后的 Cookie json结构
                         result = this.FetchALimamaCookie();
                         break;
+                    case "taobaotoken":
+                        //获取淘宝登录后的 Cookie json结构
+                        result = this.FetchTaobaoCookie();
+                        break;
 
                     default:
                         result = DataContainer.CreateNullDataContainer();
@@ -82,7 +86,25 @@ namespace ShoppingWebCrawler.Host.DeskTop.MessageConvert
             return result;
         }
 
+        /// <summary>
+        /// 获取淘宝登录后的 Cookie json结构
+        /// </summary>
+        /// <returns></returns>
+        private IDataContainer FetchTaobaoCookie()
+        {
+            var result = DataContainer.CreateNullDataContainer();
+            try
+            {
+                result = Services.TaobaoService.GetLoginTokenCookies();
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteException(ex);
+            }
 
+            return result;
+        }
+        
         /// <summary>
         /// 获取所有支持的平台列表
         /// </summary>

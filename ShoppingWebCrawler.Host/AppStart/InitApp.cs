@@ -104,13 +104,18 @@ namespace ShoppingWebCrawler.Host.AppStart
             System.Threading.Tasks.Task.Factory.StartNew(() =>{
                 //var ckpender = new CookiePender.AlimamaCookiePenderClient();
                 //var cks = ckpender.GetCookiesFromRemoteServer();
-                var alimama = new AlimamaWebPageService();
-                var loader = alimama.RequestLoader;
-                if (null!=loader)
+                var alimamaService = new AlimamaWebPageService();
+                var loader_alimama = alimamaService.RequestLoader;
+                if (null!=loader_alimama)
                 {
                     //登录成功后 模拟导航到券列表页面-用来获取优惠券的Cookie -ctoken
-                    loader.NavigateUrlByCefBrowser(alimama.TaobaoQuanListPageUrl);
+                    loader_alimama.NavigateUrlByCefBrowser(alimamaService.TaobaoQuanListPageUrl);
                 }
+
+                //模拟跳转到淘宝 进行跨站身份登录
+                var taobaoService = new TaobaoWebPageService();
+                taobaoService.RequestLoader.NavigateUrlByCefBrowser(TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
+
 
             });
          

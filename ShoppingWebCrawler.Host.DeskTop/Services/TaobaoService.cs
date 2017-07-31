@@ -10,20 +10,20 @@ using ShoppingWebCrawler.Host.Common;
 namespace ShoppingWebCrawler.Host.DeskTop.Services
 {
     /// <summary>
-    /// 阿里妈妈服务
+    /// 淘宝服务
     /// </summary>
-    public class AlimamaService
+    public class TaobaoService
     {
 
         /// <summary>
-        /// 获取阿里妈妈的Cookie
+        /// 获取淘宝的Cookie
         /// </summary>
         /// <returns></returns>
         public static DataContainer GetLoginTokenCookies()
         {
             var container = new DataContainer();
             var ckVistor = new LazyCookieVistor();
-            var _PageCooies = ckVistor.LoadCookiesAsyc(GlobalContext.AlimamaSiteURL).Result;
+            var _PageCooies = ckVistor.LoadCookiesAsyc(GlobalContext.TaobaoSiteURL).Result;
             var json_cookies = JsonConvert.SerializeObject(_PageCooies);
 
             container.Result = json_cookies;

@@ -42,13 +42,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         private string ctoken = string.Empty;
 
-        private static AlimamaCookiePenderClient cookiePender;
+        private static AlimamaCookiePenderClient cookiePender_alimama;
+      
+
         private static System.Timers.Timer _timer_refresh_login_cookie;
 
         /// <summary>
         /// 是否已经登录阿里妈妈
         /// </summary>
-        private static bool IsHasLoginAlimama = false;
+        public static bool IsHasLoginAlimama = false;
         /// <summary>
         /// 覆盖抽象属性实现自身的http加载器
         /// </summary>
@@ -81,15 +83,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //有定时任务进行监听的时候 不要重复定时监听
                 return;
             }
-            cookiePender = new AlimamaCookiePenderClient();
-
+            cookiePender_alimama = new AlimamaCookiePenderClient();
             //-----------首先尝试登录一次，登录不成功，那么进入定时任务中----------
             //表示已经登录 那么刷新登录Cookie
-            var cks = cookiePender.GetCookiesFromRemoteServer();
-            if (null != cks && cks.FirstOrDefault(x => x.Name == "login") != null)
+            var cks_alimama = cookiePender_alimama.GetCookiesFromRemoteServer();
+            if (null != cks_alimama && cks_alimama.FirstOrDefault(x => x.Name == "login") != null)
             {
                 //表示已经登录 那么刷新登录Cookie
-                SetLogin(cks);
+                SetLogin(cks_alimama);
 
             }
             else
@@ -99,11 +100,11 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 _timer_refresh_login_cookie = new System.Timers.Timer(5000);
                 _timer_refresh_login_cookie.Elapsed += (s, e) =>
                 {
-                    cks = cookiePender.GetCookiesFromRemoteServer();
-                    if (null != cks && cks.FirstOrDefault(x => x.Name == "login") != null)
+                    cks_alimama = cookiePender_alimama.GetCookiesFromRemoteServer();
+                    if (null != cks_alimama && cks_alimama.FirstOrDefault(x => x.Name == "login") != null)
                     {
                         //表示已经登录 那么刷新登录Cookie
-                        SetLogin(cks);
+                        SetLogin(cks_alimama);
                         //一旦登录成功不再定时从远程获取，后续让自身无头浏览器 刷新登录Cookie
                         _timer_refresh_login_cookie.Stop();
                         _timer_refresh_login_cookie.Dispose();
@@ -203,7 +204,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         public static bool ForceLogin()
         {
             bool success = false;
-            var cks = cookiePender.GetCookiesFromRemoteServer();
+            var cks = cookiePender_alimama.GetCookiesFromRemoteServer();
             if (null != cks && cks.FirstOrDefault(x => x.Name == "login") != null)
             {
                 //表示已经登录 那么刷新登录Cookie
@@ -354,14 +355,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //初始化淘宝-价格阶梯券头信息
                 requestHeaders = BaseRequest.GetCommonRequestHeaders();
                 requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
-                requestHeaders.Add("upgrade-insecure-requests", "1");
-                requestHeaders.Add("Referer", TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
-                requestHeaders.Add("Host", "www.taobao.com");
+                requestHeaders.Add("Upgrade-Insecure-Requests", "1");
+                //requestHeaders.Add("Referer", TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
+                requestHeaders.Add("Host", "cart.taobao.com");
                 taobaoHttpClient = new CookedHttpClient();
                 HttpServerProxy.FormatRequestHeader(taobaoHttpClient.Client.DefaultRequestHeaders, requestHeaders);
 
 
-                //初始化淘宝-价格阶梯券头信息
+                //初始化淘鹊桥-价格阶梯券头信息
                 requestHeaders = BaseRequest.GetCommonRequestHeaders();
                 requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
                 requestHeaders.Add("upgrade-insecure-requests", "1");
@@ -385,20 +386,20 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             }
 
-            /// <summary>
-            /// 登录Cookie注册
-            /// </summary>
-            /// <param name="loginCookieCollection">需要提供的已经登录的Cookie集合</param>
-            public override void SetLogin(List<CefCookie> loginCookieCollection)
-            {
-                if (null != loginCookieCollection)
-                {
-                    //注册cookie集合到全局Cookie容器内
-                    new LazyCookieVistor().RegisterCookieToCookieManager(AlimamaSiteUrl, loginCookieCollection);
-                }
+            ///// <summary>
+            ///// 登录Cookie注册
+            ///// </summary>
+            ///// <param name="loginCookieCollection">需要提供的已经登录的Cookie集合</param>
+            //public override void SetLogin(List<CefCookie> loginCookieCollection)
+            //{
+            //    if (null != loginCookieCollection)
+            //    {
+            //        //注册cookie集合到全局Cookie容器内
+            //        new LazyCookieVistor().RegisterCookieToCookieManager(AlimamaSiteUrl, loginCookieCollection);
+            //    }
 
-                this.AutoRefeshCookie(this.RefreshCookieUrlTemplate);
-            }
+            //    this.AutoRefeshCookie(this.RefreshCookieUrlTemplate);
+            //}
 
             /// <summary>
             /// 获取商品的所有优惠券集合
@@ -504,7 +505,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
                     var cks = new LazyCookieVistor().LoadCookies(TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
-                    taobaoHttpClient.ChangeGlobleCookies(cks, AlimamaSiteUrl);
+                    taobaoHttpClient.ChangeGlobleCookies(cks, TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
 
                     var clientProxy = new HttpServerProxy() { Client = taobaoHttpClient.Client, KeepAlive = true };
                     var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
@@ -582,7 +583,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
 
 
-                    var clientProxy = new HttpServerProxy() { Client = taobaoHttpClient.Client, KeepAlive = true };
+                    var clientProxy = new HttpServerProxy() { Client = taoqueqiaoHttpClient.Client, KeepAlive = true };
                     var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
@@ -713,7 +714,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         return null;
                     }
                     //过期失效的券活动
-                    if (productAuction.couponAmount <= 0 || productAuction.couponLeftCount <= 0 || productAuction.couponEffectiveEndTime <= DateTime.Now)
+                    if (productAuction.couponAmount <= 0 || productAuction.couponLeftCount <= 0)
                     {
                         return null;
                     }
@@ -739,6 +740,11 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         return null;
                     }
                     //从阿里妈妈推广结果 获取推广链接
+                    if (respContentOfTuiGuang.IndexOf("login.taobao.com/member/login")>-1)
+                    {
+                        //TODO:登录失效过期 发送邮件到管理员
+                        return null;
+                    }
                     MamaQuanOrProductTuiGuangResult tuiGuangResult = JsonConvert.DeserializeObject<MamaQuanOrProductTuiGuangResult>(respContentOfTuiGuang);
                     if (null == tuiGuangResult || tuiGuangResult.ok == false || tuiGuangResult.data == null)
                     {
@@ -989,7 +995,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
                     TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
                     //对于无效的券 返回空值
-                    if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null || dataJsonObj.result.amount <= 0)
+                    if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null || dataJsonObj.result.amount==null||dataJsonObj.result.amount <= 0)
                     {
                         return null;
                     }

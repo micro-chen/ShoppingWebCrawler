@@ -27,7 +27,7 @@
         {
             get
             {
-                return AlimamaService.AlimamaSiteUrl;
+                return GlobalContext.AlimamaSiteURL;
             }
         }
 
@@ -276,6 +276,18 @@
             //var frm_buyTicket= new Form_BuyTicket();
             //frm_buyTicket.DomainIdentity = this.addressTextBox.Text.Trim();
             //frm_buyTicket.Show();
+        }
+
+        /// <summary>
+        /// 打开新 的tab  
+        /// 淘宝网址
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void taobaoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.NewTab(GlobalContext.TaobaoSiteURL);
+            return;
         }
     }
 }

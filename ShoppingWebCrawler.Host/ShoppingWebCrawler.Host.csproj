@@ -118,6 +118,7 @@
     <Compile Include="AppStart\ConsoleClean.cs" />
     <Compile Include="AppStart\InitApp.cs" />
     <Compile Include="AppStart\RemoteServer.cs" />
+    <Compile Include="CookiePender\TaobaoCookiePenderClient.cs" />
     <Compile Include="CookiePender\AlimamaCookiePenderClient.cs" />
     <Compile Include="Handlers\HeadLessCefLoadHandler.cs" />
     <Compile Include="Handlers\HeadLessCefRenderHandler.cs" />

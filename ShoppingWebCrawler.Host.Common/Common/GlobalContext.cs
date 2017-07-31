@@ -164,6 +164,7 @@ namespace ShoppingWebCrawler.Host.Common
         /// 淘宝联盟推广站-阿里妈妈
         /// </summary>
         public const string AlimamaSiteURL = "https://pub.alimama.com/";
+        public const string TaobaoSiteURL = "https://www.taobao.com/";
 
         private static string _Pid = string.Empty;
         /// <summary>
