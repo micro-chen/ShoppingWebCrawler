@@ -220,7 +220,7 @@ namespace ShoppingWebCrawler.Client
                             {
                                // string content = LZString.DecompressFromBase64(repResult.Result);
                                 //Console.Write(content);
-                                Console.WriteLine("from server response :{0}", repResult.Status);
+                                Console.WriteLine("from server response :{0}", repResult.Result);
                             }
                         }
 

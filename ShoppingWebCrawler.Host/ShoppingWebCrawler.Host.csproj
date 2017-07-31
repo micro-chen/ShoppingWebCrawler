@@ -135,6 +135,7 @@
     <Compile Include="PlatformCrawlers\WebPageService\BaseBrowserRequestLoader.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\ETaoWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\JingdongWebPageService.cs" />
+    <Compile Include="PlatformCrawlers\WebPageService\TaoUlandWebPageServic.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\TaobaoWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\PddWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\SuningWebPageService.cs" />

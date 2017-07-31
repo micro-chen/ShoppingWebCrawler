@@ -18,6 +18,9 @@ using ShoppingWebCrawler.Cef.Core;
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
     /// <summary>
+    /// 
+    /// todo:代码封存：先忙工作
+    /// todo:查询单个产品的券 需要的时间不理想
     /// 阿里妈妈 网页授权自动刷新管理类
     /// 远程监听 UI登录程序端口，获取登录的Cookie授权
     /// 刷新到无头浏览器中进行定时刷新保持登录状态
@@ -28,22 +31,10 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// 阿里妈妈主站地址
         private const string AlimamaSiteUrl = GlobalContext.AlimamaSiteURL;
 
-        /// <summary>
-        /// 淘宝券 网站域名
-        /// </summary>
-        private const string TaobaoQuanDomain = "https://uland.taobao.com/";
-        /// <summary>
-        /// 淘宝券列表详细页面
-        /// </summary>
-        public readonly string TaobaoQuanListPageUrl = string.Format("https://uland.taobao.com/coupon/list?pid={0}", GlobalContext.Pid);
 
-        /// <summary>
-        /// 淘宝优惠券关键ctoken Cookie值
-        /// </summary>
-        private string ctoken = string.Empty;
 
         private static AlimamaCookiePenderClient cookiePender_alimama;
-      
+
 
         private static System.Timers.Timer _timer_refresh_login_cookie;
 
@@ -138,41 +129,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 Logger.WriteToLog(msg);
                 return container;
             }
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
 
-            //获取淘宝券的ctoken
-            if (string.IsNullOrEmpty(ctoken))
-            {
-                var cks = new LazyCookieVistor().LoadCookies(TaobaoQuanDomain);
-
-                //加载完毕后 刷新下 token 
-                //模拟导航到券列表页面 - 用来获取优惠券的Cookie - ctoken
-                RequestLoader.NavigateUrlByCefBrowser(TaobaoQuanListPageUrl);
-
-                if (null == cks)
-                {
-                    string msg = "未能正获取阿里妈妈券的cookie 集合，不能查询优惠券！" + DateTime.Now.ToString();
-                    container.Result = msg;
-                    Logger.WriteToLog(msg);
-                    return container;
-
-                }
-                else
-                {
-                    var ctokenCookie = cks.FirstOrDefault(x => x.Name == "ctoken");
-                    if (null == ctokenCookie || string.IsNullOrEmpty(ctokenCookie.Value))
-                    {
-                        string msg = "未能正获取阿里妈妈券的ctoken，不能查询优惠券！" + DateTime.Now.ToString();
-                        container.Result = msg;
-                        Logger.WriteToLog(msg);
-                        return container;
-                    }
-
-                    ctoken = ctokenCookie.Value;
-                }
-            }
             //查询所有券集合
-            var allQuanList = AlimamaMixReuestLoader.Current.GetAllCoupon(queryParas, ctoken).Result;
+            var allQuanList = AlimamaMixReuestLoader.Current.GetAllCoupon(queryParas).Result;
 
+            sw.Stop();
+            Console.WriteLine("GetAllCoupon Finished. Elapse : {0} ms", sw.ElapsedMilliseconds);
             container.Result = JsonConvert.SerializeObject(allQuanList);
             return container;
         }
@@ -405,27 +369,60 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// 获取商品的所有优惠券集合
             /// </summary>
             /// <param name="queryParas"></param>
-            /// <param name="ctoken"></param>
             /// <returns></returns>
-            public async Task<List<Youhuiquan>> GetAllCoupon(YouhuiquanFetchWebPageArgument queryParas, string ctoken)
+            public async Task<List<Youhuiquan>> GetAllCoupon(YouhuiquanFetchWebPageArgument queryParas)
             {
-                var dataList = new List<Youhuiquan>();
 
-                //普通券
-                var lstCommonQuan = await this.GetCommonCoupon(queryParas, ctoken);
-                if (null != lstCommonQuan)
+                string ctoken = string.Empty;
+                var cks = new LazyCookieVistor().LoadCookies(TaoUlandWebPageServic.TaobaoQuanDomain);
+
+                //加载完毕后 刷新下 token 
+                //模拟导航到券列表页面 - 用来获取优惠券的Cookie - ctoken
+                if (null == cks)
                 {
-                    dataList.AddRange(lstCommonQuan);
+                    string msg = "未能正获取阿里妈妈券的cookie 集合，不能查询优惠券！" + DateTime.Now.ToString();
+                    Logger.WriteToLog(msg);
+                    return null;
+
+                }
+                else
+                {
+                    var ctokenCookie = cks.FirstOrDefault(x => x.Name == "ctoken");
+                    if (null == ctokenCookie || string.IsNullOrEmpty(ctokenCookie.Value))
+                    {
+                        string msg = "未能正获取阿里妈妈券的ctoken，不能查询优惠券！" + DateTime.Now.ToString();
+                        Logger.WriteToLog(msg);
+                        return null;
+                    }
+
+                    ctoken = ctokenCookie.Value;
                 }
 
-                //隐藏券
-                var lstHiddenQuan = await this.GetHiddenCouponAsync(queryParas, ctoken);
-                if (null != lstHiddenQuan)
+                //-----------让两个任务并行，等待并行运算结果--------------
+               var tskAllQuan= await Task.Factory.StartNew(() =>
                 {
-                    dataList.AddRange(lstHiddenQuan);
-                }
+                    var dataList = new List<Youhuiquan>();
 
-                return dataList;
+                    //普通券
+                    var tskCommonQuan = this.GetCommonCoupon(queryParas, ctoken);
+
+                    //隐藏券
+                    var tskHiddenQuan = this.GetHiddenCouponAsync(queryParas, ctoken);
+
+                    Task.WaitAll(tskCommonQuan, tskHiddenQuan);
+                    if (null != tskCommonQuan.Result)
+                    {
+                        dataList.AddRange(tskCommonQuan.Result);
+                    }
+                    if (null != tskHiddenQuan.Result)
+                    {
+                        dataList.AddRange(tskHiddenQuan.Result);
+                    }
+
+                    return dataList;
+                });
+
+                return tskAllQuan;
             }
 
             #region 查询普通优惠券
@@ -457,24 +454,28 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     /*
                     {"priceVolumes":[{"condition":"满488减30","id":"e9c303182542418589c1a3ead872acd1","price":"30","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满488领劵立减30","type":"youhuijuan"},{"condition":"满188减20","id":"d9060db139fd4c9bac375e474632e485","price":"20","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满188领劵立减20","type":"youhuijuan"},{"condition":"满88减10","id":"2f9cc940cc0f4f8197e7e0f6dee45087","price":"10","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满88领劵立减10元","type":"youhuijuan"},{"condition":"满45减5","id":"fbe4efe09a824b7dbc4b83e00d6adb77","price":"5","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.21-2017.12.31","title":"买1立减5元","type":"youhuijuan"}],"receivedCount":0,"unreceivedCount":4}
                     */
-                    var listVolumeQuanActivity = await this.QueryPriceVolumeQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
-                    if (null != listVolumeQuanActivity)
-                    {
-                        dataList.AddRange(listVolumeQuanActivity);
-                    }
+                    var tskVolumeQuanActivity =  this.QueryPriceVolumeQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
+     
                     // 2 查询商家在合作平台-淘鹊桥-上发起的活动
-                    var taoqueqiaoQuanActivity = await this.QueryTaoQueQiaoQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
-                    if (null != taoqueqiaoQuanActivity)
-                    {
-                        dataList.Add(taoqueqiaoQuanActivity);
-                    }
+                    var tskTaoqueqiaoQuanActivity =  this.QueryTaoQueQiaoQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
+ 
                     //3 查询商家在淘宝联盟上的活动-没有在淘鹊桥上活动
-                    var alimamaQuanActivity = await this.QueryMamaQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
-                    if (null != alimamaQuanActivity)
-                    {
-                        dataList.Add(alimamaQuanActivity);
-                    }
+                    var tskAlimamaQuanActivity =  this.QueryMamaQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
 
+                    //等待并行完毕
+                    Task.WaitAll(tskVolumeQuanActivity, tskTaoqueqiaoQuanActivity, tskAlimamaQuanActivity);
+                    if (null!=tskVolumeQuanActivity.Result)
+                    {
+                        dataList.AddRange(tskVolumeQuanActivity.Result);
+                    }
+                    if (null != tskTaoqueqiaoQuanActivity.Result)
+                    {
+                        dataList.Add(tskTaoqueqiaoQuanActivity.Result);
+                    }
+                    if (null!=tskAlimamaQuanActivity.Result)
+                    {
+                        dataList.Add(tskAlimamaQuanActivity.Result);
+                    }
                 }
 
 
@@ -524,7 +525,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     //异步任务字符串数据返回
                     var tskResult = Task.Factory.StartNew(() =>
                     {
-                        if (respContent.IndexOf("<html>")>0)
+                        if (respContent.IndexOf("<html>") > 0)
                         {
                             //TODO:发送邮件通知 登录淘宝失效了 ，因为正常返回的是价格阶梯的json
                             return null;
@@ -618,7 +619,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         }
 
                         //获取淘宝券的Cookie集合
-                        var cacheCookies = new LazyCookieVistor().LoadCookies(TaobaoQuanDomain);
+                        var cacheCookies = new LazyCookieVistor().LoadCookies(TaoUlandWebPageServic.TaobaoQuanDomain);
                         Cookie[] arry_cookies = null;
                         var ctokenCookie = cacheCookies.FirstOrDefault(x => x.Name == "ctoken");
                         string ctoken = string.Empty;
@@ -632,10 +633,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                             }
 
                         }
+                        ////加载cookies
+                        ////获取当前站点的Cookie
+                        taoquanHttpClient.ChangeGlobleCookies(cacheCookies, TaoUlandWebPageServic.TaobaoQuanDomain);
+
                         //解析价格阶梯中的内容 直接转为优惠券信息
-
-
-                        var modelQuan = this.QueryTaoQuanDetailsAsync(ctoken, sellerId, itemId, activityId, arry_cookies);
+                        var modelQuan = this.QueryTaoQuanDetailsAsync(ctoken, sellerId, itemId, activityId);
 
                         return modelQuan.Result;
                     });
@@ -745,7 +748,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         return null;
                     }
                     //从阿里妈妈推广结果 获取推广链接
-                    if (respContentOfTuiGuang.IndexOf("login.taobao.com/member/login")>-1)
+                    if (respContentOfTuiGuang.IndexOf("login.taobao.com/member/login") > -1)
                     {
                         //TODO:登录失效过期 发送邮件到管理员
                         return null;
@@ -869,7 +872,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 }
 
                 //获取淘宝券的Cookie集合
-                var cacheCookies = new LazyCookieVistor().LoadCookies(TaobaoQuanDomain);
+                var cacheCookies = new LazyCookieVistor().LoadCookies(TaoUlandWebPageServic.TaobaoQuanDomain);
                 Cookie[] arry_cookies = null;
                 var ctokenCookie = cacheCookies.FirstOrDefault(x => x.Name == "ctoken");
                 //刷新最新token
@@ -882,6 +885,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     }
 
                 }
+
+                ////加载cookies
+                ////获取当前站点的Cookie
+                taoquanHttpClient.ChangeGlobleCookies(cacheCookies, TaoUlandWebPageServic.TaobaoQuanDomain);
+
+
                 var lstHideQuan = new List<Youhuiquan>();
                 foreach (var para in queryParas.ArgumentsList)
                 {
@@ -892,16 +901,39 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         continue;
                     }
 
-                    foreach (var itemActivity in currentQuanActivityList)
-                    {
-                        //获取活动后 去查询优惠券信息
-                        var modelQuan = await this.QueryTaoQuanDetailsAsync(ctoken, para.SellerId, para.ItemId, itemActivity, arry_cookies);
+                    //模拟多任务并行
+                    int tskLen = currentQuanActivityList.Length;
+                    Task<Youhuiquan>[] array_FetQuanTasks = new Task<Youhuiquan>[tskLen];
 
+                    for (int i = 0; i < currentQuanActivityList.Length; i++)
+                    {
+                        var itemActivity = currentQuanActivityList.ElementAt(i);
+                        //获取活动后 去查询优惠券信息
+                        var tskYouhuiquan = this.QueryTaoQuanDetailsAsync(ctoken, para.SellerId, para.ItemId, itemActivity);
+
+                        array_FetQuanTasks[i] = tskYouhuiquan;
+                    }
+                    //等待全部任务并行完毕
+                    Task.WaitAll(array_FetQuanTasks);
+                    foreach (var itemTsk in array_FetQuanTasks)
+                    {
+                        var modelQuan = itemTsk.Result;
                         if (null != modelQuan)
                         {
                             lstHideQuan.Add(modelQuan);
                         }
                     }
+
+                    //foreach (var itemActivity in currentQuanActivityList)
+                    //{
+                    //    //获取活动后 去查询优惠券信息
+                    //    var modelQuan = await this.QueryTaoQuanDetailsAsync(ctoken, para.SellerId, para.ItemId, itemActivity, arry_cookies);
+
+                    //    if (null != modelQuan)
+                    //    {
+                    //        lstHideQuan.Add(modelQuan);
+                    //    }
+                    //}
 
 
                 }
@@ -916,7 +948,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <param name="sellerId"></param>
             /// <param name="itemId"></param>
             /// <returns></returns>
-            private async Task<IEnumerable<string>> QueryHideQuanActivitysAsync(long sellerId, long itemId)
+            private async Task<string[]> QueryHideQuanActivitysAsync(long sellerId, long itemId)
             {
 
                 if (sellerId <= 0 || itemId <= 0)
@@ -950,7 +982,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                      }
 
 
-                     return dataList.data.Select(x => x.activityId);
+                     return dataList.data.Select(x => x.activityId).ToArray();
                  });
 
                 return tskResult.Result;
@@ -965,7 +997,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <param name="itemId"></param>
             /// <param name="activityId"></param>
             /// <returns></returns>
-            private async Task<Youhuiquan> QueryTaoQuanDetailsAsync(string ctoken, long sellerId, long itemId, string activityId, Cookie[] cacheCookies)
+            private async Task<Youhuiquan> QueryTaoQuanDetailsAsync(string ctoken, long sellerId, long itemId, string activityId)
             {
                 if (string.IsNullOrEmpty(ctoken) || itemId <= 0 || string.IsNullOrEmpty(activityId))
                 {
@@ -975,9 +1007,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //查询券数据json
                 string searchUrl = string.Format(taobaoQuanDetailJsonUrl, ctoken, itemId, activityId);
 
-                ////加载cookies
-                ////获取当前站点的Cookie
-                taoquanHttpClient.ChangeGlobleCookies(cacheCookies, TaobaoQuanDomain);
 
                 // 发送请求
                 var clientProxy = new HttpServerProxy() { Client = taoquanHttpClient.Client, KeepAlive = true };
@@ -1000,7 +1029,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
                     TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
                     //对于无效的券 返回空值
-                    if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null || dataJsonObj.result.amount==null||dataJsonObj.result.amount <= 0)
+                    if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null || dataJsonObj.result.amount == null || dataJsonObj.result.amount <= 0)
                     {
                         return null;
                     }
