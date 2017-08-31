@@ -409,7 +409,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     //隐藏券
                     var tskHiddenQuan = this.GetHiddenCouponAsync(queryParas, ctoken);
 
-                    Task.WaitAll(tskCommonQuan, tskHiddenQuan);
+
                     if (null != tskCommonQuan.Result)
                     {
                         dataList.AddRange(tskCommonQuan.Result);
@@ -463,7 +463,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     var tskAlimamaQuanActivity =  this.QueryMamaQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
 
                     //等待并行完毕
-                    Task.WaitAll(tskVolumeQuanActivity, tskTaoqueqiaoQuanActivity, tskAlimamaQuanActivity);
+                    //Task.WaitAll(tskVolumeQuanActivity, tskTaoqueqiaoQuanActivity, tskAlimamaQuanActivity);
                     if (null!=tskVolumeQuanActivity.Result)
                     {
                         dataList.AddRange(tskVolumeQuanActivity.Result);
@@ -763,7 +763,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     Youhuiquan quanModel = new Youhuiquan()
                     {
                         itemId = itemId,
-                        amount = productAuction.couponAmount,
+                        amount = productAuction.couponAmount.Value,
                         effectiveStartTime = productAuction.couponEffectiveStartTime.Value,
                         effectiveEndTime = productAuction.couponEffectiveEndTime.Value,
                         quanUrl = tuiGuangResult.data.couponShortLinkUrl,//使用的是官方转换后的短连接
@@ -914,7 +914,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         array_FetQuanTasks[i] = tskYouhuiquan;
                     }
                     //等待全部任务并行完毕
-                    Task.WaitAll(array_FetQuanTasks);
+                    //Task.WaitAll(array_FetQuanTasks);
                     foreach (var itemTsk in array_FetQuanTasks)
                     {
                         var modelQuan = itemTsk.Result;
