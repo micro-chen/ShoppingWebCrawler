@@ -14,6 +14,7 @@ using NTCPMessage.Compress;
 
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using NTCPMessage;
 
 namespace ShoppingWebCrawler.Client
 {
@@ -182,20 +183,27 @@ namespace ShoppingWebCrawler.Client
                     //};
                     var paras = new YouhuiquanFetchWebPageArgument
                     {
-                        ArgumentsList = new List<YouhuiquanFetchWebPageArgument.QuanArgument>
+                        ArgumentsForExistsList = new List<YouhuiquanFetchWebPageArgument.QuanArgument>
                          {
                               new YouhuiquanFetchWebPageArgument.QuanArgument
                               {
-                                   SellerId=2688573078,
-                                   ItemId=544531921668
-                              }
+                                   SellerId=2294590088,
+                                   ItemId=5366070185919999
+                              },
+                              // new YouhuiquanFetchWebPageArgument.QuanArgument
+                              //{
+                              //     SellerId=3174937774,
+                              //     ItemId=554746684441
+                              //}, 
+
+
                          }
                     };
                     string msg = JsonConvert.SerializeObject(paras);
                     SoapMessage testMessage = new SoapMessage()
                     {
 
-                        Head = "fetchquan",
+                        Head = CommandConstants.CMD_FetchquanExistsList,
                         Body = msg
                     };
 
@@ -218,7 +226,7 @@ namespace ShoppingWebCrawler.Client
 
                             if (null != repResult)
                             {
-                               // string content = LZString.DecompressFromBase64(repResult.Result);
+                                // string content = LZString.DecompressFromBase64(repResult.Result);
                                 //Console.Write(content);
                                 Console.WriteLine("from server response :{0}", repResult.Result);
                             }

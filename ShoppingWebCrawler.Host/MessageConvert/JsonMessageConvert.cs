@@ -12,6 +12,7 @@ using NTCPMessage.EntityPackage.Arguments;
 using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
 using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.Common;
+using NTCPMessage;
 
 namespace ShoppingWebCrawler.Host.MessageConvert
 {
@@ -45,18 +46,25 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                 string actionName = obj.Head;
                 switch (actionName)
                 {
-                    case "platforms": result = this.GetAllSupportPlatforms(); break;
-                    case "fetchpage":
+                    case CommandConstants.CMD_Platforms: result = this.GetAllSupportPlatforms(); break;
+                    case CommandConstants.CMD_FetchPage:
 
                         //从body 中获取参数 ，并传递到指定的Action todo  :指定命令发到指定的平台action解析
                         var args_webpage = JsonConvert.DeserializeObject<BaseFetchWebPageArgument>(obj.Body);
                         result = this.FetchPlatformSearchWebPage(args_webpage);
                         break;
-                    case "fetchquan":
+                    case CommandConstants.CMD_FetchquanExistsList:
 
                         //从body 中获取参数
                         var args_yuohuiquan = JsonConvert.DeserializeObject<YouhuiquanFetchWebPageArgument>(obj.Body);
-                        result = this.FetchYouhuiquan(args_yuohuiquan);
+                        result = this.FetchYouhuiquanExistsList(args_yuohuiquan);
+
+                        break;
+                    case CommandConstants.CMD_FetchquanDetails:
+
+                        //从body 中获取参数
+                        var args_yuohuiquanDetails = JsonConvert.DeserializeObject<YouhuiquanFetchWebPageArgument>(obj.Body);
+                        result = this.FetchYouhuiquanDetails(args_yuohuiquanDetails);
 
                         break;
                     default:
@@ -71,13 +79,14 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             return result;
 
         }
+        
 
         /// <summary>
-        /// 搜索指定的卖家的商品的优惠券信息
+        /// 搜索指定的卖家的商品的优惠券是否存在优惠券信息
         /// </summary>
         /// <param name="args_yuohuiquan"></param>
         /// <returns></returns>
-        private IDataContainer FetchYouhuiquan(YouhuiquanFetchWebPageArgument args_yuohuiquan)
+        private IDataContainer FetchYouhuiquanExistsList(YouhuiquanFetchWebPageArgument args_yuohuiquan)
         {
             IDataContainer result = DataContainer.CreateNullDataContainer();
             if (null == args_yuohuiquan)
@@ -85,10 +94,40 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                 return result;
             }
 
-            //抓取优惠券信息
+            //抓取优惠券信息-列表
             //解析参数的Web蜘蛛服务
             AlimamaWebPageService webPageService = new AlimamaWebPageService();
 
+            try
+            {
+                
+                result = webPageService.QueryYouhuiquanExistsList(args_yuohuiquan);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteException(ex);
+            }
+
+
+            return result;
+        }
+
+        /// <summary>
+        /// 搜索指定的卖家的商品的优惠券详细
+        /// </summary>
+        /// <param name="args_yuohuiquan"></param>
+        /// <returns></returns>
+        private IDataContainer FetchYouhuiquanDetails(YouhuiquanFetchWebPageArgument args_yuohuiquan)
+        {
+            IDataContainer result = DataContainer.CreateNullDataContainer();
+            if (null == args_yuohuiquan)
+            {
+                return result;
+            }
+
+            //抓取优惠券信息-列表
+            //解析参数的Web蜘蛛服务
+            AlimamaWebPageService webPageService = new AlimamaWebPageService();
 
             try
             {
@@ -102,7 +141,6 @@ namespace ShoppingWebCrawler.Host.MessageConvert
 
             return result;
         }
-
 
 
         /// <summary>

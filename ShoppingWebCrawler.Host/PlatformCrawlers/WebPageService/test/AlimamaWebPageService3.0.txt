@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Net;
@@ -14,8 +14,7 @@ using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.Common.Http;
 using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Cef.Core;
-using System.Threading;
-using ShoppingWebCrawler.Host.Model;
+
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
@@ -109,38 +108,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         }
 
 
-        /// <summary>
-        /// 根据传递的查询参数 {卖家id  商品id}列表 批量查询优惠券是否存在信息
-        /// 返回抓取后的内容
-        /// </summary>
-        /// <param name="queryParas"></param>
-        /// <returns></returns>
-        public DataContainer QueryYouhuiquanExistsList(YouhuiquanFetchWebPageArgument queryParas)
-        {
-            DataContainer container = new DataContainer();
-
-            if (null == queryParas)
-            {
-                return container;
-            }
-            if (IsHasLoginAlimama == false)
-            {
-                string msg = "未能正确登录阿里妈妈，不能查询优惠券！" + DateTime.Now.ToString();
-                container.Result = msg;
-                Logger.WriteToLog(msg);
-                return container;
-            }
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-
-            //查询所有券集合
-            var allQuanList = AlimamaMixReuestLoader.Current.GetAllCouponExistsList(queryParas).Result;
-
-            sw.Stop();
-            Console.WriteLine("GetAllCoupon Finished. Elapse : {0} ms", sw.ElapsedMilliseconds);
-            container.Result = JsonConvert.SerializeObject(allQuanList);
-            return container;
-        }
 
         /// <summary>
         /// 根据传递的查询参数 {卖家id  商品id}列表 批量查询优惠券信息
@@ -399,100 +366,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //    this.AutoRefeshCookie(this.RefreshCookieUrlTemplate);
             //}
 
-
-
-            #region 优惠券存在列表
-
-
-            /// <summary>
-            /// 查询商品的优惠券是否存在列表信息
-            /// </summary>
-            /// <param name="queryParas"></param>
-            /// <returns></returns>
-            public async Task<IEnumerable<YouhuiquanExistsModel>> GetAllCouponExistsList(YouhuiquanFetchWebPageArgument queryParas)
-            {
-
-                string ctoken = string.Empty;
-                var cks = new LazyCookieVistor().LoadCookies(TaoUlandWebPageServic.TaobaoQuanDomain);
-
-                //加载完毕后 刷新下 token 
-                //模拟导航到券列表页面 - 用来获取优惠券的Cookie - ctoken
-                if (null == cks)
-                {
-                    string msg = "未能正获取阿里妈妈券的cookie 集合，不能查询优惠券！" + DateTime.Now.ToString();
-                    Logger.WriteToLog(msg);
-                    return null;
-
-                }
-                else
-                {
-                    var ctokenCookie = cks.FirstOrDefault(x => x.Name == "ctoken");
-                    if (null == ctokenCookie || string.IsNullOrEmpty(ctokenCookie.Value))
-                    {
-                        string msg = "未能正获取阿里妈妈券的ctoken，不能查询优惠券！" + DateTime.Now.ToString();
-                        Logger.WriteToLog(msg);
-                        return null;
-                    }
-
-                    ctoken = ctokenCookie.Value;
-                }
-
-                //-----------让两个任务并行，等待并行运算结果--------------
-                var tskAllQuanExistsList = await Task.Factory.StartNew(() =>
-                {
-                    var dataHashTable = new System.Collections.Concurrent.ConcurrentBag<YouhuiquanExistsTaskBuffer>();
-
-                    foreach (var paraItem in queryParas.ArgumentsForExistsList)
-                    {
-                        var taskModel = new YouhuiquanExistsTaskBuffer(paraItem.SellerId, paraItem.ItemId);
-
-                        //1 隐藏券查询
-                        var tskAlimamaHiddenQuanActivity = this.QueryHideQuanActivitysExistsListAsync(paraItem.SellerId, paraItem.ItemId, taskModel.TaskAssertFunc, taskModel.CancellToken);
-                        taskModel.TaskBuffer.Add(tskAlimamaHiddenQuanActivity);
-
-                        //2 首先查询商家设置的价格阶梯 如：https://cart.taobao.com/json/GetPriceVolume.do?sellerId=2649797694
-                        /*
-                        {"priceVolumes":[{"condition":"满488减30","id":"e9c303182542418589c1a3ead872acd1","price":"30","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满488领劵立减30","type":"youhuijuan"},{"condition":"满188减20","id":"d9060db139fd4c9bac375e474632e485","price":"20","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满188领劵立减20","type":"youhuijuan"},{"condition":"满88减10","id":"2f9cc940cc0f4f8197e7e0f6dee45087","price":"10","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满88领劵立减10元","type":"youhuijuan"},{"condition":"满45减5","id":"fbe4efe09a824b7dbc4b83e00d6adb77","price":"5","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.21-2017.12.31","title":"买1立减5元","type":"youhuijuan"}],"receivedCount":0,"unreceivedCount":4}
-                        */
-                        var tskVolumeQuanActivity = this.QueryPriceVolumeQuanActivitysExistsListAsync(paraItem.SellerId, paraItem.ItemId, taskModel.TaskAssertFunc, taskModel.CancellToken);
-                        taskModel.TaskBuffer.Add(tskVolumeQuanActivity);
-                        //  3 查询商家在合作平台-淘鹊桥-上发起的活动
-                        var tskTaoqueqiaoQuanActivity = this.QueryTaoQueQiaoQuanActivitysExistListAsync(paraItem.SellerId, paraItem.ItemId, taskModel.TaskAssertFunc, taskModel.CancellToken);
-                        taskModel.TaskBuffer.Add(tskTaoqueqiaoQuanActivity);
-                        //4 查询商家在淘宝联盟上的活动-没有在淘鹊桥上活动
-                        var tskAlimamaQuanActivity = this.QueryMamaQuanActivitysExistListAsync(paraItem.SellerId, paraItem.ItemId, taskModel.TaskAssertFunc, taskModel.CancellToken);
-                        taskModel.TaskBuffer.Add(tskAlimamaQuanActivity);
-
-
-
-                        dataHashTable.Add(taskModel);
-                    }
-
-                    //需要等待任务并行完毕 
-                    try
-                    {
-                        var allTasks = dataHashTable.Select(x => x.QueryTask).ToArray();
-                        Task.WaitAll(allTasks);
-
-                    }
-                    catch (AggregateException aex)
-                    {
-                        //取消任务不做处理
-                    }
-                
-
-                    return dataHashTable.Select(x => x.ResultModel);
-                });
-
-                return tskAllQuanExistsList;
-            }
-
-
-
-            #endregion
-
-            #region 优惠券详细
-
             /// <summary>
             /// 获取商品的所有优惠券集合
             /// </summary>
@@ -527,28 +400,42 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 }
 
                 //-----------让两个任务并行，等待并行运算结果--------------
-                var tskAllQuan = await Task.Factory.StartNew(() =>
-                  {
-                      var dataList = new List<Youhuiquan>();
+               var tskAllQuan= await Task.Factory.StartNew(() =>
+                {
+                    var dataList = new List<Youhuiquan>();
 
-                      //普通券
-                      var tskCommonQuan = this.GetCommonCoupon(queryParas, ctoken);
+                    //普通券
+                    var tskCommonQuan = this.GetCommonCoupon(queryParas, ctoken);
 
-                      //隐藏券
-                      var tskHiddenQuan = this.GetHiddenCouponAsync(queryParas, ctoken);
+                    //隐藏券
+                    var tskHiddenQuan = this.GetHiddenCouponAsync(queryParas, ctoken);
 
 
-                      if (null != tskCommonQuan.Result)
-                      {
-                          dataList.AddRange(tskCommonQuan.Result);
-                      }
-                      if (null != tskHiddenQuan.Result)
-                      {
-                          dataList.AddRange(tskHiddenQuan.Result);
-                      }
+                    if (null != tskCommonQuan.Result)
+                    {
+                        dataList.AddRange(tskCommonQuan.Result);
+                    }
+                    if (null != tskHiddenQuan)
+                    {
+                        while (tskHiddenQuan.IsEmpty==false)
+                        {
+                            IEnumerable<Task<Youhuiquan>> lstQuanTsk = null;
+                            if (tskHiddenQuan.TryDequeue(out lstQuanTsk))
+                            {
+                                if (null!=lstQuanTsk)
+                                {
+                                    foreach (var item in lstQuanTsk)
+                                    {
+                                        dataList.Add(item.Result);
+                                    }
+                                }
+                            } 
+                        }
+                        
+                    }
 
-                      return dataList;
-                  });
+                    return dataList;
+                });
 
                 return tskAllQuan;
             }
@@ -566,145 +453,52 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <param name="queryParas"></param>
             /// <param name="ctoken"></param>
             /// <returns></returns>
-            public Task<IEnumerable<Youhuiquan>> GetCommonCoupon(YouhuiquanFetchWebPageArgument queryParas, string ctoken)
+            public async Task<List<Youhuiquan>> GetCommonCoupon(YouhuiquanFetchWebPageArgument queryParas, string ctoken)
             {
-                if (null == queryParas || queryParas.ArgumentsForQuanDetails == null)
+                if (null == queryParas || queryParas.ArgumentsList == null || queryParas.ArgumentsList.Count <= 0)
                 {
                     return null;
                 }
-                var paraItem = queryParas.ArgumentsForQuanDetails;
+
                 //查询出所有的商品的非隐藏-（非特定网站合作的优惠活动）优惠券
-                ConcurrentBag<Youhuiquan> dataListHashTable = new ConcurrentBag<Youhuiquan>();
-
-                var tskQueryAllCommonQuanList = Task.Factory.StartNew<IEnumerable<Youhuiquan>>(() =>
+                List<Youhuiquan> dataList = new List<Youhuiquan>();
+                foreach (var paraItem in queryParas.ArgumentsList)
                 {
-
 
                     //1 首先查询商家设置的价格阶梯 如：https://cart.taobao.com/json/GetPriceVolume.do?sellerId=2649797694
                     /*
                     {"priceVolumes":[{"condition":"满488减30","id":"e9c303182542418589c1a3ead872acd1","price":"30","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满488领劵立减30","type":"youhuijuan"},{"condition":"满188减20","id":"d9060db139fd4c9bac375e474632e485","price":"20","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满188领劵立减20","type":"youhuijuan"},{"condition":"满88减10","id":"2f9cc940cc0f4f8197e7e0f6dee45087","price":"10","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满88领劵立减10元","type":"youhuijuan"},{"condition":"满45减5","id":"fbe4efe09a824b7dbc4b83e00d6adb77","price":"5","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.21-2017.12.31","title":"买1立减5元","type":"youhuijuan"}],"receivedCount":0,"unreceivedCount":4}
                     */
-                    var tskVolumeQuanActivity = this.QueryPriceVolumeQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
-
+                    var tskVolumeQuanActivity =  this.QueryPriceVolumeQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
+     
                     // 2 查询商家在合作平台-淘鹊桥-上发起的活动
-                    var tskTaoqueqiaoQuanActivity = this.QueryTaoQueQiaoQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
-
+                    var tskTaoqueqiaoQuanActivity =  this.QueryTaoQueQiaoQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
+ 
                     //3 查询商家在淘宝联盟上的活动-没有在淘鹊桥上活动
-                    var tskAlimamaQuanActivity = this.QueryMamaQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
+                    var tskAlimamaQuanActivity =  this.QueryMamaQuanActivitysAsync(paraItem.SellerId, paraItem.ItemId);
 
                     //等待并行完毕
                     //Task.WaitAll(tskVolumeQuanActivity, tskTaoqueqiaoQuanActivity, tskAlimamaQuanActivity);
-                    if (null != tskVolumeQuanActivity.Result)
+                    if (null!=tskVolumeQuanActivity.Result)
                     {
-                        var cursor = tskVolumeQuanActivity.Result.GetEnumerator();
-                        while (cursor.MoveNext())
-                        {
-                            dataListHashTable.Add(cursor.Current);
-                        }
+                        dataList.AddRange(tskVolumeQuanActivity.Result);
                     }
                     if (null != tskTaoqueqiaoQuanActivity.Result)
                     {
-                        dataListHashTable.Add(tskTaoqueqiaoQuanActivity.Result);
+                        dataList.Add(tskTaoqueqiaoQuanActivity.Result);
                     }
-                    if (null != tskAlimamaQuanActivity.Result)
+                    if (null!=tskAlimamaQuanActivity.Result)
                     {
-                        dataListHashTable.Add(tskAlimamaQuanActivity.Result);
+                        dataList.Add(tskAlimamaQuanActivity.Result);
                     }
-
-                    return dataListHashTable;
-                });
+                }
 
 
-
-                return tskQueryAllCommonQuanList;
+                return dataList;
 
             }
 
-            /// <summary>
-            /// 查询阶梯价格活动优惠券是否存在
-            /// </summary>
-            /// <param name="sellerId"></param>
-            /// <param name="itemId"></param>
-            /// <param name="funHandler"></param>
-            /// <param name="cancellationToken"></param>
-            /// <returns></returns>
-            private Task<bool> QueryPriceVolumeQuanActivitysExistsListAsync(long sellerId, long itemId, Func<Task<bool>, Task, bool> funHandler, CancellationToken cancellationToken)
-            {
-                var taskQuery = Task.Factory.StartNew<bool>(() =>
-                {
-                    bool result = false;
-                    if (sellerId <= 0 || itemId <= 0)
-                    {
-                        return result;
-                    }
-                    //查询隐藏券的地址
-                    string queryAddress = string.Format(getPriceVolumeAPI, sellerId);
 
-                    try
-                    {
-
-
-                        var cks = new LazyCookieVistor().LoadCookies(TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
-                        taobaoHttpClient.ChangeGlobleCookies(cks, TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
-
-                        var clientProxy = new HttpServerProxy() { Client = taobaoHttpClient.Client, KeepAlive = true };
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, cancellationToken).Result;
-                        if (null == resp || resp.Content == null)
-                        {
-                            return result;
-                        }
-                        //异步读取内容字符串
-                        //demo:{"priceVolumes":[{"condition":"满488减30","id":"e9c303182542418589c1a3ead872acd1","price":"30","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满488领劵立减30","type":"youhuijuan"},{"condition":"满188减20","id":"d9060db139fd4c9bac375e474632e485","price":"20","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满188领劵立减20","type":"youhuijuan"},{"condition":"满88减10","id":"2f9cc940cc0f4f8197e7e0f6dee45087","price":"10","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满88领劵立减10元","type":"youhuijuan"},{"condition":"满45减5","id":"fbe4efe09a824b7dbc4b83e00d6adb77","price":"5","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.21-2017.12.31","title":"买1立减5元","type":"youhuijuan"}],"receivedCount":0,"unreceivedCount":4}
-                        string respContent = resp.Content.ReadAsStringAsync().Result;
-                        if (string.IsNullOrEmpty(respContent))
-                        {
-                            return result;
-                        }
-
-
-                        if (respContent.IndexOf("<html>") > 0)
-                        {
-                            //TODO:发送邮件通知 登录淘宝失效了 ，因为正常返回的是价格阶梯的json
-                            return result;
-                        }
-                        PriceVolumesResult dataList = JsonConvert.DeserializeObject<PriceVolumesResult>(respContent);
-                        if (null == dataList || dataList.priceVolumes == null || dataList.priceVolumes.Count <= 0)
-                        {
-                            result = false;
-                        }
-                        else
-                        {
-                            result = true;
-                        }
-
-                    }
-                    catch (AggregateException aex)
-                    {
-                        //任务取消不做处理
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.WriteToLog("-------查询价格阶梯失败！----原因异常如下：-----");
-                        Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                        Logger.WriteException(ex);
-                    }
-                    return result;
-
-                });
-
-                //任务完毕后注册的子任务；用来注册任务完毕后的后续事件
-                taskQuery.ContinueWith((tsk) =>
-                {
-                    if (null != funHandler)
-                    {
-                        funHandler(tsk, taskQuery);
-                    }
-                });
-
-                return taskQuery;//将父亲源任务弹出
-
-
-            }
 
             /// <summary>
             /// 查询价格阶梯的优惠活动
@@ -730,7 +524,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     taobaoHttpClient.ChangeGlobleCookies(cks, TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
 
                     var clientProxy = new HttpServerProxy() { Client = taobaoHttpClient.Client, KeepAlive = true };
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -790,99 +584,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             }
 
             /// <summary>
-            /// 查询是否在淘鹊桥有隐藏的活动优惠券
-            /// </summary>
-            /// <param name="sellerId"></param>
-            /// <param name="itemId"></param>
-            /// <returns></returns>
-            private Task<bool> QueryTaoQueQiaoQuanActivitysExistListAsync(long sellerId, long itemId, Func<Task<bool>, Task, bool> funHandler, CancellationToken cancellationToken)
-            {
-                var taskQuery = Task.Factory.StartNew<bool>(() =>
-                {
-                    bool result = false;
-                    if (sellerId <= 0 || itemId <= 0)
-                    {
-                        return result;
-                    }
-                    //查询隐藏券的地址
-                    string queryAddress = string.Format(taoqueqiaoQuanGetUrl, itemId);
-
-
-                    try
-                    {
-
-
-                        var clientProxy = new HttpServerProxy() { Client = taoqueqiaoHttpClient.Client, KeepAlive = true };
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, cancellationToken).Result;
-                        if (null == resp || resp.Content == null)
-                        {
-                            return result;
-                        }
-                        //异步读取内容字符串
-                        //demo:{"s":1,"r":"788d960caead44998d852e251f6e934f"}
-                        string respContent = resp.Content.ReadAsStringAsync().Result;
-                        if (string.IsNullOrEmpty(respContent))
-                        {
-                            return result;
-                        }
-
-                        //异步任务字符串数据返回
-
-                        Dictionary<string, string> queQiaoResult = JsonConvert.DeserializeObject<Dictionary<string, string>>(respContent);
-                        if (null == queQiaoResult || !queQiaoResult.ContainsKey("s"))
-                        {
-                            return result;
-                        }
-                        string activityId = string.Empty;
-                        queQiaoResult.TryGetValue("r", out activityId);
-                        if (string.IsNullOrEmpty(activityId))
-                        {
-                            return result;
-                        }
-
-                        /*
-                        demo {"s":1,"r":"521a48814b9b40d9a11df136c01e29c1"}
-                        */
-                        string sValue = string.Empty;
-                        string rValue = string.Empty;
-                        if (queQiaoResult.TryGetValue("s", out sValue) && sValue.ToString().Equals("1"))
-                        {
-                            if (queQiaoResult.TryGetValue("r", out rValue) && rValue.Length == 32)
-                            {
-                                result = true;//32位字符串哈希编码
-                            }
-                        }
-
-
-                    }
-                    catch (AggregateException aex)
-                    {
-                        //任务取消不做处理
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.WriteToLog("-------查询淘鹊桥活动券失败！----原因异常如下：-----");
-                        Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                        Logger.WriteException(ex);
-                    }
-
-                    return result;
-
-                });
-
-                //任务完毕后注册的子任务；用来注册任务完毕后的后续事件
-                taskQuery.ContinueWith((tsk) =>
-                {
-                    if (null != funHandler)
-                    {
-                        funHandler(tsk, taskQuery);
-                    }
-                });
-
-                return taskQuery;//将父亲源任务弹出
-            }
-
-            /// <summary>
             /// 查询淘鹊桥的活动券
             /// </summary>
             /// <param name="sellerId"></param>
@@ -904,7 +605,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
                     var clientProxy = new HttpServerProxy() { Client = taoqueqiaoHttpClient.Client, KeepAlive = true };
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -969,145 +670,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 return null;
             }
 
-            /// <summary>
-            /// 查询阿里妈妈上是否存在活动券
-            /// </summary>
-            /// <param name="sellerId"></param>
-            /// <param name="itemId"></param>
-            /// <param name="funHandler"></param>
-            /// <param name="cancellationToken"></param>
-            /// <returns></returns>
-            private Task<bool> QueryMamaQuanActivitysExistListAsync(long sellerId, long itemId, Func<Task<bool>, Task, bool> funHandler, CancellationToken cancellationToken)
-            {
-                var taskQuery = Task.Factory.StartNew<bool>(() =>
-                {
-
-                    bool result = false;
-                    if (sellerId <= 0 || itemId <= 0)
-                    {
-                        return result;
-                    }
-                    try
-                    {
-
-
-                        //查询隐藏券的地址
-                        var url = string.Concat("https://detail.tmall.com/item.htm?id=", itemId);
-                        var timestamp = JavascriptContext.getUnixTimestamp();
-                        var ckVisitor = new LazyCookieVistor();
-                        var cks = ckVisitor.LoadCookies(AlimamaSiteUrl);
-
-                        //在查询字符串中的Cookie
-                        var queryCookie = cks.FirstOrDefault(x => x.Name == "_tb_token_");
-                        string queryCookieValue = string.Empty;
-                        if (null != queryCookie)
-                        {
-                            queryCookieValue = queryCookie.Value;
-                        }
-                        //查询是否有上阿里妈妈推广活动
-                        //demo：http://pub.alimama.com/items/search.json?q=http://item.tmall.com/item.htm?id=537099364188&perPageSize=10
-                        string queryAddress = string.Format(alimamaQuanGetUrl, url, timestamp, queryCookieValue);
-                        ////加载cookies
-                        ////获取当前站点的Cookie
-                        alimamaHttpClient.ChangeGlobleCookies(cks, AlimamaSiteUrl);
-
-                        // 4 发送请求
-                        var clientProxy = new HttpServerProxy() { Client = alimamaHttpClient.Client, KeepAlive = true };
-
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, cancellationToken).Result;
-                        if (null == resp || resp.Content == null)
-                        {
-                            return result;
-                        }
-                        //异步读取内容字符串
-                        //{"data":{"head":{"version":"1.0","status":"OK","pageSize":10,"pageNo":1,"searchUrl":null,"pvid":"100_10.103.34.47_236203_2131501424498625508","errmsg":null,"fromcache":null,"processtime":3829,"ha3time":3503,"docsfound":1,"docsreturn":1,"responseTxt":null},"condition":{"userType":null,"queryType":null,"sortType":null,"loc":null,"includeDxjh":null,"auctionTag":null,"startDsr":null,"hasUmpBonus":null,"isBizActivity":null,"freeShipment":null,"startTkRate":null,"endTkRate":null,"startTkTotalSales":null,"startPrice":null,"endPrice":null,"startRatesum":null,"endRatesum":null,"startQuantity":null,"startBiz30day":null,"startPayUv30":null,"hPayRate30":null,"hGoodRate":null,"jhs":null,"lRfdRate":null,"startSpay30":null,"hSellerGoodrat":null,"hSpayRate30":null,"subOeRule":null,"auctionTagRaw":null,"startRlRate":null,"shopTag":null,"npxType":null,"picQuality":null,"selectedNavigator":null,"typeTagName":null},"paginator":{"length":1,"offset":0,"page":1,"beginIndex":1,"endIndex":1,"items":1,"lastPage":1,"itemsPerPage":10,"previousPage":1,"nextPage":1,"pages":1,"firstPage":1,"slider":[1]},"pageList":[{"tkSpecialCampaignIdRateMap":{"63960348":"50.00","45332944":"25.00","28623940":"20.00","28929421":"10.00","28929471":"50.00"},"rootCatId":0,"leafCatId":50008612,"eventCreatorId":117644290,"debugInfo":null,"rootCatScore":0,"sellerId":2649797694,"userType":0,"shopTitle":"SHIYUAN－石岩村生态庄园官方店","pictUrl":"//img.alicdn.com/bao/uploaded/i2/2649797694/TB2xOquXd3nyKJjSZFjXXcdBXXa_!!2649797694.jpg","title":"石岩村茶园丁香茶正品养胃长白山野生丁香叶茶特紫丁香花茶级包邮","auctionId":537099364188,"tkMktStatus":null,"biz30day":12626,"tkRate":2.80,"nick":"全球茶叶公司","includeDxjh":1,"reservePrice":68.00,"tkCommFee":1.90,"totalFee":14111.30,"totalNum":2943,"zkPrice":68.00,"auctionTag":"258 385 587 651 843 1163 1483 2059 4491 4550 5831 6215 6603 7110 11083 12491 13707 13771 16395 24002 25282 27137 28353 30977 34305 36161 40513 40897 48578 49089 49601 53185 54209 54337 59073 59137 59970 67521 70465 119234 119298 138178 140098 140674 140738 140866 143234 143746 151362 172866","auctionUrl":"http://item.taobao.com/item.htm?id=537099364188","rlRate":0.00,"hasRecommended":0,"hasSame":0,"tk3rdRate":null,"sameItemPid":"9223372036854775807","couponActivityId":null,"couponTotalCount":50000,"couponLeftCount":48205,"couponLink":"","couponLinkTaoToken":"","couponAmount":5,"dayLeft":2,"couponShortLink":null,"couponInfo":"满45元减5元","couponStartFee":45,"couponEffectiveStartTime":"2017-07-21","couponEffectiveEndTime":"2017-12-31","eventRate":30.00,"hasUmpBonus":null,"isBizActivity":null,"umpBonus":null,"rootCategoryName":null,"couponOriLink":null,"userTypeName":null}],"navigator":null,"extraInfo":null},"info":{"message":null,"pvid":"10_180.77.135.254_330_1501424498623","ok":true},"ok":true,"invalidKey":null}
-                        string respContent = resp.Content.ReadAsStringAsync().Result;
-                        if (string.IsNullOrEmpty(respContent))
-                        {
-                            return result;
-                        }
-
-
-                        MamaQuanAuctioin mamaQuanResult = JsonConvert.DeserializeObject<MamaQuanAuctioin>(respContent);
-                        if (null == mamaQuanResult || mamaQuanResult.ok == false || mamaQuanResult.data == null || mamaQuanResult.data.pageList == null)
-                        {
-                            return result;
-                        }
-                        //因为我们是按照商品链接搜索 所以只能有一个
-                        var productAuction = mamaQuanResult.data.pageList.FirstOrDefault();
-                        if (null == productAuction)
-                        {
-                            return result;
-                        }
-                        //过期失效的券活动
-                        if (productAuction.couponAmount <= 0 || productAuction.couponLeftCount <= 0)
-                        {
-                            return result;
-                        }
-
-                        //转换查询推广链接
-                        timestamp = JavascriptContext.getUnixTimestamp();
-                        string tuiguangApiUrl = string.Format(alimamaMyTuiGuangQuanUrl,
-                            productAuction.auctionId,
-                            timestamp,
-                            queryCookieValue,
-                            mamaQuanResult.info.pvid
-                            );
-                        var respOfTuiGuang = clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null, cancellationToken).Result;
-                        if (null == respOfTuiGuang || respOfTuiGuang.Content == null)
-                        {
-                            return result;
-                        }
-                        //异步读取内容字符串
-                        //{"data":{"taoToken":"￥uL1c0Yz0Zkk￥","couponShortLinkUrl":"https://s.click.taobao.com/OtZMMew","qrCodeUrl":"//gqrcode.alicdn.com/img?type=hv&text=https%3A%2F%2Fs.click.taobao.com%2FeLVMMew%3Faf%3D3&h=300&w=300","clickUrl":"https://s.click.taobao.com/t?e=m%3D2%26s%3DRDah1ToHrrccQipKwQzePOeEDrYVVa64LKpWJ%2Bin0XLjf2vlNIV67lUAiMP49uDbJdux29CqXYk0gkVGIth8kaXPTjhnp4ESePszmPR8eOguIUNSY24v1C8DJwbWoWv1lrfKbc84rlcbsWZwF8LEJObKIHyGA6hixiXvDf8DaRs%3D&pvid=10_180.77.135.254_527_1501426771407","couponLinkTaoToken":"￥oa700Yz0ZsR￥","couponLink":"https://uland.taobao.com/coupon/edetail?e=97LO7bg8LSibhUsf2ayXDE5NBfsTCtsHMw03sPQ2yo1%2FbtwLdhUU4bcZelJt%2BzjyVfB1Gny0JAla6Dsdc8AKTNzNwQTGaE3k14t9QUPD0GYZqvzm5Xubt7AJ69hyUes5miwKVpSjoJXOaNlgU0mIWqXvhrUNlNUy&pid=mm_31965263_6394774_21932422&af=1","type":"auction","shortLinkUrl":"https://s.click.taobao.com/eLVMMew"},"info":{"message":null,"ok":true},"ok":true,"invalidKey":null}
-                        var respContentOfTuiGuang = respOfTuiGuang.Content.ReadAsStringAsync().Result;
-                        if (string.IsNullOrEmpty(respContentOfTuiGuang))
-                        {
-                            return result;
-                        }
-                        //从阿里妈妈推广结果 获取推广链接
-                        if (respContentOfTuiGuang.IndexOf("login.taobao.com/member/login") > -1)
-                        {
-                            //TODO:登录失效过期 发送邮件到管理员
-                            return result;
-                        }
-                        MamaQuanOrProductTuiGuangResult tuiGuangResult = JsonConvert.DeserializeObject<MamaQuanOrProductTuiGuangResult>(respContentOfTuiGuang);
-                        if (null == tuiGuangResult || tuiGuangResult.ok == false || tuiGuangResult.data == null|| string.IsNullOrEmpty(tuiGuangResult.data.couponLink))
-                        {
-                            return result;
-                        }
-
-                        result = true;
-
-
-                    }
-                    catch (AggregateException aex)
-                    {
-                        //任务取消不做处理
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.WriteToLog("-------查询阿里妈妈官方活动券失败！----原因异常如下：-----");
-                        Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                        Logger.WriteException(ex);
-                    }
-                    return result;
-
-                });
-
-                //任务完毕后注册的子任务；用来注册任务完毕后的后续事件
-                taskQuery.ContinueWith((tsk) =>
-                {
-                    if (null != funHandler)
-                    {
-                        funHandler(tsk, taskQuery);
-                    }
-                });
-
-                return taskQuery;//将父亲源任务弹出
-
-            }
-
 
             /// <summary>
             /// 查询阿里妈妈的活动券-不一定在淘鹊桥上了这个活动
@@ -1149,7 +711,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     // 4 发送请求
                     var clientProxy = new HttpServerProxy() { Client = alimamaHttpClient.Client, KeepAlive = true };
 
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -1188,7 +750,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         queryCookieValue,
                         mamaQuanResult.info.pvid
                         );
-                    var respOfTuiGuang = await clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null, System.Threading.CancellationToken.None);
+                    var respOfTuiGuang = await clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null);
                     if (null == respOfTuiGuang || respOfTuiGuang.Content == null)
                     {
                         return null;
@@ -1317,13 +879,13 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <param name="ctoken"></param>
             /// <returns></returns>
 
-            public async Task<List<Youhuiquan>> GetHiddenCouponAsync(YouhuiquanFetchWebPageArgument queryParas, string ctoken)
+            public ConcurrentQueue<IEnumerable<Task<Youhuiquan>>> GetHiddenCouponAsync(YouhuiquanFetchWebPageArgument queryParas, string ctoken)
             {
-                if (null == queryParas || queryParas.ArgumentsForQuanDetails != null)
+                if (null == queryParas || queryParas.ArgumentsList == null || queryParas.ArgumentsList.Count <= 0)
                 {
                     return null;
                 }
-                var para = queryParas.ArgumentsForQuanDetails;
+
                 //获取淘宝券的Cookie集合
                 var cacheCookies = new LazyCookieVistor().LoadCookies(TaoUlandWebPageServic.TaobaoQuanDomain);
                 Cookie[] arry_cookies = null;
@@ -1344,123 +906,65 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 taoquanHttpClient.ChangeGlobleCookies(cacheCookies, TaoUlandWebPageServic.TaobaoQuanDomain);
 
 
-                var lstHideQuan = new List<Youhuiquan>();
-
-                var currentQuanActivityList = await this.QueryHideQuanActivitysAsync(para.SellerId, para.ItemId);
-                if (null == currentQuanActivityList)
+                var lstHideQuan = new ConcurrentQueue<IEnumerable<Task< Youhuiquan>>>();
+                foreach (var para in queryParas.ArgumentsList)
                 {
-                    return null;
+
+                     var currentItemTask= this.QueryHideQuanActivitysAsync(para.SellerId, para.ItemId).ContinueWith((currentQuanActivityListTask) => {
+
+                         var currentQuanActivityList = currentQuanActivityListTask.Result;
+                          if (null == currentQuanActivityList)
+                          {
+                              return null;
+                          }
+                         //模拟多任务并行
+                         int tskLen = currentQuanActivityList.Length;
+                         Task<Youhuiquan>[] array_FetQuanTasks = new Task<Youhuiquan>[tskLen];
+
+                         for (int i = 0; i < currentQuanActivityList.Length; i++)
+                         {
+                             var itemActivity = currentQuanActivityList.ElementAt(i);
+                             //获取活动后 去查询优惠券信息
+                             var tskYouhuiquan = this.QueryTaoQuanDetailsAsync(ctoken, para.SellerId, para.ItemId, itemActivity);
+                             //lstHideQuan.Enqueue(tskYouhuiquan);
+                              array_FetQuanTasks[i] = tskYouhuiquan;
+                         }
+
+                         return array_FetQuanTasks;
+
+                     });
+                    lstHideQuan.Enqueue(currentItemTask.Result);
+
+
+                    //等待全部任务并行完毕
+                    //Task.WaitAll(array_FetQuanTasks);
+                    //foreach (var itemTsk in array_FetQuanTasks)
+                    //{
+                    //    var modelQuan = itemTsk.Result;
+                    //    if (null != modelQuan)
+                    //    {
+                    //        lstHideQuan.Add(modelQuan);
+                    //    }
+                    //}
+
+                    //foreach (var itemActivity in currentQuanActivityList)
+                    //{
+                    //    //获取活动后 去查询优惠券信息
+                    //    var modelQuan = await this.QueryTaoQuanDetailsAsync(ctoken, para.SellerId, para.ItemId, itemActivity, arry_cookies);
+
+                    //    if (null != modelQuan)
+                    //    {
+                    //        lstHideQuan.Add(modelQuan);
+                    //    }
+                    //}
+
+
                 }
-
-                //模拟多任务并行
-                int tskLen = currentQuanActivityList.Length;
-                Task<Youhuiquan>[] array_FetQuanTasks = new Task<Youhuiquan>[tskLen];
-
-                for (int i = 0; i < currentQuanActivityList.Length; i++)
-                {
-                    var itemActivity = currentQuanActivityList.ElementAt(i);
-                    //获取活动后 去查询优惠券信息
-                    var tskYouhuiquan = this.QueryTaoQuanDetailsAsync(ctoken, para.SellerId, para.ItemId, itemActivity);
-
-                    array_FetQuanTasks[i] = tskYouhuiquan;
-                }
-                //等待全部任务并行完毕
-                //Task.WaitAll(array_FetQuanTasks);
-                foreach (var itemTsk in array_FetQuanTasks)
-                {
-                    var modelQuan = itemTsk.Result;
-                    if (null != modelQuan)
-                    {
-                        lstHideQuan.Add(modelQuan);
-                    }
-                }
-
-
-
-
 
                 return lstHideQuan;
 
             }
 
-            /// <summary>
-            /// 查询是否有隐藏优惠券
-            /// </summary>
-            /// <param name="sellerId"></param>
-            /// <param name="itemId"></param>
-            /// <param name="funHandler"></param>
-            /// <param name="cancellationToken"></param>
-            /// <returns></returns>
-            private Task<bool> QueryHideQuanActivitysExistsListAsync(long sellerId, long itemId, Func<Task<bool>, Task, bool> funHandler, CancellationToken cancellationToken)
-            {
-                var taskQuery = Task.Factory.StartNew<bool>(() =>
-                 {
-                     bool result = false;
-
-                     if (sellerId <= 0 || itemId <= 0)
-                     {
-                         return result;
-                     }
-
-                     try
-                     {
-
-
-                         //查询隐藏券的地址
-                         string queryAddress = string.Format(hidenQuanAPI, sellerId, itemId);
-
-                         var clientProxy = new HttpServerProxy() { Client = qingTaoKeHttpClient.Client, KeepAlive = true };
-                         var resp = clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null, cancellationToken).Result;
-                         if (null == resp || resp.Content == null)
-                         {
-                             return result;
-                         }
-                         //异步读取内容字符串
-                         //demo:{"status":0,"data":[{"sellerId":"38365748","activityId":"98aef717f29241b2a8209f2f3b832300","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"954784a166d447ac9dda51b6775eb46a","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"343ad6fd06a1421dbe65e67752f12824","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":"1","useAble":false},{"sellerId":"38365748","activityId":"dcbe30752d474411a93256f39fa9402f","amount":20,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"65c9d767cb6242238bc0b89a74f8edd1","amount":0,"applyAmount":0,"endDate":0,"remain":0,"requisitioned":0,"total":0,"startDate":"","quan_class":"1","useAble":false},{"sellerId":"38365748","activityId":"788d960caead44998d852e251f6e934f","amount":0,"applyAmount":0,"endDate":0,"remain":0,"requisitioned":0,"total":0,"startDate":"","quan_class":"1","useAble":true}]}
-                         string respContent = resp.Content.ReadAsStringAsync().Result;
-                         if (string.IsNullOrEmpty(respContent))
-                         {
-                             return result;
-                         }
-
-
-                         QingTaoKeHideQuanResult dataList = JsonConvert.DeserializeObject<QingTaoKeHideQuanResult>(respContent);
-                         if (null == dataList || dataList.status != 0 || dataList.data == null || dataList.data.Count <= 0)
-                         {
-                             result = false;
-                         }
-                         else
-                         {
-                             // result = true;
-                             if (dataList.data.Exists(x=>x.useAble==true))
-                             {
-                                 result = true;
-                             }
-                         }
-                     }
-                     catch (AggregateException aex)
-                     {
-                         //任务取消不做处理
-                     }
-                     catch (Exception ex)
-                     {
-                         Logger.WriteException(ex);
-                     }
-                     return result;
-                 });
-
-                //任务完毕后注册的子任务；用来注册任务完毕后的后续事件
-                taskQuery.ContinueWith((tsk) =>
-                {
-                    if (null != funHandler)
-                    {
-                        funHandler(tsk, taskQuery);
-                    }
-                });
-
-                return taskQuery;//将父亲源任务弹出
-
-            }
             /// <summary>
             /// 查询隐藏的优惠券-异步
             /// </summary>
@@ -1478,7 +982,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 string queryAddress = string.Format(hidenQuanAPI, sellerId, itemId);
 
                 var clientProxy = new HttpServerProxy() { Client = qingTaoKeHttpClient.Client, KeepAlive = true };
-                var resp = await clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null, System.Threading.CancellationToken.None);
+                var resp = await clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null);
                 if (null == resp || resp.Content == null)
                 {
                     return null;
@@ -1495,17 +999,13 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 var tskResult = Task.Factory.StartNew(() =>
                  {
                      QingTaoKeHideQuanResult dataList = JsonConvert.DeserializeObject<QingTaoKeHideQuanResult>(respContent);
-                     if (null == dataList || dataList.status != 0 || dataList.data == null || dataList.data.Count <= 0)
+                     if (null == dataList || dataList.status != 0 || dataList.data == null || dataList.data.Count < 0)
                      {
                          return null;
                      }
 
-                     var useAbleList = dataList.data.Where(x => x.useAble == true);
-                     if (null==useAbleList)
-                     {
-                         return null;
-                     }
-                     return useAbleList.Select(x => x.activityId).ToArray();
+
+                     return dataList.data.Select(x => x.activityId).ToArray();
                  });
 
                 return tskResult.Result;
@@ -1520,7 +1020,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <param name="itemId"></param>
             /// <param name="activityId"></param>
             /// <returns></returns>
-            private async Task<Youhuiquan> QueryTaoQuanDetailsAsync(string ctoken, long sellerId, long itemId, string activityId)
+            private  Task<Youhuiquan> QueryTaoQuanDetailsAsync(string ctoken, long sellerId, long itemId, string activityId)
             {
                 if (string.IsNullOrEmpty(ctoken) || itemId <= 0 || string.IsNullOrEmpty(activityId))
                 {
@@ -1534,48 +1034,45 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 // 发送请求
                 var clientProxy = new HttpServerProxy() { Client = taoquanHttpClient.Client, KeepAlive = true };
 
-                var resp = await clientProxy.GetResponseTransferAsync(searchUrl, null, System.Threading.CancellationToken.None);
-                if (null == resp || resp.Content == null)
-                {
-                    return null;
-                }
-                //异步读取内容字符串
-                //demo:{"success":true,"message":"","result":{"retStatus":0,"startFee":9.0,"amount":3.0,"shopLogo":"//img.alicdn.com/bao/uploaded//d1/2c/TB1EbF0KFXXXXbzXXXXSutbFXXX.jpg","shopName":"SHIYUAN－石岩村生态庄园官方店","couponFlowLimit":false,"effectiveStartTime":"2017-07-29 00:00:00","effectiveEndTime":"2017-08-04 23:59:59","couponKey":"65hRBDiplQbiRzMiytwfIWWCMgE60FrJf%2BDeUg6MuerimchIO0RwUkf8vBSTQl%2Bfh%2BrNzX83mLU%3D","pid":null,"item":{"clickUrl":"//s.click.taobao.com/t?e=m%3D2%26s%3D4hJECNNm%2FkFw4vFB6t2Z2ueEDrYVVa64LKpWJ%2Bin0XK3bLqV5UHdqR9nw0n9FaFSn7yqOUL3SI0UH%2BxaebRc9WL9obvJl7wO3r0WryJqDdTP7y%2Bzd%2FEOS30x7qnPuALfPVG0pCv7imWOR9%2B8W6fQrC8DJwbWoWv1jfmE2SW4AgNo%2FhgJ1Ekc4weG05KKpLRuqEoU2U2DPUX%2FkYUt1u0uX2QxeCONBP61P2l%2FcEwVQXPmbUgWg%2F6qhc0I%2FviJ36sUUSwYGlubnWs%3D","picUrl":"//gaitaobao1.alicdn.com/tfscom/i2/2649797694/TB2xOquXd3nyKJjSZFjXXcdBXXa_!!2649797694.jpg","title":"石岩村茶园丁香茶正品养胃长白山野生丁香叶茶特紫丁香花茶级包邮","reservePrice":68.0,"discountPrice":68.0,"biz30Day":12626,"tmall":"0","postFree":"1","itemId":537099364188,"commission":null,"shareUrl":"//uland.taobao.com/coupon/edetail?e=pfnf%2FKMW8LQGQASttHIRqeevCxuoq5zdyZdWxzED87iAnVXUwZx8ItKDJeYZOx7TZf1qnzJNP4XT1JpVn%2BUO1PbxKU7D3jwVm4VLH9mslwzey%2BRI7cidB8Yz6%2BiTbYgBk%2BYH%2Bw2c2MOD7ovclAc1qw%3D%3D"}}}
-                string respContent = await resp.Content.ReadAsStringAsync();
-                if (string.IsNullOrEmpty(respContent))
-                {
-                    return null;
-                }
+                var completeTaskResult= clientProxy .GetResponseTransferAsync(searchUrl, null)
+                    .ContinueWith< Youhuiquan>((resp)=> {
+                        var message = resp.Result;
+                        if (null!=message)
+                        {
+                            string respContent = message.Content.ReadAsStringAsync().Result;
+                            if (string.IsNullOrEmpty(respContent))
+                            {
+                                return null;
+                            }
+                            TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
+                            //对于无效的券 返回空值
+                            if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null || dataJsonObj.result.amount == null || dataJsonObj.result.amount <= 0)
+                            {
+                                return null;
+                            }
 
-                //异步任务字符串数据返回
-                var tskResult = Task.Factory.StartNew<Youhuiquan>(() =>
-                {
-                    TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
-                    //对于无效的券 返回空值
-                    if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null || dataJsonObj.result.amount == null || dataJsonObj.result.amount <= 0)
-                    {
+                            //构建优惠券信息
+                            var modelQuan = new Youhuiquan
+                            {
+                                activityId = activityId,
+                                amount = dataJsonObj.result.amount.Value,
+                                startFee = dataJsonObj.result.startFee.Value,
+                                effectiveStartTime = dataJsonObj.result.effectiveStartTime.Value,
+                                effectiveEndTime = dataJsonObj.result.effectiveEndTime.Value,
+                                isHiddenType = true,
+                                itemId = itemId,
+                                quanUrl = string.Format(taobaoQuanLingQuanGetToClickUrl, activityId, itemId, GlobalContext.Pid)
+
+                            };
+
+                            return modelQuan;
+                        }
                         return null;
-                    }
+                    });
 
-                    //构建优惠券信息
-                    var modelQuan = new Youhuiquan
-                    {
-                        activityId = activityId,
-                        amount = dataJsonObj.result.amount.Value,
-                        startFee = dataJsonObj.result.startFee.Value,
-                        effectiveStartTime = dataJsonObj.result.effectiveStartTime.Value,
-                        effectiveEndTime = dataJsonObj.result.effectiveEndTime.Value,
-                        isHiddenType = true,
-                        itemId = itemId,
-                        quanUrl = string.Format(taobaoQuanLingQuanGetToClickUrl, activityId, itemId, GlobalContext.Pid)
 
-                    };
 
-                    return modelQuan;
-
-                });
-
-                return tskResult.Result;
+                return completeTaskResult;
 
             }
 
@@ -1619,13 +1116,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 // 4 发送请求
                 var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
-                string content = clientProxy.GetRequestTransfer(searchUrl, null, System.Threading.CancellationToken.None);
+               string content = clientProxy.GetRequestTransfer(searchUrl, null, System.Threading.CancellationToken.None);
 
                 return content;
 
             }
 
-            #endregion
 
 
         }

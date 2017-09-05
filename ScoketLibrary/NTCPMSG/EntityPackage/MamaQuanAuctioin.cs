@@ -32,53 +32,53 @@ namespace NTCPMessage.EntityPackage
         public class PageListStruct
         {
             //public tkSpecialCampaignIdRateMap tkSpecialCampaignIdRateMap { get; set; }
-            public int rootCatId { get; set; }
-            public int leafCatId { get; set; }
-            public int eventCreatorId { get; set; }
-            public string debugInfo { get; set; }
-            public int rootCatScore { get; set; }
+            //public int? rootCatId { get; set; }
+            //public int? leafCatId { get; set; }
+            //public int? eventCreatorId { get; set; }
+            //public string debugInfo { get; set; }
+            //public int? rootCatScore { get; set; }
             public long sellerId { get; set; }
-            public int userType { get; set; }
+            public int? userType { get; set; }
             public string shopTitle { get; set; }
             public string pictUrl { get; set; }
             public string title { get; set; }
-            public long auctionId { get; set; }
-            public string tkMktStatus { get; set; }
-            public int biz30day { get; set; }
-            public double tkRate { get; set; }
-            public string nick { get; set; }
-            public int includeDxjh { get; set; }
-            public decimal reservePrice { get; set; }
-            public decimal tkCommFee { get; set; }
-            public decimal totalFee { get; set; }
-            public int totalNum { get; set; }
-            public decimal zkPrice { get; set; }
-            public string auctionTag { get; set; }
-            public string auctionUrl { get; set; }
-            public decimal rlRate { get; set; }
-            public int hasRecommended { get; set; }
-            public int hasSame { get; set; }
-            public string tk3rdRate { get; set; }
-            public string sameItemPid { get; set; }
+            public long? auctionId { get; set; }
+            //public string tkMktStatus { get; set; }
+            //public int? biz30day { get; set; }
+            //public double? tkRate { get; set; }
+            //public string nick { get; set; }
+            //public int? includeDxjh { get; set; }
+            //public decimal? reservePrice { get; set; }
+            //public decimal? tkCommFee { get; set; }
+            //public decimal? totalFee { get; set; }
+            //public int? totalNum { get; set; }
+            //public decimal? zkPrice { get; set; }
+            //public string auctionTag { get; set; }
+            //public string auctionUrl { get; set; }
+            //public decimal? rlRate { get; set; }
+            //public int? hasRecommended { get; set; }
+            //public int? hasSame { get; set; }
+            //public string tk3rdRate { get; set; }
+            //public string sameItemPid { get; set; }
             public string couponActivityId { get; set; }
-            public int couponTotalCount { get; set; }
-            public int couponLeftCount { get; set; }
+            public int? couponTotalCount { get; set; }
+            public int? couponLeftCount { get; set; }
             public string couponLink { get; set; }
             public string couponLinkTaoToken { get; set; }
-            public decimal couponAmount { get; set; }
-            public int dayLeft { get; set; }
-            public string couponShortLink { get; set; }
-            public string couponInfo { get; set; }
-            public decimal couponStartFee { get; set; }
+            public decimal? couponAmount { get; set; }
+            public int? dayLeft { get; set; }
+            //public string couponShortLink { get; set; }
+            //public string couponInfo { get; set; }
+            public decimal? couponStartFee { get; set; }
             public DateTime? couponEffectiveStartTime { get; set; }
             public DateTime? couponEffectiveEndTime { get; set; }
-            public decimal eventRate { get; set; }
-            public string hasUmpBonus { get; set; }
-            public string isBizActivity { get; set; }
-            public string umpBonus { get; set; }
-            public string rootCategoryName { get; set; }
-            public string couponOriLink { get; set; }
-            public string userTypeName { get; set; }
+            //public decimal? eventRate { get; set; }
+            //public string hasUmpBonus { get; set; }
+            //public string isBizActivity { get; set; }
+            //public string umpBonus { get; set; }
+            //public string rootCategoryName { get; set; }
+            //public string couponOriLink { get; set; }
+            //public string userTypeName { get; set; }
         }
 
         public class InfoStruct
@@ -92,16 +92,16 @@ namespace NTCPMessage.EntityPackage
     //{
     //    public string version { get; set; }
     //    public string status { get; set; }
-    //    public int pageSize { get; set; }
-    //    public int pageNo { get; set; }
+    //    public int? pageSize { get; set; }
+    //    public int? pageNo { get; set; }
     //    public string searchUrl { get; set; }
     //    public string pvid { get; set; }
     //    public string errmsg { get; set; }
     //    public string fromcache { get; set; }
-    //    public int processtime { get; set; }
-    //    public int ha3time { get; set; }
-    //    public int docsfound { get; set; }
-    //    public int docsreturn { get; set; }
+    //    public int? processtime { get; set; }
+    //    public int? ha3time { get; set; }
+    //    public int? docsfound { get; set; }
+    //    public int? docsreturn { get; set; }
     //    public string responseTxt { get; set; }
     //}
     //public class condition
@@ -144,19 +144,19 @@ namespace NTCPMessage.EntityPackage
     //}
     //public class paginator
     //{
-    //    public int length { get; set; }
-    //    public int offset { get; set; }
-    //    public int page { get; set; }
-    //    public int beginIndex { get; set; }
-    //    public int endIndex { get; set; }
-    //    public int items { get; set; }
-    //    public int lastPage { get; set; }
-    //    public int itemsPerPage { get; set; }
-    //    public int previousPage { get; set; }
-    //    public int nextPage { get; set; }
-    //    public int pages { get; set; }
-    //    public int firstPage { get; set; }
-    //    public IEnumerable<int> slider { get; set; }
+    //    public int? length { get; set; }
+    //    public int? offset { get; set; }
+    //    public int? page { get; set; }
+    //    public int? beginIndex { get; set; }
+    //    public int? endIndex { get; set; }
+    //    public int? items { get; set; }
+    //    public int? lastPage { get; set; }
+    //    public int? itemsPerPage { get; set; }
+    //    public int? previousPage { get; set; }
+    //    public int? nextPage { get; set; }
+    //    public int? pages { get; set; }
+    //    public int? firstPage { get; set; }
+    //    public IEnumerable<int?> slider { get; set; }
     //}
     //public class tkSpecialCampaignIdRateMap
     //{

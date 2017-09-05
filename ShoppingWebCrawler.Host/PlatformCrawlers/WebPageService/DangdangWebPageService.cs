@@ -13,6 +13,7 @@ using ShoppingWebCrawler.Host.Headless;
 using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Host.Common;
 
+
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
     /// <summary>
@@ -123,7 +124,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //注意：对于响应的内容 不要使用内置的文本 工具打开，这个工具有bug.看到的文本不全面
                 //使用json格式打开即可看到里面所有的字符串
 
-                string content = clientProxy.GetRequestTransfer(searchUrl, null);
+                string content = clientProxy.GetRequestTransfer(searchUrl, null, System.Threading.CancellationToken.None);
 
 
 

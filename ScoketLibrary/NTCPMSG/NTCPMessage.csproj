@@ -67,6 +67,7 @@
     <Compile Include="Client\ProcessorCombine.cs" />
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
+    <Compile Include="CommandConstants.cs" />
     <Compile Include="EntityPackage\Arguments\YouhuiquanFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\FilterFiled.cs" />
     <Compile Include="EntityPackage\Arguments\MeilishuoFetchWebPageArgument.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="EntityPackage\SupportPlatform.cs" />
     <Compile Include="EntityPackage\SupportPlatformEnum.cs" />
     <Compile Include="EntityPackage\TaobaoQuanDetailJsonResult.cs" />
+    <Compile Include="EntityPackage\YouhuiquanExistsModel.cs" />
     <Compile Include="EntityPackage\Youhuiquan.cs" />
     <Compile Include="Event\AcceptEventArgs.cs" />
     <Compile Include="Event\CableConnectedEventArgs.cs" />

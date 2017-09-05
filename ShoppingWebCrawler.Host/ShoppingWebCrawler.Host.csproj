@@ -131,6 +131,10 @@
     <Compile Include="Headless\HeadLessCefClient.cs" />
     <Compile Include="MessageConvert\DefaultMessageConvert.cs" />
     <Compile Include="MessageConvert\JsonMessageConvert.cs" />
+    <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.2.0.txt" />
+    <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService3.0.txt" />
+    <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.4.0.txt" />
+    <Compile Include="Model\YouhuiquanExistsTaskBuffer.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\AlimamaWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\BaseBrowserRequestLoader.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\ETaoWebPageService.cs" />

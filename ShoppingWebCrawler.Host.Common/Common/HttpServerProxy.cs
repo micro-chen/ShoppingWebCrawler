@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -266,13 +267,13 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// <param name="url"></param>
         /// <param name="fromHeaders"></param>
         /// <returns></returns>
-        public string GetRequestTransfer(string url, NameValueCollection fromHeaders)
-        {
+        public string GetRequestTransfer(string url, NameValueCollection fromHeaders, CancellationToken cancellationToken)
+        { 
             string result = string.Empty;
             try
             {
 
-                var tskResponse = this.GetResponseTransferAsync(url, fromHeaders);
+                var tskResponse = this.GetResponseTransferAsync(url, fromHeaders, cancellationToken);
                 if (null == tskResponse)
                 {
                     return string.Empty;
@@ -376,7 +377,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// <param name="url"></param>
         /// <param name="fromHeaders"></param>
         /// <returns></returns>
-        public Task<HttpResponseMessage> GetResponseTransferAsync(string url, NameValueCollection fromHeaders)
+        public Task<HttpResponseMessage> GetResponseTransferAsync(string url, NameValueCollection fromHeaders, CancellationToken cancellationToken)
         {
 
 
@@ -399,14 +400,14 @@ namespace ShoppingWebCrawler.Host.Common.Http
                 }
 
 
-                Task<HttpResponseMessage> tskResponse;
+                Task<HttpResponseMessage> tskResponse=null;
                 try
                 {
-                    tskResponse = this.Client.GetAsync(targetUri, HttpCompletionOption.ResponseContentRead);
-                    if (null == tskResponse || null == tskResponse.Result)
-                    {
-                        throw new Exception(string.Concat("指定的地址未能正确get响应！uri:", url));
-                    }
+                    tskResponse = this.Client.GetAsync(targetUri, HttpCompletionOption.ResponseContentRead, cancellationToken);
+                    //if (null == tskResponse || null == tskResponse.Result)
+                    //{
+                    //    throw new Exception(string.Concat("指定的地址未能正确get响应！uri:", url));
+                    //}
                 }
                 catch (Exception ex)
                 {
@@ -446,11 +447,11 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// <param name="url"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public string PostRequestTransfer(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders)
+        public string PostRequestTransfer(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders, CancellationToken cancellationToken)
         {
             try
             {
-                var tskResponse = this.PostRequestTransferAsync(url, dataType, data, fromHeaders);
+                var tskResponse = this.PostRequestTransferAsync(url, dataType, data, fromHeaders,  cancellationToken);
                 if (null == tskResponse)
                 {
                     return string.Empty;
@@ -473,7 +474,12 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// <param name="data"></param>
         /// <param name="fromHeaders"></param>
         /// <returns></returns>
-        public Task<HttpResponseMessage> PostRequestTransferAsync(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders)
+        public Task<HttpResponseMessage> PostRequestTransferAsync(string url, 
+            PostDataContentType dataType, 
+            Dictionary<string, string> data, 
+            NameValueCollection fromHeaders, 
+            CancellationToken cancellationToken
+            )
         {
 
             if (null == this.Client)
@@ -502,7 +508,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
                     ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
                 }
                 //post 响应  。异步返回内容字符串
-                var tskResponse = this.Client.PostAsync(targetUri, content);
+                var tskResponse = this.Client.PostAsync(targetUri, content,cancellationToken);
 
                 return tskResponse;
             }
