@@ -35,10 +35,10 @@ namespace NTCPMessage.EntityPackage
 
             public string endDate { get; set; }
 
-            public string remain { get; set; }
-            public string requisitioned { get; set; }
-            public int total { get; set; }
-            public int quan_class { get; set; }
+            //public string remain { get; set; }
+            //public string requisitioned { get; set; }
+            //public int total { get; set; }
+            //public int quan_class { get; set; }
             public bool useAble { get; set; }
         }
 

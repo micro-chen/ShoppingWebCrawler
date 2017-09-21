@@ -10,6 +10,22 @@ using System.Threading.Tasks;
 
 namespace ShoppingWebCrawler.Host.Model
 {
+
+    /// <summary>
+    /// 执行查询券的委托
+    /// </summary>
+    /// <param name="sellerId"></param>
+    /// <param name="itemId"></param>
+    /// <param name="funcHandler"></param>
+    /// <returns></returns>
+    public delegate Task FuncForQueryQuanExists(long sellerId, long itemId, QueryQuanCompleteTaskHandler funcHandler);
+    /// <summary>
+    /// 查询券存在委托
+    /// </summary>
+    /// <param name="tskResult"></param>
+    /// <param name="parentSourceTask"></param>
+    public delegate void QueryQuanCompleteTaskHandler(Task<bool> tskResult, Task parentSourceTask);
+
     /// <summary>
     /// 优惠券查询的 时候
     /// 根据每个参数  进行的多任务并行缓冲容器模型
@@ -18,6 +34,7 @@ namespace ShoppingWebCrawler.Host.Model
     {
 
         private CancellationTokenSource cancelTokenSource;
+        private QueryQuanCompleteTaskHandler OnQueryQuanComplete;
 
         private object _Locker_Task = new object();
         /// <summary>
@@ -28,13 +45,14 @@ namespace ShoppingWebCrawler.Host.Model
         public YouhuiquanExistsTaskBuffer(long SellerId, long ItemId)
         {
             this.cancelTokenSource = new CancellationTokenSource();
-            this.TaskBuffer = new List<Task>();
-            this.TaskAssertFunc = this.OnCompleteTaskHandler;
+            this.TaskBufferQueue = new System.Collections.Concurrent.ConcurrentQueue<FuncForQueryQuanExists>();
+            this.OnQueryQuanComplete = this.OnCompleteTaskHandler;
+            //this.TaskAssertFunc = this.OnCompleteTaskHandler;
             this.ResultModel = new YouhuiquanExistsModel();
             this.ResultModel.SellerId = SellerId;
             this.ResultModel.ItemId = ItemId;
             //构建任务标识 空委托，依赖取消任务标识 判定任务的完成
-            this.QueryTask = new Task(() =>
+            this.QueryTaskEndPoint = new Task(() =>
             {
                 RunningLocker.CreateNewLock().Pause();
             }, this.cancelTokenSource.Token);
@@ -45,37 +63,18 @@ namespace ShoppingWebCrawler.Host.Model
 
         public YouhuiquanExistsModel ResultModel { get; set; }
         /// <summary>
-        /// 产生的任务容器队列
+        /// 查询券的委托，任务容器队列
         /// </summary>
 
-        public List<Task> TaskBuffer { get; private set; }
+        public System.Collections.Concurrent.ConcurrentQueue<FuncForQueryQuanExists> TaskBufferQueue { get; private set; }
 
         /// <summary>
         /// 任务继续断言
         /// 执行查询券是否存在的任务，一旦执行完毕，在Continue的时候 触发这个断言
         /// </summary>
-        public Func<Task<bool>, Task, bool> TaskAssertFunc { get; private set; }
-
-        /// <summary>
-        /// 查询任务是否完毕
-        /// </summary>
-
-        public bool IsQueryTaskCompleted
-        {
-            get
-            {
-                if (this.TaskBuffer.Count > 0)
-                {
-                    return false;
-
-                }
-
-                return true;
-
-            }
+        //public Func<Task<bool>, Task, bool> TaskAssertFunc { get; private set; }
 
 
-        }
 
         public CancellationToken CancellToken
         {
@@ -88,28 +87,32 @@ namespace ShoppingWebCrawler.Host.Model
 
         /// <summary>
         /// 总的任务标识
+        /// 构建 当前商品的查询券任务断点
         /// </summary>
-        public Task QueryTask { get; private set; }
+        public Task QueryTaskEndPoint { get; private set; }
 
+        /// <summary>
+        /// 发起查询任务-起步
+        /// </summary>
+        public void BeginQueryTaskQueue() {
+            this.OnCompleteTaskHandler(null, null);
+        }
         /// <summary>
         /// 任务执行完毕后的委托
         /// </summary>
         /// <param name="tskResult"></param>
         /// <returns></returns>
-        public bool OnCompleteTaskHandler(Task<bool> tskResult, Task parentSourceTask)
+        private void OnCompleteTaskHandler(Task<bool> tskResult, Task parentSourceTask)
         {
 
             lock (_Locker_Task)
             {
                 if (this.cancelTokenSource.IsCancellationRequested)
                 {
-                    return false;
+                    return;
                 }
 
-                if (TaskBuffer.Contains(parentSourceTask))
-                {
-                    TaskBuffer.Remove(parentSourceTask);
-                }
+               
 
                 if (null != tskResult && tskResult.Result == true)
                 {
@@ -118,21 +121,32 @@ namespace ShoppingWebCrawler.Host.Model
 
                     this.cancelTokenSource.Cancel();
 
-                    return true;
+                    return;
 
                 }
 
+                //获取下一个查询委托  进行查询
+                FuncForQueryQuanExists nextQueryFunc = null;
+                if (this.TaskBufferQueue.TryDequeue(out nextQueryFunc))
+                {
+                    if (null!=nextQueryFunc)
+                    {
+                         nextQueryFunc.Invoke(this.ResultModel.SellerId, this.ResultModel.ItemId, this.OnQueryQuanComplete)
+                            .GetAwaiter()
+                            .GetResult();
+                    }
+                  
+                }
 
-
-
-                //进行完所有任务 后 设置取消状态为取消
-                if (this.IsQueryTaskCompleted)
+                if (this.TaskBufferQueue.Count<=0)
                 {
                     this.cancelTokenSource.Cancel();
                 }
+
+
             }
 
-            return false;
+            return;
         }
 
     }

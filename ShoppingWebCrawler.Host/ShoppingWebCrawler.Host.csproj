@@ -147,6 +147,7 @@
     <Compile Include="PlatformCrawlers\WebPageService\DangdangWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\MeilishuoWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\MogujieWebPageService.cs" />
+    <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.cs.5.0.txt" />
     <Compile Include="PlatformCrawlers\WebPageService\Zhe800WebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\YhdWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\TmallWebPageService.cs" />

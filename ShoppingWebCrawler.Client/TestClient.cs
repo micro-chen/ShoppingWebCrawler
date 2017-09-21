@@ -187,14 +187,14 @@ namespace ShoppingWebCrawler.Client
                          {
                               new YouhuiquanFetchWebPageArgument.QuanArgument
                               {
-                                   SellerId=2294590088,
-                                   ItemId=5366070185919999
+                                   SellerId=748501705,
+                                   ItemId=540267461790
                               },
-                              // new YouhuiquanFetchWebPageArgument.QuanArgument
-                              //{
-                              //     SellerId=3174937774,
-                              //     ItemId=554746684441
-                              //}, 
+                               new YouhuiquanFetchWebPageArgument.QuanArgument
+                              {
+                                   SellerId=1690420968,
+                                   ItemId=38002640105
+                              },
 
 
                          }

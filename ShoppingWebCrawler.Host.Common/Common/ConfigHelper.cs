@@ -40,7 +40,7 @@ namespace ShoppingWebCrawler.Host.Common
             {
                 try
                 {
-                    result = bool.Parse(cfgVal);
+                    result = bool.Parse(cfgVal.ToLower().Trim());
                 }
                 catch (FormatException)
                 {

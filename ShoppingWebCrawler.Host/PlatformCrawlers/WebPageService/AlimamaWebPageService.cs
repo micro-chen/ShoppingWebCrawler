@@ -437,6 +437,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     ctoken = ctokenCookie.Value;
                 }
 
+                bool isQuanCacheable = false;
+                isQuanCacheable = ConfigHelper.GetConfigBool("QuanCacheable");
                 //-----------让两个任务并行，等待并行运算结果--------------
                 var tskAllQuanExistsList = await Task.Factory.StartNew(() =>
                 {
@@ -444,26 +446,33 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                     foreach (var paraItem in queryParas.ArgumentsForExistsList)
                     {
+
+                       
+                        if (isQuanCacheable)
+                        { //如果开启了缓存 那么先去缓存中查询指定键
+                            string cahceKeyQuan = string.Format("quan-exists-cache-{0}-{1}", paraItem.SellerId, paraItem.ItemId);
+
+                        }
+
                         var taskModel = new YouhuiquanExistsTaskBuffer(paraItem.SellerId, paraItem.ItemId);
 
                         //1 隐藏券查询
-                        var tskAlimamaHiddenQuanActivity = this.QueryHideQuanActivitysExistsListAsync(paraItem.SellerId, paraItem.ItemId, taskModel.TaskAssertFunc, taskModel.CancellToken);
-                        taskModel.TaskBuffer.Add(tskAlimamaHiddenQuanActivity);
+                       // var tskAlimamaHiddenQuanActivity = this.QueryHideQuanActivitysExistsListAsync(paraItem.SellerId, paraItem.ItemId);
+                        taskModel.TaskBufferQueue.Enqueue(this.QueryHideQuanActivitysExistsListAsync);
 
                         //2 首先查询商家设置的价格阶梯 如：https://cart.taobao.com/json/GetPriceVolume.do?sellerId=2649797694
                         /*
                         {"priceVolumes":[{"condition":"满488减30","id":"e9c303182542418589c1a3ead872acd1","price":"30","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满488领劵立减30","type":"youhuijuan"},{"condition":"满188减20","id":"d9060db139fd4c9bac375e474632e485","price":"20","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满188领劵立减20","type":"youhuijuan"},{"condition":"满88减10","id":"2f9cc940cc0f4f8197e7e0f6dee45087","price":"10","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.08-2017.10.01","title":"满88领劵立减10元","type":"youhuijuan"},{"condition":"满45减5","id":"fbe4efe09a824b7dbc4b83e00d6adb77","price":"5","receivedAmount":"0","status":"unreceived","timeRange":"2017.07.21-2017.12.31","title":"买1立减5元","type":"youhuijuan"}],"receivedCount":0,"unreceivedCount":4}
                         */
-                        var tskVolumeQuanActivity = this.QueryPriceVolumeQuanActivitysExistsListAsync(paraItem.SellerId, paraItem.ItemId, taskModel.TaskAssertFunc, taskModel.CancellToken);
-                        taskModel.TaskBuffer.Add(tskVolumeQuanActivity);
+                    
+                        taskModel.TaskBufferQueue.Enqueue(this.QueryPriceVolumeQuanActivitysExistsListAsync);
                         //  3 查询商家在合作平台-淘鹊桥-上发起的活动
-                        var tskTaoqueqiaoQuanActivity = this.QueryTaoQueQiaoQuanActivitysExistListAsync(paraItem.SellerId, paraItem.ItemId, taskModel.TaskAssertFunc, taskModel.CancellToken);
-                        taskModel.TaskBuffer.Add(tskTaoqueqiaoQuanActivity);
+                        taskModel.TaskBufferQueue.Enqueue(this.QueryTaoQueQiaoQuanActivitysExistListAsync);
                         //4 查询商家在淘宝联盟上的活动-没有在淘鹊桥上活动
-                        var tskAlimamaQuanActivity = this.QueryMamaQuanActivitysExistListAsync(paraItem.SellerId, paraItem.ItemId, taskModel.TaskAssertFunc, taskModel.CancellToken);
-                        taskModel.TaskBuffer.Add(tskAlimamaQuanActivity);
+                        taskModel.TaskBufferQueue.Enqueue(this.QueryMamaQuanActivitysExistListAsync);
 
-
+                        //开始发起查询任务
+                        taskModel.BeginQueryTaskQueue();
 
                         dataHashTable.Add(taskModel);
                     }
@@ -471,7 +480,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     //需要等待任务并行完毕 
                     try
                     {
-                        var allTasks = dataHashTable.Select(x => x.QueryTask).ToArray();
+                        var allTasks = dataHashTable.Select(x => x.QueryTaskEndPoint).ToArray();
                         Task.WaitAll(allTasks);
 
                     }
@@ -626,9 +635,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <param name="sellerId"></param>
             /// <param name="itemId"></param>
             /// <param name="funHandler"></param>
-            /// <param name="cancellationToken"></param>
             /// <returns></returns>
-            private Task<bool> QueryPriceVolumeQuanActivitysExistsListAsync(long sellerId, long itemId, Func<Task<bool>, Task, bool> funHandler, CancellationToken cancellationToken)
+            private Task<bool> QueryPriceVolumeQuanActivitysExistsListAsync(long sellerId, long itemId, QueryQuanCompleteTaskHandler funHandler)
             {
                 var taskQuery = Task.Factory.StartNew<bool>(() =>
                 {
@@ -648,7 +656,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         taobaoHttpClient.ChangeGlobleCookies(cks, TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
 
                         var clientProxy = new HttpServerProxy() { Client = taobaoHttpClient.Client, KeepAlive = true };
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, cancellationToken).Result;
+                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, CancellationToken.None).Result;
                         if (null == resp || resp.Content == null)
                         {
                             return result;
@@ -794,8 +802,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// </summary>
             /// <param name="sellerId"></param>
             /// <param name="itemId"></param>
+            /// <param name="funHandler"></param>
             /// <returns></returns>
-            private Task<bool> QueryTaoQueQiaoQuanActivitysExistListAsync(long sellerId, long itemId, Func<Task<bool>, Task, bool> funHandler, CancellationToken cancellationToken)
+            private Task<bool> QueryTaoQueQiaoQuanActivitysExistListAsync(long sellerId, long itemId, QueryQuanCompleteTaskHandler funHandler)
             {
                 var taskQuery = Task.Factory.StartNew<bool>(() =>
                 {
@@ -813,7 +822,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
                         var clientProxy = new HttpServerProxy() { Client = taoqueqiaoHttpClient.Client, KeepAlive = true };
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, cancellationToken).Result;
+                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, CancellationToken.None).Result;
                         if (null == resp || resp.Content == null)
                         {
                             return result;
@@ -975,9 +984,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <param name="sellerId"></param>
             /// <param name="itemId"></param>
             /// <param name="funHandler"></param>
-            /// <param name="cancellationToken"></param>
             /// <returns></returns>
-            private Task<bool> QueryMamaQuanActivitysExistListAsync(long sellerId, long itemId, Func<Task<bool>, Task, bool> funHandler, CancellationToken cancellationToken)
+            private Task<bool> QueryMamaQuanActivitysExistListAsync(long sellerId, long itemId, QueryQuanCompleteTaskHandler funHandler)
             {
                 var taskQuery = Task.Factory.StartNew<bool>(() =>
                 {
@@ -1014,7 +1022,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         // 4 发送请求
                         var clientProxy = new HttpServerProxy() { Client = alimamaHttpClient.Client, KeepAlive = true };
 
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, cancellationToken).Result;
+                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, CancellationToken.None).Result;
                         if (null == resp || resp.Content == null)
                         {
                             return result;
@@ -1053,7 +1061,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                             queryCookieValue,
                             mamaQuanResult.info.pvid
                             );
-                        var respOfTuiGuang = clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null, cancellationToken).Result;
+                        var respOfTuiGuang = clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null, CancellationToken.None).Result;
                         if (null == respOfTuiGuang || respOfTuiGuang.Content == null)
                         {
                             return result;
@@ -1389,9 +1397,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <param name="sellerId"></param>
             /// <param name="itemId"></param>
             /// <param name="funHandler"></param>
-            /// <param name="cancellationToken"></param>
             /// <returns></returns>
-            private Task<bool> QueryHideQuanActivitysExistsListAsync(long sellerId, long itemId, Func<Task<bool>, Task, bool> funHandler, CancellationToken cancellationToken)
+            private Task<bool> QueryHideQuanActivitysExistsListAsync(long sellerId, long itemId, QueryQuanCompleteTaskHandler funHandler)
             {
                 var taskQuery = Task.Factory.StartNew<bool>(() =>
                  {
@@ -1410,7 +1417,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                          string queryAddress = string.Format(hidenQuanAPI, sellerId, itemId);
 
                          var clientProxy = new HttpServerProxy() { Client = qingTaoKeHttpClient.Client, KeepAlive = true };
-                         var resp = clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null, cancellationToken).Result;
+                         var resp = clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null, CancellationToken.None).Result;
                          if (null == resp || resp.Content == null)
                          {
                              return result;
