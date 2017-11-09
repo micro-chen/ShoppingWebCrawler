@@ -56,10 +56,23 @@
     <Reference Include="jint">
       <HintPath>..\libs\jint.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RedLock.StrongName, Version=1.7.5.0, Culture=neutral, PublicKeyToken=1dffde0a6c007f07, processorArchitecture=MSIL">
+      <HintPath>..\packages\RedLock.net.StrongName.1.7.5\lib\net45\RedLock.StrongName.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="StackExchange.Redis.StrongName, Version=1.2.6.0, Culture=neutral, PublicKeyToken=c219ff1ca8c2ce46, processorArchitecture=MSIL">
+      <HintPath>..\packages\StackExchange.Redis.StrongName.1.2.6\lib\net45\StackExchange.Redis.StrongName.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web" />
@@ -67,18 +80,36 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Caching\CacheConfigFactory.cs" />
+    <Compile Include="Caching\CacheExtensions.cs" />
+    <Compile Include="Caching\ICacheManager.cs" />
+    <Compile Include="Caching\NativeCacheManager.cs" />
+    <Compile Include="Caching\RedisClient\RedisCacheManager.cs" />
+    <Compile Include="Caching\RedisClient\RedisConnectionWrapper.cs" />
     <Compile Include="Common\ConfigHelper.cs" />
     <Compile Include="Common\GlobalContext.cs" />
     <Compile Include="Common\HotWordsLoader.cs" />
     <Compile Include="Common\HttpRequestHelper.cs" />
     <Compile Include="Common\HttpServerProxy.cs" />
     <Compile Include="Common\HttpValueCollection.cs" />
+    <Compile Include="Common\InPutValidate.cs" />
     <Compile Include="Common\JavascriptContext.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\RunningLocker.cs" />
     <Compile Include="Common\Singleton.cs" />
     <Compile Include="Common\StringUtil.cs" />
     <Compile Include="Common\SupportPlatformLoader.cs" />
+    <Compile Include="Extensions\BytesExtension.cs" />
+    <Compile Include="Extensions\DateTimeExtension.cs" />
+    <Compile Include="Extensions\DictionaryExtension.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Extensions\ForEachExtension.cs" />
+    <Compile Include="Extensions\HttpContextExtension.cs" />
+    <Compile Include="Extensions\HttpRequestExtension.cs" />
+    <Compile Include="Extensions\NumbericExtension.cs" />
+    <Compile Include="Extensions\ObjectExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\WhereIfExtension.cs" />
     <Compile Include="Logging\LogEventArgs.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\MessageBulk.cs" />
@@ -94,6 +125,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

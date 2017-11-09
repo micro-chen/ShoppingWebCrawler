@@ -1,18 +1,23 @@
-﻿namespace ShoppingWebCrawler.Host.DeskTop
+﻿
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+using NTCPMessage.EntityPackage;
+using ShoppingWebCrawler.Cef.Core;
+using ShoppingWebCrawler.Cef.Framework;
+using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.DeskTop.UI;
+
+namespace ShoppingWebCrawler.Host.DeskTop
 {
-    using ShoppingWebCrawler.Cef.Core;
-    using ShoppingWebCrawler.Cef.Framework;
-    using ShoppingWebCrawler.Host.Common;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Drawing;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Windows.Forms;
-    using UI;
-    using Services;
+
+
 
     public partial class MainForm : Form
     {
@@ -23,7 +28,7 @@
         /// <summary>
         /// 首页地址
         /// </summary>
-        public static  string MainPageUrl
+        public static string MainPageUrl
         {
             get
             {
@@ -47,13 +52,26 @@
 
             //设定当前程序运行的主上下文
             GlobalContext.SyncContext = SynchronizationContext.Current;
+            InitConfigAsync();
 
             _mainTitle = Text;
 
             NewTab(MainPageUrl);
         }
 
+        /// <summary>
+        ///异步加载配置
+        /// </summary>
+        private void InitConfigAsync()
+        {
 
+            Task.Factory.StartNew(() =>
+            {
+                SupportPlatformLoader.LoadConfig();
+
+            });
+
+        }
 
         private CefWebBrowser GetActiveBrowser()
         {
@@ -134,7 +152,7 @@
             page.Padding = new Padding(0, 0, 0, 0);
 
             var browser = new CefWebBrowser();
-            browser.IsCanShowContextMenu = false;
+            browser.IsCanShowContextMenu = true;
             browser.IsCanShowPopWindow = false;
 
             //设定其存储Cookie的路径
@@ -154,7 +172,7 @@
                             Text = browser.Title + " - " + _mainTitle;
                         }
                         page.ToolTipText = title;
-                        if (null!= title&&title.Length > 18)
+                        if (null != title && title.Length > 18)
                         {
                             title = title.Substring(0, 18) + "...";
                         }
@@ -195,7 +213,7 @@
 
             };
 
-
+            
 
             page.Controls.Add(browser);
 
@@ -232,21 +250,115 @@
             frm_show_cookie.Show();
         }
 
-        private void menu_Test_Http_Click(object sender, EventArgs e)
+     
+
+        private void buyTicketToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var frm_test_http = new Form_Test_Http();
-            frm_test_http.DomainIdentity = this.addressTextBox.Text.Trim();
-            frm_test_http.Show();
+            //var frm_buyTicket= new Form_BuyTicket();
+            //frm_buyTicket.DomainIdentity = this.addressTextBox.Text.Trim();
+            //frm_buyTicket.Show();
         }
 
-        private void verisonCheckToolStripMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 打开指定平台一个页面
+        /// </summary>
+        /// <param name="platform"></param>
+        private void OpenTabPlatformMenuToolStrip(SupportPlatformEnum platform)
+        {
+            var siteObj = GlobalContext.SupportPlatforms.Find(x => x.Platform == platform);
+            if (null == siteObj)
+            {
+                string platformDescription = platform.GetEnumDescription();
+                MessageBox.Show($"未能正确从配置文件加载平台地址：{platformDescription ?? platform.ToString()}");
+                return;
+            }
+
+            this.NewTab(siteObj.SiteUrl);
+        }
+
+        private void alimam_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Alimama);
+        }
+
+        private void taobao_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Taobao);
+        }
+
+        private void tmall_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Tmall);
+
+
+        }
+
+        private void jingdong_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Jingdong);
+        }
+
+        private void pdd_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Pdd);
+        }
+
+        private void suning_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Suning);
+        }
+
+        private void guomei_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Guomei);
+        }
+
+        private void dangdang_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Dangdang);
+        }
+
+        private void yihaodian_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Yhd);
+        }
+
+        private void meilishuo_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Meilishuo);
+        }
+
+        private void mogujie_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Mogujie);
+        }
+
+        private void zhe800_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Zhe800);
+        }
+
+        private void etao_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.ETao);
+        }
+
+        private void browserCheckToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var checkUrl = "http://tools.likai.cc/browser/";
             this.addressTextBox.Text = checkUrl;
             this.goAddressAction(null, null);
         }
 
-        private void showSourceToolStripMenuItem_Click(object sender, EventArgs e)
+        private void testHttpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var frm_test_http = new Form_Test_Http();
+            frm_test_http.DomainIdentity = this.addressTextBox.Text.Trim();
+            frm_test_http.Show();
+        }
+
+        private void showHtmlSourceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var current_brower_frame = this.GetActiveBrowser().Browser.GetMainFrame();
             var html_vistor = new HtmlSourceVistor();
@@ -261,33 +373,6 @@
 
             var frm = new Form_ShowHtmlSource() { HtmlSourceCode = src_code };
             frm.Show();
-
-            //var html_vistor = new MyHtmlSourceVistor();
-            //html_vistor.VistHtmlSourceCompleted += (s, args) =>
-            //{
-            //    var src_code = args.HtmSourceCode;
-            //    System.Diagnostics.Debug.Write(src_code);
-            //};
-            //current_brower_frame.GetSource(html_vistor);
-        }
-
-        private void buyTicketToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //var frm_buyTicket= new Form_BuyTicket();
-            //frm_buyTicket.DomainIdentity = this.addressTextBox.Text.Trim();
-            //frm_buyTicket.Show();
-        }
-
-        /// <summary>
-        /// 打开新 的tab  
-        /// 淘宝网址
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void taobaoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.NewTab(GlobalContext.TaobaoSiteURL);
-            return;
         }
     }
 }

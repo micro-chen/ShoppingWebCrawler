@@ -7,7 +7,9 @@ using System.Xml;
 using System.Xml.Linq;
 using System.IO;
 using System.Runtime.Caching;
+using System.Threading;
 using NTCPMessage.EntityPackage;
+
 
 namespace ShoppingWebCrawler.Host.Common
 {
@@ -33,6 +35,7 @@ namespace ShoppingWebCrawler.Host.Common
         private static event EventHandler<SupportPlatformsChangedEventArgs> OnConfigFileChanged;
 
 
+        private static object _lock_for_loadconfig = new object();
 
         /// <summary>
         /// 从配置文件 加载支持平台列表
@@ -40,33 +43,40 @@ namespace ShoppingWebCrawler.Host.Common
         /// <returns></returns>
         public static List<SupportPlatform> LoadConfig()
         {
+
+
+
             var lstData = new List<SupportPlatform>();
 
             try
             {
-                if (!File.Exists(configFilePath))
+                lock (_lock_for_loadconfig)
                 {
-                    throw new FileNotFoundException(string.Concat("指定的配置文件不存在：", configFilePath));
+
+
+                    if (!File.Exists(configFilePath))
+                    {
+                        throw new FileNotFoundException(string.Concat("指定的配置文件不存在：", configFilePath));
+                    }
+
+                    XDocument doc = XDocument.Load(configFilePath);
+                    var allPlatformElements = doc.Root.Elements();
+                    if (null == allPlatformElements)
+                    {
+                        return lstData;
+                    }
+                    foreach (var item in allPlatformElements)
+                    {
+                        var model = new SupportPlatform();
+                        model.Id = int.Parse(item.Attribute("id").Value);
+                        model.Name = item.Attribute("name").Value;
+                        model.Description = item.Attribute("description").Value;
+                        model.SiteUrl = item.Attribute("siteUrl").Value;
+
+                        lstData.Add(model);
+                    }
+
                 }
-
-
-                XDocument doc = XDocument.Load(configFilePath);
-                var allPlatformElements = doc.Root.Elements();
-                if (null == allPlatformElements)
-                {
-                    return lstData;
-                }
-                foreach (var item in allPlatformElements)
-                {
-                    var model = new SupportPlatform();
-                    model.Id = int.Parse(item.Attribute("id").Value);
-                    model.Name = item.Attribute("name").Value;
-                    model.Description = item.Attribute("description").Value;
-                    model.SiteUrl = item.Attribute("siteUrl").Value;
-
-                    lstData.Add(model);
-                }
-
             }
             catch (Exception ex)
             {
@@ -116,9 +126,9 @@ namespace ShoppingWebCrawler.Host.Common
                 //获取最新的配置 并触发事件
                 //var lstNewConfigs = SupportPlatformLoader.LoadConfig();CurrentSupportPlatforms = lstNewConfigs
                 //直接 通知订阅的事件 将内容列表清空 ，再次重新加载即可
-                if (null!=OnConfigFileChanged)
+                if (null != OnConfigFileChanged)
                 {
-                    OnConfigFileChanged(null, new SupportPlatformsChangedEventArgs {  });
+                    OnConfigFileChanged(null, new SupportPlatformsChangedEventArgs { });
                 }
             });
             policy.ChangeMonitors.Add(monitor);
