@@ -1,6 +1,9 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -70,13 +73,23 @@ namespace ShoppingWebCrawler.Cef.Framework
         [Browsable(false)]
         public CefBrowserSettings BrowserSettings { get; set; }
 
-		internal void InvokeIfRequired(Action a)
-		{
-			if (InvokeRequired)
-				Invoke(a);
-			else
-				a();
-		}
+        internal void InvokeIfRequired(Action a)
+        {
+            try
+            {
+                if (!IsDisposed)
+                {
+                    if (InvokeRequired)
+                        Invoke(a);
+                    else
+                        a();
+                }
+
+
+
+            }
+            catch { }
+        }
 
         protected virtual CefWebClient CreateWebClient()
         {
@@ -114,21 +127,25 @@ namespace ShoppingWebCrawler.Cef.Framework
         {
             if (_browser != null && disposing) // TODO: ugly hack to avoid crashes when CefWebBrowser are Finalized and underlying objects already finalized
             {
+
+
                 var host = _browser.GetHost();
                 if (host != null)
                 {
-                    host.CloseBrowser();
+                    host.CloseBrowser(true);
                     host.Dispose();
                 }
                 _browser.Dispose();
                 _browser = null;
                 _browserWindowHandle = IntPtr.Zero;
+
+
             }
 
             base.Dispose(disposing);
         }
 
-    	public event EventHandler BrowserCreated;
+        public event EventHandler BrowserCreated;
 
         internal protected virtual void OnBrowserAfterCreated(CefBrowser browser)
         {
@@ -136,11 +153,11 @@ namespace ShoppingWebCrawler.Cef.Framework
             _browserWindowHandle = _browser.GetHost().GetWindowHandle();
             ResizeWindow(_browserWindowHandle, Width, Height);
 
-			if (BrowserCreated != null)
-				BrowserCreated(this, EventArgs.Empty);
+            if (BrowserCreated != null)
+                BrowserCreated(this, EventArgs.Empty);
         }
 
-		internal protected virtual void OnTitleChanged(TitleChangedEventArgs e)
+        internal protected virtual void OnTitleChanged(TitleChangedEventArgs e)
         {
             Title = e.Title;
 
@@ -154,7 +171,7 @@ namespace ShoppingWebCrawler.Cef.Framework
 
         internal protected virtual void OnAddressChanged(AddressChangedEventArgs e)
         {
-        	Address = e.Address;
+            Address = e.Address;
 
             var handler = AddressChanged;
             if (handler != null) handler(this, e);
@@ -164,9 +181,9 @@ namespace ShoppingWebCrawler.Cef.Framework
 
         public event EventHandler<AddressChangedEventArgs> AddressChanged;
 
-		internal protected virtual void OnStatusMessage(StatusMessageEventArgs e)
+        internal protected virtual void OnStatusMessage(StatusMessageEventArgs e)
         {
-			var handler = StatusMessage;
+            var handler = StatusMessage;
             if (handler != null) handler(this, e);
         }
 
@@ -214,10 +231,10 @@ namespace ShoppingWebCrawler.Cef.Framework
             }
         }
 
-		public void InvalidateSize()
-		{
-			ResizeWindow(_browserWindowHandle, Width, Height);
-		}
+        public void InvalidateSize()
+        {
+            ResizeWindow(_browserWindowHandle, Width, Height);
+        }
 
         private static void ResizeWindow(IntPtr handle, int width, int height)
         {
@@ -232,47 +249,47 @@ namespace ShoppingWebCrawler.Cef.Framework
 
         public CefBrowser Browser { get { return _browser; } }
 
-    	public event EventHandler<ConsoleMessageEventArgs> ConsoleMessage;
+        public event EventHandler<ConsoleMessageEventArgs> ConsoleMessage;
 
-		internal protected virtual void OnConsoleMessage(ConsoleMessageEventArgs e)
-    	{
-			if (ConsoleMessage != null)
-				ConsoleMessage(this, e);
-			else
-				e.Handled = false;
-    	}
+        internal protected virtual void OnConsoleMessage(ConsoleMessageEventArgs e)
+        {
+            if (ConsoleMessage != null)
+                ConsoleMessage(this, e);
+            else
+                e.Handled = false;
+        }
 
-    	public event EventHandler<LoadingStateChangeEventArgs> LoadingStateChange;
+        public event EventHandler<LoadingStateChangeEventArgs> LoadingStateChange;
 
-		internal protected virtual void OnLoadingStateChange(LoadingStateChangeEventArgs e)
-		{
-			if (LoadingStateChange != null)
-				LoadingStateChange(this, e);
-		}
+        internal protected virtual void OnLoadingStateChange(LoadingStateChangeEventArgs e)
+        {
+            if (LoadingStateChange != null)
+                LoadingStateChange(this, e);
+        }
 
-    	public event EventHandler<TooltipEventArgs> Tooltip;
+        public event EventHandler<TooltipEventArgs> Tooltip;
 
-		internal protected virtual void OnTooltip(TooltipEventArgs e)
-		{
-			if (Tooltip != null)
-				Tooltip(this, e);
-			else
-				e.Handled = false;
-		}
+        internal protected virtual void OnTooltip(TooltipEventArgs e)
+        {
+            if (Tooltip != null)
+                Tooltip(this, e);
+            else
+                e.Handled = false;
+        }
 
-    	public event EventHandler BeforeClose;
+        public event EventHandler BeforeClose;
 
-		internal protected virtual void OnBeforeClose()
-		{
-			_browserWindowHandle = IntPtr.Zero;
-			if (BeforeClose != null)
-				BeforeClose(this, EventArgs.Empty);
-		}
+        internal protected virtual void OnBeforeClose()
+        {
+            _browserWindowHandle = IntPtr.Zero;
+            if (BeforeClose != null)
+                BeforeClose(this, EventArgs.Empty);
+        }
 
-    	public event EventHandler<BeforePopupEventArgs> BeforePopup;
+        public event EventHandler<BeforePopupEventArgs> BeforePopup;
 
-		internal protected virtual void OnBeforePopup(BeforePopupEventArgs e)
-		{
+        internal protected virtual void OnBeforePopup(BeforePopupEventArgs e)
+        {
             if (IsCanShowPopWindow)
             {
                 if (BeforePopup != null)
@@ -295,44 +312,47 @@ namespace ShoppingWebCrawler.Cef.Framework
             }
         }
 
-    	public event EventHandler<LoadEndEventArgs> LoadEnd;
+        public event EventHandler<LoadEndEventArgs> LoadEnd;
 
-		internal protected virtual void OnLoadEnd(LoadEndEventArgs e)
-		{
-			if (LoadEnd != null)
-				LoadEnd(this, e);
-		}
+        internal protected virtual void OnLoadEnd(LoadEndEventArgs e)
+        {
+            if (LoadEnd != null)
+                LoadEnd(this, e);
+        }
 
-    	public event EventHandler<LoadErrorEventArgs> LoadError;
+        public event EventHandler<LoadErrorEventArgs> LoadError;
 
-		internal protected virtual void OnLoadError(LoadErrorEventArgs e)
-		{
-			if (LoadError != null)
-				LoadError(this, e);
-		}
+        internal protected virtual void OnLoadError(LoadErrorEventArgs e)
+        {
+            if (LoadError != null)
+                LoadError(this, e);
+        }
 
-    	public event EventHandler<LoadStartEventArgs> LoadStarted;
+        public event EventHandler<LoadStartEventArgs> LoadStarted;
 
-		internal protected virtual void OnLoadStart(LoadStartEventArgs e)
-		{
-			if (LoadStarted != null)
-				LoadStarted(this, e);
-		}
+        internal protected virtual void OnLoadStart(LoadStartEventArgs e)
+        {
+            if (LoadStarted != null)
+                LoadStarted(this, e);
+        }
 
-    	public event EventHandler<PluginCrashedEventArgs> PluginCrashed;
+        public event EventHandler<PluginCrashedEventArgs> PluginCrashed;
 
-		internal protected virtual void OnPluginCrashed(PluginCrashedEventArgs e)
-    	{
-			if (PluginCrashed != null)
-				PluginCrashed(this, e);
-    	}
+        internal protected virtual void OnPluginCrashed(PluginCrashedEventArgs e)
+        {
+            if (PluginCrashed != null)
+                PluginCrashed(this, e);
+        }
 
-    	public event EventHandler<RenderProcessTerminatedEventArgs> RenderProcessTerminated;
+        public event EventHandler<RenderProcessTerminatedEventArgs> RenderProcessTerminated;
 
-		internal protected virtual void OnRenderProcessTerminated(RenderProcessTerminatedEventArgs e)
-		{
-			if (RenderProcessTerminated != null)
-				RenderProcessTerminated(this, e);
-		}
+        internal protected virtual void OnRenderProcessTerminated(RenderProcessTerminatedEventArgs e)
+        {
+            if (RenderProcessTerminated != null)
+                RenderProcessTerminated(this, e);
+        }
+
+
+
     }
 }

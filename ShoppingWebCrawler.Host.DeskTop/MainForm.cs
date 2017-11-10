@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using ShoppingWebCrawler.Host.DeskTop.Properties;
 using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Cef.Framework;
@@ -40,14 +40,18 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
 
         private readonly string _mainTitle;
-
-
+        const int CLOSE_WIDTH_SIZE = 15;
+        const int CLOSE_Height_SIZE = 6;
+        //tabPage标签图片
+        private Bitmap image_close_gray = Resources.close_16px_gray.ToBitmap();
 
 
 
         public MainForm()
         {
             InitializeComponent();
+
+            this.Load += MainForm_Load;
 
 
             //设定当前程序运行的主上下文
@@ -56,9 +60,99 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
             _mainTitle = Text;
 
-            NewTab(MainPageUrl);
+           
         }
 
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            this.tabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
+            this.tabControl.Padding = new System.Drawing.Point(CLOSE_WIDTH_SIZE, CLOSE_Height_SIZE);
+            this.tabControl.DrawItem += TabControl_DrawItem;
+            this.tabControl.MouseDown += TabControl_MouseDown;
+           
+           NewTab(MainPageUrl);
+        }
+
+     
+
+        private void TabControl_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                int x = e.X, y = e.Y;
+                //计算关闭区域   
+                Rectangle myTabRect = this.tabControl.GetTabRect(this.tabControl.SelectedIndex);
+
+                myTabRect.Offset(myTabRect.Width - (CLOSE_WIDTH_SIZE + 3), 2);
+                myTabRect.Width = CLOSE_WIDTH_SIZE;
+                myTabRect.Height = CLOSE_WIDTH_SIZE;
+
+                //如果鼠标在区域内就关闭选项卡   
+                bool isClose = x > myTabRect.X && x < myTabRect.Right && y > myTabRect.Y && y < myTabRect.Bottom;
+                if (isClose == true)
+                {
+                  
+                    this.tabControl.TabPages.Remove(this.tabControl.SelectedTab);
+
+                    //设定选中的索引为前一个窗口的
+                    var toOpenTabIndex = 0;
+                    var rightTabIndex = this.tabControl.TabCount+1;
+                    var leftTabIndex = this.tabControl.TabCount - 1;
+                    if (rightTabIndex<this.tabControl.TabCount-1)
+                    {
+                        toOpenTabIndex = rightTabIndex;//打开右边的tab
+                    }else
+                    {
+                        toOpenTabIndex = leftTabIndex < 0 ? 0 : leftTabIndex;
+                    }
+                    //变更 tab 窗口
+                    this.tabControl.SelectedIndex = toOpenTabIndex;
+                     
+                }
+            }
+        }
+
+        private void TabControl_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            try
+            {
+                Rectangle myTabRect = this.tabControl.GetTabRect(e.Index);
+
+                //先添加TabPage属性   
+                e.Graphics.DrawString(this.tabControl.TabPages[e.Index].Text, this.Font, SystemBrushes.ControlText, myTabRect.X + 2, myTabRect.Y + 2);
+
+                //再画一个矩形框
+                using (Pen p = new Pen(Color.White))
+                {
+                    myTabRect.Offset(myTabRect.Width - (CLOSE_WIDTH_SIZE + 3), 2);
+                    myTabRect.Width = CLOSE_WIDTH_SIZE;
+                    myTabRect.Height = CLOSE_Height_SIZE;
+                    e.Graphics.DrawRectangle(p, myTabRect);
+                }
+
+                //填充矩形框
+                Color recColor = e.State == DrawItemState.Selected ? Color.White : Color.White;
+                using (Brush b = new SolidBrush(recColor))
+                {
+                    e.Graphics.FillRectangle(b, myTabRect);
+                }
+
+                //画关闭符号
+                using (Pen objpen = new Pen(Color.Black))
+                {
+
+                    //使用图片
+                    Bitmap bt = new Bitmap(image_close_gray);
+                    Point p5 = new Point(myTabRect.X, 4);
+                    e.Graphics.DrawImage(bt, p5);
+                }
+                e.Graphics.Dispose();
+            }
+            catch (Exception)
+            { }
+        }
+
+  
         /// <summary>
         ///异步加载配置
         /// </summary>
@@ -91,7 +185,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             return null;
         }
 
-        void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+       private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (tabControl.TabCount > 0)
             {
@@ -104,6 +198,8 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
                         Text = browser.Title + " - " + _mainTitle;
 
+                        //变更地址栏地址
+                        this.addressTextBox.Text = browser.Address ?? "";
                         break;
                     }
                 }
@@ -111,6 +207,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             else
             {
                 Text = _mainTitle;
+                this.addressTextBox.Text = string.Empty;
             }
         }
 
@@ -139,10 +236,19 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
         private void goAddressAction(object sender, EventArgs e)
         {
+            string urlAddress = addressTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(urlAddress))
+            {
+                return;
+            }
             var ctl = GetActiveBrowser();
             if (ctl != null)
             {
                 ctl.Browser.GetMainFrame().LoadUrl(addressTextBox.Text);
+            }
+            else
+            {
+                this.NewTab(urlAddress);
             }
         }
 
@@ -152,8 +258,8 @@ namespace ShoppingWebCrawler.Host.DeskTop
             page.Padding = new Padding(0, 0, 0, 0);
 
             var browser = new CefWebBrowser();
-            browser.IsCanShowContextMenu = true;
-            browser.IsCanShowPopWindow = false;
+            browser.IsCanShowContextMenu = true;//是否显示右键菜单
+            browser.IsCanShowPopWindow = false;//是否弹窗
 
             //设定其存储Cookie的路径
             //var ckManager = CefCookieManager.GetGlobal(null); ;
@@ -213,8 +319,8 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
             };
 
-            
 
+           // page.Tag = browser;//tabpage 绑定浏览器对象
             page.Controls.Add(browser);
 
             tabControl.TabPages.Add(page);
@@ -360,18 +466,15 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
         private void showHtmlSourceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var current_brower_frame = this.GetActiveBrowser().Browser.GetMainFrame();
-            var html_vistor = new HtmlSourceVistor();
-            var src_code = string.Empty;
-            src_code = html_vistor.ReadHtmlSourceSync(current_brower_frame);
-
-            //Task.WaitAll(tsk);
+            //var current_brower_frame = this.GetActiveBrowser().Browser.GetMainFrame();
+            //var html_vistor = new HtmlSourceVistor();
+            //var src_code = string.Empty;
+            //src_code = html_vistor.ReadHtmlSourceSync(current_brower_frame);
 
 
+            //System.Diagnostics.Debug.Write(src_code);
 
-            System.Diagnostics.Debug.Write(src_code);
-
-            var frm = new Form_ShowHtmlSource() { HtmlSourceCode = src_code };
+            var frm = new Form_ShowHtmlSource() { Address=this.addressTextBox.Text.Trim()};
             frm.Show();
         }
     }

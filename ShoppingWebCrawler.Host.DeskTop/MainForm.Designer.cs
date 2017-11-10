@@ -51,6 +51,7 @@
             this.browserCheckToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.testHttpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showHtmlSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.remoteRedisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.tabControl = new System.Windows.Forms.TabControl();
@@ -61,7 +62,6 @@
             this.tabContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newTabContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeTabContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.远程RedisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -122,84 +122,84 @@
             // taobao_ToolStripMenuItem
             // 
             this.taobao_ToolStripMenuItem.Name = "taobao_ToolStripMenuItem";
-            this.taobao_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.taobao_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.taobao_ToolStripMenuItem.Text = "淘宝";
             this.taobao_ToolStripMenuItem.Click += new System.EventHandler(this.taobao_ToolStripMenuItem_Click);
             // 
             // tmall_ToolStripMenuItem
             // 
             this.tmall_ToolStripMenuItem.Name = "tmall_ToolStripMenuItem";
-            this.tmall_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.tmall_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.tmall_ToolStripMenuItem.Text = "天猫";
             this.tmall_ToolStripMenuItem.Click += new System.EventHandler(this.tmall_ToolStripMenuItem_Click);
             // 
             // jingdong_ToolStripMenuItem
             // 
             this.jingdong_ToolStripMenuItem.Name = "jingdong_ToolStripMenuItem";
-            this.jingdong_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.jingdong_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.jingdong_ToolStripMenuItem.Text = "京东";
             this.jingdong_ToolStripMenuItem.Click += new System.EventHandler(this.jingdong_ToolStripMenuItem_Click);
             // 
             // pdd_ToolStripMenuItem
             // 
             this.pdd_ToolStripMenuItem.Name = "pdd_ToolStripMenuItem";
-            this.pdd_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.pdd_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.pdd_ToolStripMenuItem.Text = "拼多多";
             this.pdd_ToolStripMenuItem.Click += new System.EventHandler(this.pdd_ToolStripMenuItem_Click);
             // 
             // suning_ToolStripMenuItem
             // 
             this.suning_ToolStripMenuItem.Name = "suning_ToolStripMenuItem";
-            this.suning_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.suning_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.suning_ToolStripMenuItem.Text = "苏宁";
             this.suning_ToolStripMenuItem.Click += new System.EventHandler(this.suning_ToolStripMenuItem_Click);
             // 
             // guomei_ToolStripMenuItem
             // 
             this.guomei_ToolStripMenuItem.Name = "guomei_ToolStripMenuItem";
-            this.guomei_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.guomei_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.guomei_ToolStripMenuItem.Text = "国美";
             this.guomei_ToolStripMenuItem.Click += new System.EventHandler(this.guomei_ToolStripMenuItem_Click);
             // 
             // dangdang_ToolStripMenuItem
             // 
             this.dangdang_ToolStripMenuItem.Name = "dangdang_ToolStripMenuItem";
-            this.dangdang_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.dangdang_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.dangdang_ToolStripMenuItem.Text = "当当";
             this.dangdang_ToolStripMenuItem.Click += new System.EventHandler(this.dangdang_ToolStripMenuItem_Click);
             // 
             // yihaodian_ToolStripMenuItem
             // 
             this.yihaodian_ToolStripMenuItem.Name = "yihaodian_ToolStripMenuItem";
-            this.yihaodian_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.yihaodian_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.yihaodian_ToolStripMenuItem.Text = "一号店";
             this.yihaodian_ToolStripMenuItem.Click += new System.EventHandler(this.yihaodian_ToolStripMenuItem_Click);
             // 
             // meilishuo_ToolStripMenuItem
             // 
             this.meilishuo_ToolStripMenuItem.Name = "meilishuo_ToolStripMenuItem";
-            this.meilishuo_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.meilishuo_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.meilishuo_ToolStripMenuItem.Text = "美丽说";
             this.meilishuo_ToolStripMenuItem.Click += new System.EventHandler(this.meilishuo_ToolStripMenuItem_Click);
             // 
             // mogujie_ToolStripMenuItem
             // 
             this.mogujie_ToolStripMenuItem.Name = "mogujie_ToolStripMenuItem";
-            this.mogujie_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.mogujie_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.mogujie_ToolStripMenuItem.Text = "蘑菇街";
             this.mogujie_ToolStripMenuItem.Click += new System.EventHandler(this.mogujie_ToolStripMenuItem_Click);
             // 
             // zhe800_ToolStripMenuItem
             // 
             this.zhe800_ToolStripMenuItem.Name = "zhe800_ToolStripMenuItem";
-            this.zhe800_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.zhe800_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.zhe800_ToolStripMenuItem.Text = "折800";
             this.zhe800_ToolStripMenuItem.Click += new System.EventHandler(this.zhe800_ToolStripMenuItem_Click);
             // 
             // etao_ToolStripMenuItem
             // 
             this.etao_ToolStripMenuItem.Name = "etao_ToolStripMenuItem";
-            this.etao_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.etao_ToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.etao_ToolStripMenuItem.Text = "一淘";
             this.etao_ToolStripMenuItem.Click += new System.EventHandler(this.etao_ToolStripMenuItem_Click);
             // 
@@ -209,7 +209,7 @@
             this.browserCheckToolStripMenuItem,
             this.testHttpToolStripMenuItem,
             this.showHtmlSourceToolStripMenuItem,
-            this.远程RedisToolStripMenuItem});
+            this.remoteRedisToolStripMenuItem});
             this.工具ToolStripMenuItem.Name = "工具ToolStripMenuItem";
             this.工具ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.工具ToolStripMenuItem.Text = "工具";
@@ -217,23 +217,29 @@
             // browserCheckToolStripMenuItem
             // 
             this.browserCheckToolStripMenuItem.Name = "browserCheckToolStripMenuItem";
-            this.browserCheckToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.browserCheckToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.browserCheckToolStripMenuItem.Text = "浏览器检测";
             this.browserCheckToolStripMenuItem.Click += new System.EventHandler(this.browserCheckToolStripMenuItem_Click);
             // 
             // testHttpToolStripMenuItem
             // 
             this.testHttpToolStripMenuItem.Name = "testHttpToolStripMenuItem";
-            this.testHttpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.testHttpToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.testHttpToolStripMenuItem.Text = "模拟Http";
             this.testHttpToolStripMenuItem.Click += new System.EventHandler(this.testHttpToolStripMenuItem_Click);
             // 
             // showHtmlSourceToolStripMenuItem
             // 
             this.showHtmlSourceToolStripMenuItem.Name = "showHtmlSourceToolStripMenuItem";
-            this.showHtmlSourceToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showHtmlSourceToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.showHtmlSourceToolStripMenuItem.Text = "查看Html源码";
             this.showHtmlSourceToolStripMenuItem.Click += new System.EventHandler(this.showHtmlSourceToolStripMenuItem_Click);
+            // 
+            // remoteRedisToolStripMenuItem
+            // 
+            this.remoteRedisToolStripMenuItem.Name = "remoteRedisToolStripMenuItem";
+            this.remoteRedisToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.remoteRedisToolStripMenuItem.Text = "远程Redis";
             // 
             // statusStrip
             // 
@@ -323,12 +329,6 @@
             this.closeTabContextMenuItem.Text = "Close tab";
             this.closeTabContextMenuItem.Click += new System.EventHandler(this.closeTabAction);
             // 
-            // 远程RedisToolStripMenuItem
-            // 
-            this.远程RedisToolStripMenuItem.Name = "远程RedisToolStripMenuItem";
-            this.远程RedisToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.远程RedisToolStripMenuItem.Text = "远程Redis";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -386,6 +386,6 @@
         private System.Windows.Forms.ToolStripMenuItem browserCheckToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem testHttpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showHtmlSourceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 远程RedisToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem remoteRedisToolStripMenuItem;
     }
 }

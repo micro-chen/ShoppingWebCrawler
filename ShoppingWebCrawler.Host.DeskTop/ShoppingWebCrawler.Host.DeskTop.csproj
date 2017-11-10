@@ -147,6 +147,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="UI\Form_ShowCookies.resx">
       <DependentUpon>Form_ShowCookies.cs</DependentUpon>
@@ -180,6 +181,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="readMe.txt" />
+    <None Include="Resources\close_16px_gray.ico" />
+    <None Include="Resources\close_16px_light.ico" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ScoketLibrary\NTCPMSG\NTCPMessage.csproj">

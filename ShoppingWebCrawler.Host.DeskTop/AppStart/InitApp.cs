@@ -100,7 +100,16 @@ namespace ShoppingWebCrawler.Host.DeskTop
             //第二步 开启tcp端口---不再开启端口，采取定时向远程redis 推送cookie
             //RemoteServer.Start();
 
-            Application.Run(new MainForm());
+            try
+            {
+                Application.Run(new MainForm());
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
 
 
             //注销CEF app
