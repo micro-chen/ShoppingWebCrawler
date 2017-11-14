@@ -85,6 +85,7 @@
     <Compile Include="Caching\ICacheManager.cs" />
     <Compile Include="Caching\NativeCacheManager.cs" />
     <Compile Include="Caching\RedisClient\RedisCacheManager.cs" />
+    <Compile Include="Caching\RedisClient\RedisConfig.cs" />
     <Compile Include="Caching\RedisClient\RedisConnectionWrapper.cs" />
     <Compile Include="Common\ConfigHelper.cs" />
     <Compile Include="Common\GlobalContext.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Common\HttpValueCollection.cs" />
     <Compile Include="Common\InPutValidate.cs" />
     <Compile Include="Common\JavascriptContext.cs" />
+    <Compile Include="Common\PushToRedisCookiesEventArgs.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\RunningLocker.cs" />
     <Compile Include="Common\Singleton.cs" />

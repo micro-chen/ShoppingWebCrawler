@@ -52,12 +52,23 @@ namespace ShoppingWebCrawler.Host.Common.Caching
 
         #region Ctor
 
-        public RedisConnectionWrapper()
+
+
+        public RedisConnectionWrapper(string connString = null)
         {
-            this._connectionString = new Lazy<string>(GetConnectionString);
+            this._connectionString = new Lazy<string>(
+                () =>
+                {
+                    if (string.IsNullOrEmpty(connString))
+                    {
+                        connString = GetConnectionString();
+                    }
+                    return connString;
+                }
+                );
+
             this._redisLockFactory = CreateRedisLockFactory();
         }
-
         #endregion
 
         #region Utilities
@@ -67,21 +78,26 @@ namespace ShoppingWebCrawler.Host.Common.Caching
         /// 连接字符串配置格式： ConnectionMultiplexer.Connect("mycache.redis.cache.windows.net,abortConnect=false,ssl=true,password=...");
         /// </summary>
         /// <returns></returns>
-        internal static string GetConnectionString()
+        public static string GetConnectionString()
         {
             try
             {
-                
+
                 string redisHost = ConfigHelper.GetConfig("redisHost");
                 string redisPort = ConfigHelper.GetConfig("redisPort");
                 string redisPassword = ConfigHelper.GetConfig("redisPwd");
-                string RedisConnectionString = string.Format("{0}:{1},password={2}", redisHost, redisPort, redisPassword);
-                return RedisConnectionString;
+                return GetConnectionString(redisHost, redisPort, redisPassword);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+        public static string GetConnectionString(string redisHost, string redisPort, string redisPassword)
+        {
+            string RedisConnectionString = string.Format("{0}:{1},password={2}", redisHost, redisPort, redisPassword);
+            return RedisConnectionString;
+
         }
 
         /// <summary>

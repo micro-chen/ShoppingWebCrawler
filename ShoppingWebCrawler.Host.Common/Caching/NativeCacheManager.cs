@@ -207,7 +207,24 @@ namespace ShoppingWebCrawler.Host.Common.Caching
 
         #endregion
 
+        #region dispose
+        private bool disposed = false;
+        public void Dispose()
+        {
+            this.Dispose(false);
+            GC.SuppressFinalize(this);
+        }
+        void Dispose(bool isDisposing)
+        {
 
+            if (!disposed)
+            {
+                NativeCacheManager._Default = null;
+            }
+
+            disposed = true;
+        }
+        #endregion
 
 
     }

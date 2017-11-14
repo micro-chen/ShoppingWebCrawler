@@ -8,6 +8,7 @@ using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Common.Ioc;
 using NTCPMessage.EntityPackage;
 using System.Net;
+using ShoppingWebCrawler.Host.Common.Caching;
 
 namespace ShoppingWebCrawler.Host.Common
 {
@@ -93,6 +94,9 @@ namespace ShoppingWebCrawler.Host.Common
             }
         }
 
+
+
+
         private static object _locker_SupportPlatform = new object();
         private static List<SupportPlatform> _SupportPlatforms;
         /// <summary>
@@ -147,6 +151,51 @@ namespace ShoppingWebCrawler.Host.Common
             }
         }
 
+        #region redis 相关
+
+     
+        /// <summary>
+        /// redis 客户端
+        /// </summary>
+        public static RedisCacheManager  RedisClient{ get; set; }
+        private static readonly string PrefixDeskPushToRedisCookies = "Desk.Platform.Cookies-";
+        public static EventHandler<PushToRedisCookiesEventArgs> HandlerPushToRedisCookies;
+
+        /// <summary>
+        /// 从桌面版发送cookie到redis
+        /// </summary>
+        /// <param name="platform"></param>
+        /// <param name="cookies"></param>
+        public static void DeskPushToRedisCookies(SupportPlatformEnum platform, string cookies)
+        {
+            if (null==RedisClient)
+            {
+                return;
+            }
+            //键
+            var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());
+            RedisClient.Set(key, cookies);
+        }
+
+        /// <summary>
+        /// 拉取桌面版发送cookie到redis
+        /// </summary>
+        /// <param name="platform"></param>
+        /// <param name="cookies"></param>
+        public static List<Cookie> DeskPullFromRedisCookies(SupportPlatformEnum platform)
+        {
+            if (null == RedisClient)
+            {
+                return null;
+            }
+            //键
+            var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());
+           var cookies= RedisClient.Get<List<Cookie>>(key);
+
+            return cookies;
+        }
+
+        #endregion
         /// <summary>
         /// 所有平台的 cookie 字典容器，按照网址对Cookie进行了key区分
         /// </summary>

@@ -31,7 +31,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
         /// <summary>
         /// 默认的过期的秒数
         /// </summary>
-        public const int DefaultTimeOut = 20;
+        public const int DefaultTimeOut = 60*60;
 
         /// <summary>
         /// 获取缓存管理组件
@@ -39,7 +39,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
         /// 配置文件 CacheConfig 节点 。默认、MemCahed、Redis 
         /// </summary>
         /// <returns></returns>
-        public static ICacheManager GetCacheManager()
+        public static ICacheManager GetCacheManager(CacheManagerType? storageType= null)
         {
             if (null!=_cacheManager)
             {
@@ -48,16 +48,24 @@ namespace ShoppingWebCrawler.Host.Common.Caching
 
             var managerType = CacheManagerType.Default;
 
-            var config = ConfigHelper.GetConfig(ConfigNodeName);
-            if (!string.IsNullOrEmpty(config))
+            if (null== storageType)
             {
-                try
+                var config = ConfigHelper.GetConfig(ConfigNodeName);
+                if (!string.IsNullOrEmpty(config))
                 {
-                    //首字母 大写转换后 尝试转换为对应的枚举
-                    string titledConfig = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(config);
-                    managerType = (CacheManagerType)Enum.Parse(typeof(CacheManagerType), titledConfig);
+                    try
+                    {
+                        //首字母 大写转换后 尝试转换为对应的枚举
+                        string titledConfig = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(config);
+                        managerType = (CacheManagerType)Enum.Parse(typeof(CacheManagerType), titledConfig);
+                    }
+                    catch { }
                 }
-                catch { }
+
+            }
+            else
+            {
+                managerType = storageType.Value;//如果强制指定了使用的存储类型 那么不走配置文件
             }
 
 

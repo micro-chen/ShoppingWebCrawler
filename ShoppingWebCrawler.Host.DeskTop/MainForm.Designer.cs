@@ -217,29 +217,30 @@
             // browserCheckToolStripMenuItem
             // 
             this.browserCheckToolStripMenuItem.Name = "browserCheckToolStripMenuItem";
-            this.browserCheckToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.browserCheckToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.browserCheckToolStripMenuItem.Text = "浏览器检测";
             this.browserCheckToolStripMenuItem.Click += new System.EventHandler(this.browserCheckToolStripMenuItem_Click);
             // 
             // testHttpToolStripMenuItem
             // 
             this.testHttpToolStripMenuItem.Name = "testHttpToolStripMenuItem";
-            this.testHttpToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.testHttpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.testHttpToolStripMenuItem.Text = "模拟Http";
             this.testHttpToolStripMenuItem.Click += new System.EventHandler(this.testHttpToolStripMenuItem_Click);
             // 
             // showHtmlSourceToolStripMenuItem
             // 
             this.showHtmlSourceToolStripMenuItem.Name = "showHtmlSourceToolStripMenuItem";
-            this.showHtmlSourceToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.showHtmlSourceToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.showHtmlSourceToolStripMenuItem.Text = "查看Html源码";
             this.showHtmlSourceToolStripMenuItem.Click += new System.EventHandler(this.showHtmlSourceToolStripMenuItem_Click);
             // 
             // remoteRedisToolStripMenuItem
             // 
             this.remoteRedisToolStripMenuItem.Name = "remoteRedisToolStripMenuItem";
-            this.remoteRedisToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.remoteRedisToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.remoteRedisToolStripMenuItem.Text = "远程Redis";
+            this.remoteRedisToolStripMenuItem.Click += new System.EventHandler(this.remoteRedisToolStripMenuItem_Click);
             // 
             // statusStrip
             // 

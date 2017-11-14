@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
  namespace ShoppingWebCrawler.Host.Common.Caching
 {
@@ -6,7 +7,7 @@ using System.Collections.Generic;
     /// 暂时只实现了内置的Cache对象管理器
     /// MemCache Redis 未加入实现
     /// </summary>
-    public interface ICacheManager
+    public interface ICacheManager:IDisposable
     {
         /// <summary>
         /// Gets or sets the value associated with the specified key.

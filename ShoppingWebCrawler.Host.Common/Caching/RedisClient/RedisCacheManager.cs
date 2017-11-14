@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StackExchange.Redis;
+using ShoppingWebCrawler.Host.Common.Caching.RedisClient;
 
 namespace ShoppingWebCrawler.Host.Common.Caching
 {
@@ -15,14 +16,14 @@ namespace ShoppingWebCrawler.Host.Common.Caching
     /// Mostly it'll be used when running in a web farm or Azure.
     /// But of course it can be also used on any server or environment
     /// </summary>
-    public  class RedisCacheManager : ICacheManager
+    public class RedisCacheManager : ICacheManager
     {
 
         private static RedisCacheManager _current;
 
 
         /// <summary>
-        /// 单例模式
+        /// 单例模式--获取默认配置的redis 连接
         /// </summary>
         public static RedisCacheManager Current
         {
@@ -35,11 +36,30 @@ namespace ShoppingWebCrawler.Host.Common.Caching
                 }
                 return RedisCacheManager._current;
             }
+            set
+            {
+                _current = value;
+            }
         }
 
+
         #region Fields
+
+   
+
         private readonly RedisConnectionWrapper _connectionWrapper;
-        private readonly IDatabase _db;
+
+        private IDatabase _Database;
+
+        public  IDatabase Database
+        {
+            get
+            {
+                return _Database;
+            }
+        }
+
+
 
         #endregion
 
@@ -47,18 +67,43 @@ namespace ShoppingWebCrawler.Host.Common.Caching
 
         public RedisCacheManager()
         {
-            var connStr = RedisConnectionWrapper.GetConnectionString();
+            //var connStr = RedisConnectionWrapper.GetConnectionString();
 
-            if (String.IsNullOrEmpty(connStr))
-                throw new Exception("Redis connection string is empty");
+            //if (String.IsNullOrEmpty(connStr))
+            //    throw new Exception("Redis connection string is empty");
 
             // ConnectionMultiplexer.Connect should only be called once and shared between callers
             this._connectionWrapper = RedisConnectionWrapper.Current;
 
-            int redisDb = ConfigHelper.GetConfigInt("redisDb");
-            this._db = _connectionWrapper.GetDatabase(redisDb);
+            var redisDb = ConfigHelper.GetConfigInt("redisDb");
+
+            _Database= _connectionWrapper.GetDatabase(redisDb);
+        }
+
+        /// <summary>
+        /// 使用自定义的配置  获取redis 连接的实例
+        /// </summary>
+        /// <param name="redisHost"></param>
+        /// <param name="redisPort"></param>
+        /// <param name="redisPassword"></param>
+        /// <param name="redisDb"></param>
+        public RedisCacheManager(RedisConfig config, int redisDb)
+        {
+
+            string redisHost = config.IpAddress;
+            string redisPort = config.Port.ToString();
+            string redisPassword = config.Pwd;
+            string connStr = RedisConnectionWrapper.GetConnectionString(redisHost, redisPort, redisPassword);
+
+            // ConnectionMultiplexer.Connect should only be called once and shared between callers
+            this._connectionWrapper = new RedisConnectionWrapper(connStr);
+
+            _Database = _connectionWrapper.GetDatabase(redisDb);
+
 
         }
+
+
 
         #endregion
 
@@ -83,6 +128,30 @@ namespace ShoppingWebCrawler.Host.Common.Caching
         #region Methods
 
         /// <summary>
+        /// 切换redis  数据库
+        /// </summary>
+        /// <param name="redisDb"></param>
+        /// <returns></returns>
+        public bool SelectDb(int redisDb) {
+            var result = false;
+            try
+            {
+                if (redisDb<0)
+                {
+                    throw new Exception("redis db 索引不能小于0！");
+                }
+
+                _Database = _connectionWrapper.GetDatabase(redisDb);
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return result;
+        }
+        /// <summary>
         /// Gets or sets the value associated with the specified key.
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
@@ -91,7 +160,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
         public virtual T Get<T>(string key)
         {
 
-            var rValue = _db.StringGet(key);
+            var rValue = Database.StringGet(key);
             if (!rValue.HasValue)
                 return default(T);
             var result = Deserialize<T>(rValue);
@@ -105,7 +174,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
         /// <param name="key">key</param>
         /// <param name="data">Data</param>
         /// <param name="cacheTime">Cache time</param>
-        public virtual void Set(string key, object data, int cacheTime)
+        public virtual void Set(string key, object data, int cacheTime = CacheConfigFactory.DefaultTimeOut)
         {
             if (data == null)
                 return;
@@ -113,7 +182,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
             var entryBytes = Serialize(data);
             var expiresIn = TimeSpan.FromMinutes(cacheTime);
 
-            _db.StringSet(key, entryBytes, expiresIn);
+            Database.StringSet(key, entryBytes, expiresIn);
         }
 
         /// <summary>
@@ -123,7 +192,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
         /// <returns>Result</returns>
         public virtual bool IsHasSet(string key)
         {
-            return _db.KeyExists(key);
+            return Database.KeyExists(key);
         }
 
         /// <summary>
@@ -132,7 +201,17 @@ namespace ShoppingWebCrawler.Host.Common.Caching
         /// <param name="key">/key</param>
         public virtual void Remove(string key)
         {
-            _db.KeyDelete(key);
+            Database.KeyDelete(key);
+        }
+
+        public virtual Task<bool> RemoveAsync(string key)
+        {
+            var task = Task.Factory.StartNew(() => {
+                return Database.KeyDelete(key);
+            });
+
+            return task;
+          
         }
 
         /// <summary>
@@ -144,7 +223,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
             foreach (var ep in _connectionWrapper.GetEndPoints())
             {
                 var server = _connectionWrapper.GetServer(ep);
-                var keys = server.Keys(database: _db.Database, pattern: "*" + pattern + "*");
+                var keys = server.Keys(database: Database.Database, pattern: "*" + pattern + "*");
                 foreach (var key in keys)
                     Remove(key);
             }
@@ -176,5 +255,25 @@ namespace ShoppingWebCrawler.Host.Common.Caching
 
         #endregion
 
+
+        #region dispose
+        private bool disposed = false;
+        public void Dispose()
+        {
+            this.Dispose(false);
+            GC.SuppressFinalize(this);
+        }
+        void Dispose(bool isDisposing)
+        {
+          
+            if (!disposed)
+            {
+                this._Database = null;
+                this._connectionWrapper.Dispose();
+            }
+
+            disposed = true;
+        }
+        #endregion
     }
 }

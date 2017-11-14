@@ -477,5 +477,10 @@ namespace ShoppingWebCrawler.Host.DeskTop
             var frm = new Form_ShowHtmlSource() { Address=this.addressTextBox.Text.Trim()};
             frm.Show();
         }
+
+        private void remoteRedisToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
