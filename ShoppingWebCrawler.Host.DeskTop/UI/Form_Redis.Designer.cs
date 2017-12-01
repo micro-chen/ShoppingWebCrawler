@@ -38,15 +38,14 @@
             this.btn_push_cookies_redis = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.checkBox_IsPush_Cycle = new System.Windows.Forms.CheckBox();
-            this.txt_cycle_time = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.linkLabel_push_status = new System.Windows.Forms.LinkLabel();
             this.label5 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.comboBox_RedisDbList = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // btn_test_redis_conn
             // 
-            this.btn_test_redis_conn.Location = new System.Drawing.Point(277, 75);
+            this.btn_test_redis_conn.Location = new System.Drawing.Point(179, 106);
             this.btn_test_redis_conn.Name = "btn_test_redis_conn";
             this.btn_test_redis_conn.Size = new System.Drawing.Size(87, 32);
             this.btn_test_redis_conn.TabIndex = 0;
@@ -64,7 +63,7 @@
             // 
             // txt_redis_port
             // 
-            this.txt_redis_port.Location = new System.Drawing.Point(279, 32);
+            this.txt_redis_port.Location = new System.Drawing.Point(284, 32);
             this.txt_redis_port.Name = "txt_redis_port";
             this.txt_redis_port.Size = new System.Drawing.Size(67, 20);
             this.txt_redis_port.TabIndex = 2;
@@ -72,7 +71,7 @@
             // 
             // txt_redis_pwd
             // 
-            this.txt_redis_pwd.Location = new System.Drawing.Point(71, 87);
+            this.txt_redis_pwd.Location = new System.Drawing.Point(71, 69);
             this.txt_redis_pwd.Name = "txt_redis_pwd";
             this.txt_redis_pwd.Size = new System.Drawing.Size(162, 20);
             this.txt_redis_pwd.TabIndex = 4;
@@ -89,7 +88,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(18, 90);
+            this.label3.Location = new System.Drawing.Point(18, 72);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(43, 13);
             this.label3.TabIndex = 7;
@@ -105,7 +104,7 @@
             // 
             // btn_push_cookies_redis
             // 
-            this.btn_push_cookies_redis.Location = new System.Drawing.Point(253, 152);
+            this.btn_push_cookies_redis.Location = new System.Drawing.Point(151, 153);
             this.btn_push_cookies_redis.Name = "btn_push_cookies_redis";
             this.btn_push_cookies_redis.Size = new System.Drawing.Size(121, 33);
             this.btn_push_cookies_redis.TabIndex = 9;
@@ -127,58 +126,47 @@
             this.checkBox_IsPush_Cycle.AutoSize = true;
             this.checkBox_IsPush_Cycle.Checked = true;
             this.checkBox_IsPush_Cycle.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_IsPush_Cycle.Location = new System.Drawing.Point(69, 160);
+            this.checkBox_IsPush_Cycle.Location = new System.Drawing.Point(71, 162);
             this.checkBox_IsPush_Cycle.Name = "checkBox_IsPush_Cycle";
             this.checkBox_IsPush_Cycle.Size = new System.Drawing.Size(74, 17);
             this.checkBox_IsPush_Cycle.TabIndex = 11;
             this.checkBox_IsPush_Cycle.Text = "周期推送";
             this.checkBox_IsPush_Cycle.UseVisualStyleBackColor = true;
             // 
-            // txt_cycle_time
-            // 
-            this.txt_cycle_time.Location = new System.Drawing.Point(149, 158);
-            this.txt_cycle_time.Name = "txt_cycle_time";
-            this.txt_cycle_time.Size = new System.Drawing.Size(56, 20);
-            this.txt_cycle_time.TabIndex = 12;
-            this.txt_cycle_time.Text = "10";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(211, 165);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(19, 13);
-            this.label6.TabIndex = 14;
-            this.label6.Text = "秒";
-            // 
-            // linkLabel_push_status
-            // 
-            this.linkLabel_push_status.AutoSize = true;
-            this.linkLabel_push_status.Location = new System.Drawing.Point(388, 162);
-            this.linkLabel_push_status.Name = "linkLabel_push_status";
-            this.linkLabel_push_status.Size = new System.Drawing.Size(45, 13);
-            this.linkLabel_push_status.TabIndex = 15;
-            this.linkLabel_push_status.TabStop = true;
-            this.linkLabel_push_status.Text = "stopped";
-            // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(235, 37);
+            this.label5.Location = new System.Drawing.Point(240, 37);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(43, 13);
             this.label5.TabIndex = 16;
             this.label5.Text = "端口：";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(235, 72);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(55, 13);
+            this.label2.TabIndex = 17;
+            this.label2.Text = "存储库：";
+            // 
+            // comboBox_RedisDbList
+            // 
+            this.comboBox_RedisDbList.FormattingEnabled = true;
+            this.comboBox_RedisDbList.Location = new System.Drawing.Point(284, 67);
+            this.comboBox_RedisDbList.Name = "comboBox_RedisDbList";
+            this.comboBox_RedisDbList.Size = new System.Drawing.Size(121, 21);
+            this.comboBox_RedisDbList.TabIndex = 18;
             // 
             // Form_Redis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(517, 417);
+            this.Controls.Add(this.comboBox_RedisDbList);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.linkLabel_push_status);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.txt_cycle_time);
             this.Controls.Add(this.checkBox_IsPush_Cycle);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btn_push_cookies_redis);
@@ -210,9 +198,8 @@
         private System.Windows.Forms.Button btn_push_cookies_redis;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.CheckBox checkBox_IsPush_Cycle;
-        private System.Windows.Forms.TextBox txt_cycle_time;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.LinkLabel linkLabel_push_status;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox comboBox_RedisDbList;
     }
 }

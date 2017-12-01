@@ -32,7 +32,8 @@ namespace ShoppingWebCrawler.Host.Common.Caching
 
                 if (null == _current)
                 {
-                    _current = new RedisCacheManager();
+                    var config = RedisConfig.LoadConfig();
+                    _current = new RedisCacheManager(config);
                 }
                 return RedisCacheManager._current;
             }
@@ -65,29 +66,25 @@ namespace ShoppingWebCrawler.Host.Common.Caching
 
         #region Ctor
 
-        public RedisCacheManager()
-        {
-            //var connStr = RedisConnectionWrapper.GetConnectionString();
+        //public RedisCacheManager()
+        //{
+        //    //var connStr = RedisConnectionWrapper.GetConnectionString();
 
-            //if (String.IsNullOrEmpty(connStr))
-            //    throw new Exception("Redis connection string is empty");
+        //    //if (String.IsNullOrEmpty(connStr))
+        //    //    throw new Exception("Redis connection string is empty");
 
-            // ConnectionMultiplexer.Connect should only be called once and shared between callers
-            this._connectionWrapper = RedisConnectionWrapper.Current;
+        //    // ConnectionMultiplexer.Connect should only be called once and shared between callers
+        //    this._connectionWrapper = RedisConnectionWrapper.Current;
 
-            var redisDb = ConfigHelper.GetConfigInt("redisDb");
+        //    var redisDb = ConfigHelper.GetConfigInt("redisDb");
 
-            _Database= _connectionWrapper.GetDatabase(redisDb);
-        }
+        //    _Database= _connectionWrapper.GetDatabase(redisDb);
+        //}
 
         /// <summary>
         /// 使用自定义的配置  获取redis 连接的实例
         /// </summary>
-        /// <param name="redisHost"></param>
-        /// <param name="redisPort"></param>
-        /// <param name="redisPassword"></param>
-        /// <param name="redisDb"></param>
-        public RedisCacheManager(RedisConfig config, int redisDb)
+        public RedisCacheManager(RedisConfig config)
         {
 
             string redisHost = config.IpAddress;
@@ -98,7 +95,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
             // ConnectionMultiplexer.Connect should only be called once and shared between callers
             this._connectionWrapper = new RedisConnectionWrapper(connStr);
 
-            _Database = _connectionWrapper.GetDatabase(redisDb);
+            _Database = _connectionWrapper.GetDatabase(config.WhichDb);
 
 
         }
@@ -140,7 +137,7 @@ namespace ShoppingWebCrawler.Host.Common.Caching
                 {
                     throw new Exception("redis db 索引不能小于0！");
                 }
-
+                 
                 _Database = _connectionWrapper.GetDatabase(redisDb);
                 result = true;
             }

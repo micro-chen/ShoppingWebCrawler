@@ -10,15 +10,14 @@ using System.Windows.Forms;
 using System.IO;
 using ShoppingWebCrawler.Host.Common.Caching.RedisClient;
 using ShoppingWebCrawler.Host.Common.Caching;
+using ShoppingWebCrawler.Host.DeskTop.ScheduleTasks;
+using ShoppingWebCrawler.Host.Common;
 
 namespace ShoppingWebCrawler.Host.DeskTop.UI
 {
     public partial class Form_Redis : Form
     {
 
-        private string _redis_config_full_path = string.Empty;
-        private readonly string _redis_config_fileName = "redis.config.json";
-        private readonly string _redis_test_connt_key = "ShoppingWebCrawler.DeskTop.Redis.Test";
         public Form_Redis()
         {
             InitializeComponent();
@@ -28,40 +27,77 @@ namespace ShoppingWebCrawler.Host.DeskTop.UI
 
         private void Form_Redis_Load(object sender, EventArgs e)
         {
-
-            //init redis config
-            _redis_config_full_path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", _redis_config_fileName);
-
-            var redisConfig = RedisConfig.LoadConfig(_redis_config_full_path);
+            var lst_db = new List<object>();
+            for (int i = 0; i < 15; i++)
+            {
+                lst_db.Add(new { Id = i, Text = i });
+                //var item=new selectit
+            }
+            this.comboBox_RedisDbList.DataSource = lst_db;
+            this.comboBox_RedisDbList.ValueMember = "Id";
+            this.comboBox_RedisDbList.DisplayMember = "Text";
+            var redisConfig = RedisConfig.LoadConfig();
             if (null != redisConfig)
             {
                 this.txt_redis_ip_address.Text = redisConfig.IpAddress;
                 this.txt_redis_port.Text = redisConfig.Port.ToString();
                 this.txt_redis_pwd.Text = redisConfig.Pwd;
+                this.comboBox_RedisDbList.SelectedValue = redisConfig.WhichDb;
+            }
+            else
+            {
+                this.comboBox_RedisDbList.SelectedIndex = 0;
             }
 
+            //订阅发送cookie到远程的事件
+            CrawlerCookiesPopJob.OnSendCookiesToRemoteEvent -= Handler_OnSendCookiesToRemoteEvent;
+            CrawlerCookiesPopJob.OnSendCookiesToRemoteEvent += Handler_OnSendCookiesToRemoteEvent;
+
+        }
+        /// <summary>
+        /// 监视发送cookie消息的委托
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Handler_OnSendCookiesToRemoteEvent(object sender, string e)
+        {
+            var msg = e;
+            if (!string.IsNullOrEmpty(msg))
+            {
+                if (null!= GlobalContext.SyncContext)
+                {
+                    GlobalContext.SyncContext.Send((s) => {
+                        this.richTextBox_LogInfo.AppendText(Environment.NewLine);
+                        this.richTextBox_LogInfo.AppendText(msg);
+                    }, null);
+                }
+            }
         }
 
         private void btn_test_redis_conn_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(this.txt_redis_pwd.Text))
+            {
+                MessageBox.Show("密码不能为空！");
+                return;
+            }
             var redisConfig = new RedisConfig
             {
                 IpAddress = this.txt_redis_ip_address.Text.Trim(),
                 Port = int.Parse(this.txt_redis_port.Text.Trim()),
-                Pwd = this.txt_redis_pwd.Text
+                Pwd = this.txt_redis_pwd.Text,
+             
             };
-            RedisConfig.WriteConfig(redisConfig, this._redis_config_full_path);
+            redisConfig.WhichDb = int.Parse(this.comboBox_RedisDbList.SelectedValue.ToString());
 
-            //加载client
-            var client = new RedisCacheManager(redisConfig, 0);
-            string testValue = Guid.NewGuid().ToString();
-            client.Set(_redis_test_connt_key, testValue);
-            string remoteValue = client.Get<string>(_redis_test_connt_key);
+            RedisConfig.WriteConfig(redisConfig);
+
+            //加载redis client
+            
             string msg = string.Empty;
-            if (testValue.Equals(remoteValue))
+            if (RedisConfig.IsValidConfig)
             {
                 msg = "Redis 测试连接成功！";
-                client.RemoveAsync(_redis_test_connt_key);
             }
             else
             {
@@ -74,6 +110,23 @@ namespace ShoppingWebCrawler.Host.DeskTop.UI
         private void btn_push_cookies_redis_Click(object sender, EventArgs e)
         {
 
+            //加载redis client
+            //var client = new RedisCacheManager(redisConfig, 1);
+
+            CrawlerCookiesPopJob.SendCookiesToRemote();
+            if (this.checkBox_IsPush_Cycle.Checked==true)
+            {
+                //开启定期任务
+                ScheduleTaskRunner.Instance.Start();
+            }
+        }
+
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            //注销监听委托
+            CrawlerCookiesPopJob.OnSendCookiesToRemoteEvent -= this.Handler_OnSendCookiesToRemoteEvent;
+            base.OnClosing(e);
         }
     }
 }

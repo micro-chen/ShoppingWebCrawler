@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.Common.Logging;
 
 namespace ShoppingWebCrawler.Host.DeskTop
 {
@@ -12,6 +13,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
     {
         public static int Init(string[] args)
         {
+            Logger.Init();
 
             ///开启多线程任务
             bool multiThreadedMessageLoop = true;
@@ -107,8 +109,8 @@ namespace ShoppingWebCrawler.Host.DeskTop
             }
             catch (Exception ex)
             {
-
-                throw ex;
+                Logger.Error(ex);
+                MessageBox.Show(ex.ToString());
             }
 
 

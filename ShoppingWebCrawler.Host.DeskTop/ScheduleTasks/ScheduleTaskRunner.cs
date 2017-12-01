@@ -101,7 +101,11 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
         {
 
             Logger.Info("服务任务调度 开启......");
-            this._SchedulerContrller.Start();
+            if (!this.SchedulerContrller.IsStarted)
+            {
+                this.SchedulerContrller.Start();
+            }
+           
             return true;
         }
         /// <summary>
