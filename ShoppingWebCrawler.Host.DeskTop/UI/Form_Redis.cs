@@ -103,6 +103,7 @@ namespace ShoppingWebCrawler.Host.DeskTop.UI
             {
                 msg = "Redis 测试连接 失败了！！！！";
             }
+            this.richTextBox_LogInfo.AppendText(Environment.NewLine);
             this.richTextBox_LogInfo.AppendText(msg);
             return;
         }
