@@ -284,7 +284,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
             catch (Exception ex)
             {
 
-                Logging.Logger.WriteException(ex);
+                Logging.Logger.Error(ex);
             }
 
             return result;
@@ -424,7 +424,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
             }
             catch (Exception ex)
             {
-                Logging.Logger.WriteException(ex);
+                Logging.Logger.Error(ex);
             }
 
 

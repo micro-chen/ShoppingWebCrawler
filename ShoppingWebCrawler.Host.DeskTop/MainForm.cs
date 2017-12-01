@@ -480,7 +480,17 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
         private void remoteRedisToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var frm = new Form_Redis();
+            frm.Show();
+        }
 
+        private void oneKeyOpenAll_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var allPlatforms = Enum.GetValues(typeof(SupportPlatformEnum));// SupportPlatformEnum.Alimama.get
+            foreach (SupportPlatformEnum item in allPlatforms)
+            {
+                this.OpenTabPlatformMenuToolStrip(item);
+            }
         }
     }
 }

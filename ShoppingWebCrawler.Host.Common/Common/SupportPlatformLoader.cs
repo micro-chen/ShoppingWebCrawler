@@ -80,7 +80,7 @@ namespace ShoppingWebCrawler.Host.Common
             }
             catch (Exception ex)
             {
-                Logging.Logger.WriteException(ex);
+                Logging.Logger.Error(ex);
 
             }
 

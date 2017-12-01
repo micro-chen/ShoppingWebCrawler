@@ -98,7 +98,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
                 default:
                     string errMsg = string.Format("未能识别的消息格式，支持 1普通字符串  2 json格式！传入的格式为：{0}", msgType.ToString());
                     var ex= new Exception(errMsg);
-                    Logger.WriteException(ex);
+                    Logger.Error(ex);
                     throw ex;
                   
                     
@@ -114,7 +114,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
         static void ErrorEventHandler(object sender, ErrorEventArgs args)
         {
-            Logger.WriteException(args.ErrorException);
+            Logger.Error(args.ErrorException);
             Console.WriteLine(args.ErrorException);
         }
 
