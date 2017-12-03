@@ -153,11 +153,26 @@ namespace ShoppingWebCrawler.Host.Common
 
         #region redis 相关
 
-     
+        private static RedisCacheManager _RedisClient;
         /// <summary>
         /// redis 客户端
         /// </summary>
-        public static RedisCacheManager  RedisClient{ get; set; }
+        public static RedisCacheManager RedisClient
+        {
+            get
+            {
+                if (null==_RedisClient)
+                {
+                    _RedisClient = RedisCacheManager.Current;
+                }
+                return _RedisClient;
+            }
+            set
+            {
+                _RedisClient = value;
+            }
+        }
+
         private static readonly string PrefixDeskPushToRedisCookies = "Desk.Platform.Cookies.";
         public static EventHandler<PushToRedisCookiesEventArgs> HandlerPushToRedisCookies;
 
@@ -168,12 +183,9 @@ namespace ShoppingWebCrawler.Host.Common
         /// </summary>
         /// <param name="platform"></param>
         /// <param name="cookies"></param>
-        public static void DeskPushToRedisCookies(SupportPlatformEnum platform, List<Cookie> cookies)
+        public static void DeskPushToRedisCookies(SupportPlatformEnum platform, IEnumerable<CefCookie> cookies)
         {
-            if (null==RedisClient)
-            {
-                RedisClient = RedisCacheManager.Current; ;
-            }
+ 
             //键
             var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());
             RedisClient.Set(key, cookies);
@@ -184,15 +196,12 @@ namespace ShoppingWebCrawler.Host.Common
         /// </summary>
         /// <param name="platform"></param>
         /// <param name="cookies"></param>
-        public static List<Cookie> DeskPullFromRedisCookies(SupportPlatformEnum platform)
+        public static List<CefCookie> DeskPullFromRedisCookies(SupportPlatformEnum platform)
         {
-            if (null == RedisClient)
-            {
-                return null;
-            }
+ 
             //键
             var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());
-           var cookies= RedisClient.Get<List<Cookie>>(key);
+            var cookies = RedisClient.Get<List<CefCookie>>(key);
 
             return cookies;
         }

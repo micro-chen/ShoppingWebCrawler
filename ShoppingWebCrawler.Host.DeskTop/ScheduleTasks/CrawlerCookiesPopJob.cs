@@ -55,7 +55,7 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
 
             //todo:实现拉取cookies 然后发送到远程server
             var allPlatforms = Enum.GetValues(typeof(SupportPlatformEnum));// SupportPlatformEnum.Alimama.get
-            var cookieLoader = new LazyCookieVistor();
+            //var cookieLoader = new LazyCookieVistor();
             foreach (SupportPlatformEnum platform in allPlatforms)
             {
                 var siteObj = GlobalContext.SupportPlatforms.Find(x => x.Platform == platform);
@@ -67,7 +67,7 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
                     continue;
                 }
                 var domian = siteObj.SiteUrl;
-                var cks = new LazyCookieVistor().LoadCookies(domian);
+                var cks = new LazyCookieVistor().LoadNativCookies(domian);
 
                  
                 if (null != cks && cks.IsNotEmpty())

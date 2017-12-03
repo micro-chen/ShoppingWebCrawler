@@ -121,6 +121,10 @@ namespace ShoppingWebCrawler.Host.Common
             try
             {
                 var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
+                if (null==ckManager)
+                {
+                    return false;
+                }
                 foreach (var item in toRegisterCookies)
                 {
                     ckManager.SetCookie(url, item, null);
@@ -170,6 +174,27 @@ namespace ShoppingWebCrawler.Host.Common
             return result;
         }
 
+        /// <summary>
+        /// 获取原始的 cefcookie集合
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        public IEnumerable<CefCookie> LoadNativCookies(string domain)
+        {
+            if (string.IsNullOrEmpty(domain))
+            {
+                return null;
+            }
+
+
+            ///获取异步执行的Task的结果
+            IEnumerable<CefCookie> results = this.LoadCookiesAsyc(domain)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
+
+            return results;
+        }
 
         /// <summary>
         /// 加载Cookies
