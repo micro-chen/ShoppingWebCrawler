@@ -78,6 +78,13 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\radiotower_48X48.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging, Version=3.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\packages\Common.Logging.3.3.1\lib\net40\Common.Logging.dll</HintPath>
@@ -226,6 +233,7 @@
     </Content>
     <Content Include="readMe.txt" />
     <Content Include="Resources\Quartz配置.txt" />
+    <Content Include="Resources\radiotower_48X48.ico" />
     <None Include="Resources\close_16px_gray.ico" />
     <None Include="Resources\close_16px_light.ico" />
   </ItemGroup>
