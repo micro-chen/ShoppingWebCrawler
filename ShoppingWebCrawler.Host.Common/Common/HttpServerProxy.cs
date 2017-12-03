@@ -267,13 +267,13 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// <param name="url"></param>
         /// <param name="fromHeaders"></param>
         /// <returns></returns>
-        public string GetRequestTransfer(string url, NameValueCollection fromHeaders, CancellationToken cancellationToken)
+        public string GetRequestTransfer(string url, NameValueCollection fromHeaders)
         { 
             string result = string.Empty;
             try
             {
 
-                var tskResponse = this.GetResponseTransferAsync(url, fromHeaders, cancellationToken);
+                var tskResponse = this.GetResponseTransferAsync(url, fromHeaders);
                 if (null == tskResponse)
                 {
                     return string.Empty;
@@ -377,10 +377,10 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// <param name="url"></param>
         /// <param name="fromHeaders"></param>
         /// <returns></returns>
-        public Task<HttpResponseMessage> GetResponseTransferAsync(string url, NameValueCollection fromHeaders, CancellationToken cancellationToken)
+        public Task<HttpResponseMessage> GetResponseTransferAsync(string url, NameValueCollection fromHeaders)
         {
 
-
+          
             try
             {
                 if (null == this.Client)
@@ -403,7 +403,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
                 Task<HttpResponseMessage> tskResponse=null;
                 try
                 {
-                    tskResponse = this.Client.GetAsync(targetUri, HttpCompletionOption.ResponseContentRead, cancellationToken);
+                    tskResponse = this.Client.GetAsync(targetUri, HttpCompletionOption.ResponseContentRead);
                     //if (null == tskResponse || null == tskResponse.Result)
                     //{
                     //    throw new Exception(string.Concat("指定的地址未能正确get响应！uri:", url));
@@ -482,6 +482,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
             )
         {
 
+            cancellationToken = CancellationToken.None;
             if (null == this.Client)
             {
                 this.Client = this.CreateNewHttpClient();

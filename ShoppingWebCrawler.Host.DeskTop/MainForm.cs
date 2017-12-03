@@ -492,5 +492,14 @@ namespace ShoppingWebCrawler.Host.DeskTop
                 this.OpenTabPlatformMenuToolStrip(item);
             }
         }
+        /// <summary>
+        /// 轻淘客站点
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void qingTaoke_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.NewTab(GlobalContext.QingTaokeSiteURL);
+        }
     }
 }

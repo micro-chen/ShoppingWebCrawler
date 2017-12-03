@@ -21,6 +21,7 @@ namespace NTCPMessage.EntityPackage
         /// </summary>
         public List<HideQuanItem> data { get; set; }
 
+        public string v { get; set; }
 
         /// <summary>
         /// 隐藏券item

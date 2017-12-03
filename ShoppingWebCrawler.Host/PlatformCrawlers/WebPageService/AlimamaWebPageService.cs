@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -337,7 +338,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
                 requestHeaders.Add("Host", "www.qingtaoke.com");
                 requestHeaders.Add("Upgrade-Insecure-Requests", "1");
-                requestHeaders.Add("versionCode", "42");
+                //requestHeaders.Add("versionCode", "42");
                 qingTaoKeHttpClient = new CookedHttpClient();
                 HttpServerProxy.FormatRequestHeader(qingTaoKeHttpClient.Client.DefaultRequestHeaders, requestHeaders);
 
@@ -656,7 +657,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         taobaoHttpClient.ChangeGlobleCookies(cks, TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
 
                         var clientProxy = new HttpServerProxy() { Client = taobaoHttpClient.Client, KeepAlive = true };
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, CancellationToken.None).Result;
+                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null).Result;
                         if (null == resp || resp.Content == null)
                         {
                             return result;
@@ -738,7 +739,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     taobaoHttpClient.ChangeGlobleCookies(cks, TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
 
                     var clientProxy = new HttpServerProxy() { Client = taobaoHttpClient.Client, KeepAlive = true };
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -822,7 +823,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
                         var clientProxy = new HttpServerProxy() { Client = taoqueqiaoHttpClient.Client, KeepAlive = true };
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, CancellationToken.None).Result;
+                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null).Result;
                         if (null == resp || resp.Content == null)
                         {
                             return result;
@@ -913,7 +914,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
                     var clientProxy = new HttpServerProxy() { Client = taoqueqiaoHttpClient.Client, KeepAlive = true };
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -1022,7 +1023,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         // 4 发送请求
                         var clientProxy = new HttpServerProxy() { Client = alimamaHttpClient.Client, KeepAlive = true };
 
-                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null, CancellationToken.None).Result;
+                        var resp = clientProxy.GetResponseTransferAsync(queryAddress, null).Result;
                         if (null == resp || resp.Content == null)
                         {
                             return result;
@@ -1061,7 +1062,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                             queryCookieValue,
                             mamaQuanResult.info.pvid
                             );
-                        var respOfTuiGuang = clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null, CancellationToken.None).Result;
+                        var respOfTuiGuang = clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null).Result;
                         if (null == respOfTuiGuang || respOfTuiGuang.Content == null)
                         {
                             return result;
@@ -1157,7 +1158,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     // 4 发送请求
                     var clientProxy = new HttpServerProxy() { Client = alimamaHttpClient.Client, KeepAlive = true };
 
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -1196,7 +1197,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         queryCookieValue,
                         mamaQuanResult.info.pvid
                         );
-                    var respOfTuiGuang = await clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null, System.Threading.CancellationToken.None);
+                    var respOfTuiGuang = await clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null);
                     if (null == respOfTuiGuang || respOfTuiGuang.Content == null)
                     {
                         return null;
@@ -1327,7 +1328,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             public async Task<List<Youhuiquan>> GetHiddenCouponAsync(YouhuiquanFetchWebPageArgument queryParas, string ctoken)
             {
-                if (null == queryParas || queryParas.ArgumentsForQuanDetails != null)
+                if (null == queryParas || queryParas.ArgumentsForQuanDetails == null)
                 {
                     return null;
                 }
@@ -1417,7 +1418,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                          string queryAddress = string.Format(hidenQuanAPI, sellerId, itemId);
 
                          var clientProxy = new HttpServerProxy() { Client = qingTaoKeHttpClient.Client, KeepAlive = true };
-                         var resp = clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null, CancellationToken.None).Result;
+                         var resp = clientProxy.GetResponseTransferAsync(queryAddress,null).Result;
                          if (null == resp || resp.Content == null)
                          {
                              return result;
@@ -1484,8 +1485,19 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //查询隐藏券的地址
                 string queryAddress = string.Format(hidenQuanAPI, sellerId, itemId);
 
+                var qingTaokeCookies = new LazyCookieVistor().LoadCookies(GlobalContext.QingTaokeSiteURL);
+                if (null==qingTaokeCookies||qingTaokeCookies.IsEmpty())
+                {
+                    return null;//没有cookie 不能查询
+                }
+
+                ////获取当前站点的Cookie
+                qingTaoKeHttpClient.ChangeGlobleCookies(qingTaokeCookies, GlobalContext.QingTaokeSiteURL);
+
                 var clientProxy = new HttpServerProxy() { Client = qingTaoKeHttpClient.Client, KeepAlive = true };
-                var resp = await clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null, System.Threading.CancellationToken.None);
+
+         
+                var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                 if (null == resp || resp.Content == null)
                 {
                     return null;
@@ -1541,7 +1553,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 // 发送请求
                 var clientProxy = new HttpServerProxy() { Client = taoquanHttpClient.Client, KeepAlive = true };
 
-                var resp = await clientProxy.GetResponseTransferAsync(searchUrl, null, System.Threading.CancellationToken.None);
+                var resp = await clientProxy.GetResponseTransferAsync(searchUrl, null);
                 if (null == resp || resp.Content == null)
                 {
                     return null;
@@ -1626,7 +1638,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 // 4 发送请求
                 var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
-                string content = clientProxy.GetRequestTransfer(searchUrl, null, System.Threading.CancellationToken.None);
+                string content = clientProxy.GetRequestTransfer(searchUrl, null);
 
                 return content;
 

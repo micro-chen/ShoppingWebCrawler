@@ -104,6 +104,9 @@ namespace ShoppingWebCrawler.Host.AppStart
             System.Threading.Tasks.Task.Factory.StartNew(() =>{
                 //var ckpender = new CookiePender.AlimamaCookiePenderClient();
                 //var cks = ckpender.GetCookiesFromRemoteServer();
+                //初始化 轻淘客站的登录模拟
+                var qingTaokeService = new QingTaokeWebPageService();
+                var loader_qingTaoke = qingTaokeService.RequestLoader;
 
                 //初始化 阿里妈妈站的登录模拟
                 var alimamaService = new AlimamaWebPageService();

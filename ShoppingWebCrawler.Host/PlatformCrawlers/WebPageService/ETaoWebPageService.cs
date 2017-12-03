@@ -165,7 +165,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 client.Client.DefaultRequestHeaders.Referrer = new Uri(searchUrl);
                 // 4 发送请求
                 var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
-                string content = clientProxy.GetRequestTransfer(url, null, System.Threading.CancellationToken.None);
+                string content = clientProxy.GetRequestTransfer(url,null);
 
                 return content;
 

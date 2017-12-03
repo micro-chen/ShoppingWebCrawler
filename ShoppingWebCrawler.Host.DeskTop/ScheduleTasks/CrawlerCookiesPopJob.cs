@@ -77,6 +77,13 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
 
 
             }
+
+            //推送轻淘客cookies
+            var cks_qingTaoke = new LazyCookieVistor().LoadNativCookies(GlobalContext.QingTaokeSiteURL);
+            if (null != cks_qingTaoke && cks_qingTaoke.IsNotEmpty())
+            {
+                GlobalContext.DeskPushToRedisCookies(GlobalContext.QingTaokeSiteName, cks_qingTaoke);
+            }
         }
           
     }

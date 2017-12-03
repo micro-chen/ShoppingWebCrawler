@@ -197,13 +197,18 @@ namespace ShoppingWebCrawler.Client
                               },
 
 
+                         },
+                         ArgumentsForQuanDetails=new YouhuiquanFetchWebPageArgument.QuanArgument
+                         {
+                             SellerId = 1690420968,
+                             ItemId = 38002640105
                          }
                     };
                     string msg = JsonConvert.SerializeObject(paras);
                     SoapMessage testMessage = new SoapMessage()
                     {
 
-                        Head = CommandConstants.CMD_FetchquanExistsList,
+                        Head = CommandConstants.CMD_FetchquanDetails,//CommandConstants.CMD_FetchquanExistsList,
                         Body = msg
                     };
 

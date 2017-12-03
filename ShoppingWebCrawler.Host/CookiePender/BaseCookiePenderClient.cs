@@ -52,6 +52,31 @@ namespace ShoppingWebCrawler.Host.CookiePender
 
         }
 
-     
+
+        protected virtual List<CefCookie> GetCookiesFromRemoteRedisServer(string otherPlatform)
+        {
+            List<CefCookie> result = null;
+
+            try
+            {
+
+                var cks_Platform = GlobalContext.DeskPullFromRedisCookies(otherPlatform);
+                if (null == cks_Platform || cks_Platform.IsEmpty())
+                {
+                    return result;
+                }
+
+                result = cks_Platform;
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return result;
+
+        }
+
     }
 }

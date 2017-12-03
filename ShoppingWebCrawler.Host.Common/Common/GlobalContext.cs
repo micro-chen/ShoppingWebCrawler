@@ -176,8 +176,18 @@ namespace ShoppingWebCrawler.Host.Common
         private static readonly string PrefixDeskPushToRedisCookies = "Desk.Platform.Cookies.";
         public static EventHandler<PushToRedisCookiesEventArgs> HandlerPushToRedisCookies;
 
+        /// <summary>
+        /// 推送其他平台的cookie
+        /// </summary>
+        /// <param name="otherPlatform"></param>
+        /// <param name="cookies"></param>
+        public static void DeskPushToRedisCookies(string otherPlatform, IEnumerable<CefCookie> cookies)
+        {
 
-
+            //键
+            var key = string.Concat(PrefixDeskPushToRedisCookies, otherPlatform);
+            RedisClient.Set(key, cookies);
+        }
         /// <summary>
         /// 从桌面版发送cookie到redis
         /// </summary>
@@ -191,6 +201,21 @@ namespace ShoppingWebCrawler.Host.Common
             RedisClient.Set(key, cookies);
         }
 
+
+        /// <summary>
+        /// 拉取桌面版发送cookie到redis
+        /// </summary>
+        /// <param name="platform"></param>
+        /// <param name="cookies"></param>
+        public static List<CefCookie> DeskPullFromRedisCookies(string otherPlatform)
+        {
+
+            //键
+            var key = string.Concat(PrefixDeskPushToRedisCookies, otherPlatform);
+            var cookies = RedisClient.Get<List<CefCookie>>(key);
+
+            return cookies;
+        }
         /// <summary>
         /// 拉取桌面版发送cookie到redis
         /// </summary>
@@ -225,6 +250,12 @@ namespace ShoppingWebCrawler.Host.Common
         /// </summary>
         public const string AlimamaSiteURL = "https://pub.alimama.com/";
         public const string TaobaoSiteURL = "https://www.taobao.com/";
+        /// <summary>
+        /// 轻淘客
+        /// </summary>
+        public const string QingTaokeSiteURL = "http://www.qingtaoke.com/";
+        public const string QingTaokeSiteName = "QingTaoke";
+        //public const string QingTaokeSiteLoginURL = "http://www.qingtaoke.com/login?ref=http%253A%252F%252Fwww.qingtaoke.com%252F";
 
         private static string _Pid = string.Empty;
         /// <summary>

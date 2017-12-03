@@ -740,7 +740,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     taobaoHttpClient.ChangeGlobleCookies(cks, TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
 
                     var clientProxy = new HttpServerProxy() { Client = taobaoHttpClient.Client, KeepAlive = true };
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -914,7 +914,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
                     var clientProxy = new HttpServerProxy() { Client = taoqueqiaoHttpClient.Client, KeepAlive = true };
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -1159,7 +1159,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     // 4 发送请求
                     var clientProxy = new HttpServerProxy() { Client = alimamaHttpClient.Client, KeepAlive = true };
 
-                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null, System.Threading.CancellationToken.None);
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
                     if (null == resp || resp.Content == null)
                     {
                         return null;
@@ -1198,7 +1198,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         queryCookieValue,
                         mamaQuanResult.info.pvid
                         );
-                    var respOfTuiGuang = await clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null, System.Threading.CancellationToken.None);
+                    var respOfTuiGuang = await clientProxy.GetResponseTransferAsync(tuiguangApiUrl, null);
                     if (null == respOfTuiGuang || respOfTuiGuang.Content == null)
                     {
                         return null;
@@ -1488,7 +1488,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 string queryAddress = string.Format(hidenQuanAPI, sellerId, itemId);
 
                 var clientProxy = new HttpServerProxy() { Client = qingTaoKeHttpClient.Client, KeepAlive = true };
-                var resp = await clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null, System.Threading.CancellationToken.None);
+                var resp = await clientProxy.PostRequestTransferAsync(queryAddress, PostDataContentType.Form, null, null);
                 if (null == resp || resp.Content == null)
                 {
                     return null;
@@ -1544,7 +1544,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 // 发送请求
                 var clientProxy = new HttpServerProxy() { Client = taoquanHttpClient.Client, KeepAlive = true };
 
-                var resp = await clientProxy.GetResponseTransferAsync(searchUrl, null, System.Threading.CancellationToken.None);
+                var resp = await clientProxy.GetResponseTransferAsync(searchUrl, null);
                 if (null == resp || resp.Content == null)
                 {
                     return null;
@@ -1629,7 +1629,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 // 4 发送请求
                 var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
-                string content = clientProxy.GetRequestTransfer(searchUrl, null, System.Threading.CancellationToken.None);
+                string content = clientProxy.GetRequestTransfer(searchUrl, null);
 
                 return content;
 

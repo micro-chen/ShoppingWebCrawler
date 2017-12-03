@@ -1116,7 +1116,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 // 4 发送请求
                 var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
-               string content = clientProxy.GetRequestTransfer(searchUrl, null, System.Threading.CancellationToken.None);
+               string content = clientProxy.GetRequestTransfer(searchUrl, null);
 
                 return content;
 

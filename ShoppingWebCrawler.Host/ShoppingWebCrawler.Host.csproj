@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ShoppingWebCrawler.Host</RootNamespace>
     <AssemblyName>ShoppingWebCrawler.Host</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -121,6 +121,7 @@
     <Compile Include="AppStart\ConsoleClean.cs" />
     <Compile Include="AppStart\InitApp.cs" />
     <Compile Include="AppStart\RemoteServer.cs" />
+    <Compile Include="CookiePender\QingTaokeCookiePenderClient.cs" />
     <Compile Include="CookiePender\BaseCookiePenderClient.cs" />
     <Compile Include="CookiePender\TaobaoCookiePenderClient.cs" />
     <Compile Include="CookiePender\AlimamaCookiePenderClient.cs" />
@@ -143,6 +144,7 @@
     <Compile Include="PlatformCrawlers\WebPageService\BaseBrowserRequestLoader.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\ETaoWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\JingdongWebPageService.cs" />
+    <Compile Include="PlatformCrawlers\WebPageService\QingTaokeWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\TaoUlandWebPageServic.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\TaobaoWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\PddWebPageService.cs" />
