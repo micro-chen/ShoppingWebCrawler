@@ -97,7 +97,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                 default:
                     string errMsg = string.Format("未能识别的消息格式，支持 1普通字符串  2 json格式！传入的格式为：{0}", msgType.ToString());
                     var ex= new Exception(errMsg);
-                    Logger.WriteException(ex);
+                    Logger.Error(ex);
                     throw ex;
                   
                     
@@ -107,13 +107,13 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         static void DisconnectEventHandler(object sender, DisconnectEventArgs args)
         {
-            //Logging.Logger.WriteToLog(string.Format("Remote socket:{0} disconnected.", args.RemoteIPEndPoint));
+            //Logging.Logger.Info(string.Format("Remote socket:{0} disconnected.", args.RemoteIPEndPoint));
             //Console.WriteLine("Remote socket:{0} disconnected.", args.RemoteIPEndPoint);
         }
 
         static void ErrorEventHandler(object sender, ErrorEventArgs args)
         {
-            Logger.WriteException(args.ErrorException);
+            Logger.Error(args.ErrorException);
             Console.WriteLine(args.ErrorException);
         }
 

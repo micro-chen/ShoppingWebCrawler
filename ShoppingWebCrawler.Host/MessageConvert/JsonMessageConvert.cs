@@ -74,7 +74,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             }
             catch (Exception ex)
             {
-                Logger.WriteException(ex);
+                Logger.Error(ex);
             }
             return result;
 
@@ -105,7 +105,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             }
             catch (Exception ex)
             {
-                Logger.WriteException(ex);
+                Logger.Error(ex);
             }
 
 
@@ -135,7 +135,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             }
             catch (Exception ex)
             {
-                Logger.WriteException(ex);
+                Logger.Error(ex);
             }
 
 
@@ -179,7 +179,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                 catch (Exception ex)
                 {
 
-                    Logger.WriteException(ex);
+                    Logger.Error(ex);
                 }
             }
             if (null == result)

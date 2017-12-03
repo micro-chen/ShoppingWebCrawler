@@ -77,6 +77,41 @@ namespace System
         }
 
         /// <summary>
+        /// 获取url 的协议+域名
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string GetUrlStringDomainWithScheme(this string source)
+        {
+            var uri = new Uri(source);
+            string result = string.Empty;
+            try
+            {
+                result = string.Format("{0}://{1}/", uri.Scheme, uri.Host);
+            }
+            catch { }
+            return result;
+        }
+        /// <summary>
+        /// 获取url 的 cookie域；
+        /// 比如：www.taobao.com ,返回.taobao.com
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string GetUrlCookieDomain(this string source)
+        {
+            var uri = new Uri(source);
+            string result = string.Empty;
+            try
+            {
+                var hostName = uri.Host;
+                result = hostName.Substring(hostName.IndexOf('.'));
+            }
+            catch { }
+            return result;
+        }
+
+        /// <summary>
         /// 判断路径是否存在 不存在则创建 返回路径
         /// </summary>
         /// <param name="str"></param>

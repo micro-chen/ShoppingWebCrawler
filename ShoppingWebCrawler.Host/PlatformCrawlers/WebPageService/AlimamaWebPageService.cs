@@ -127,7 +127,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             {
                 string msg = "未能正确登录阿里妈妈，不能查询优惠券！" + DateTime.Now.ToString();
                 container.Result = msg;
-                Logger.WriteToLog(msg);
+                Logger.Info(msg);
                 return container;
             }
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -160,7 +160,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             {
                 string msg = "未能正确登录阿里妈妈，不能查询优惠券！" + DateTime.Now.ToString();
                 container.Result = msg;
-                Logger.WriteToLog(msg);
+                Logger.Info(msg);
                 return container;
             }
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -185,7 +185,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             if (null != loginCookieCollection)
             {
                 //注册cookie集合到全局Cookie容器内
-                new LazyCookieVistor().RegisterCookieToCookieManager(AlimamaSiteUrl, loginCookieCollection);
+                new LazyCookieVistor().SetCookieToCookieManager(AlimamaSiteUrl, loginCookieCollection);
 
 
                 IsHasLoginAlimama = true;
@@ -420,7 +420,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 if (null == cks)
                 {
                     string msg = "未能正获取阿里妈妈券的cookie 集合，不能查询优惠券！" + DateTime.Now.ToString();
-                    Logger.WriteToLog(msg);
+                    Logger.Info(msg);
                     return null;
 
                 }
@@ -430,7 +430,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     if (null == ctokenCookie || string.IsNullOrEmpty(ctokenCookie.Value))
                     {
                         string msg = "未能正获取阿里妈妈券的ctoken，不能查询优惠券！" + DateTime.Now.ToString();
-                        Logger.WriteToLog(msg);
+                        Logger.Info(msg);
                         return null;
                     }
 
@@ -518,7 +518,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 if (null == cks)
                 {
                     string msg = "未能正获取阿里妈妈券的cookie 集合，不能查询优惠券！" + DateTime.Now.ToString();
-                    Logger.WriteToLog(msg);
+                    Logger.Info(msg);
                     return null;
 
                 }
@@ -528,7 +528,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     if (null == ctokenCookie || string.IsNullOrEmpty(ctokenCookie.Value))
                     {
                         string msg = "未能正获取阿里妈妈券的ctoken，不能查询优惠券！" + DateTime.Now.ToString();
-                        Logger.WriteToLog(msg);
+                        Logger.Info(msg);
                         return null;
                     }
 
@@ -692,9 +692,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     }
                     catch (Exception ex)
                     {
-                        Logger.WriteToLog("-------查询价格阶梯失败！----原因异常如下：-----");
-                        Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                        Logger.WriteException(ex);
+                        Logger.Info("-------查询价格阶梯失败！----原因异常如下：-----");
+                        Logger.Info(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
+                        Logger.Error(ex);
                     }
                     return result;
 
@@ -789,9 +789,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 }
                 catch (Exception ex)
                 {
-                    Logger.WriteToLog("-------查询价格阶梯失败！----原因异常如下：-----");
-                    Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                    Logger.WriteException(ex);
+                    Logger.Info("-------查询价格阶梯失败！----原因异常如下：-----");
+                    Logger.Info(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
+                    Logger.Error(ex);
                 }
 
                 return null;
@@ -870,9 +870,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     }
                     catch (Exception ex)
                     {
-                        Logger.WriteToLog("-------查询淘鹊桥活动券失败！----原因异常如下：-----");
-                        Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                        Logger.WriteException(ex);
+                        Logger.Info("-------查询淘鹊桥活动券失败！----原因异常如下：-----");
+                        Logger.Info(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
+                        Logger.Error(ex);
                     }
 
                     return result;
@@ -970,9 +970,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 }
                 catch (Exception ex)
                 {
-                    Logger.WriteToLog("-------查询淘鹊桥活动券失败！----原因异常如下：-----");
-                    Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                    Logger.WriteException(ex);
+                    Logger.Info("-------查询淘鹊桥活动券失败！----原因异常如下：-----");
+                    Logger.Info(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
+                    Logger.Error(ex);
                 }
 
                 return null;
@@ -1095,9 +1095,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     }
                     catch (Exception ex)
                     {
-                        Logger.WriteToLog("-------查询阿里妈妈官方活动券失败！----原因异常如下：-----");
-                        Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                        Logger.WriteException(ex);
+                        Logger.Info("-------查询阿里妈妈官方活动券失败！----原因异常如下：-----");
+                        Logger.Info(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
+                        Logger.Error(ex);
                     }
                     return result;
 
@@ -1235,9 +1235,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 }
                 catch (Exception ex)
                 {
-                    Logger.WriteToLog("-------查询阿里妈妈官方活动券失败！----原因异常如下：-----");
-                    Logger.WriteToLog(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
-                    Logger.WriteException(ex);
+                    Logger.Info("-------查询阿里妈妈官方活动券失败！----原因异常如下：-----");
+                    Logger.Info(string.Format("sellerId:{0},itemId:{1}", sellerId, itemId));
+                    Logger.Error(ex);
                 }
 
                 //一般不会执行这句代码  除非异常了
@@ -1451,7 +1451,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                      }
                      catch (Exception ex)
                      {
-                         Logger.WriteException(ex);
+                         Logger.Error(ex);
                      }
                      return result;
                  });

@@ -140,7 +140,7 @@ namespace ShoppingWebCrawler.Host
                 //        }
                 //        catch
                 //        {
-                //            Logger.WriteToLog(new LogEventArgs { LogMessage = string.Format("未能从指定的URL 成功获取Cookies.URL: {0} ", url), LogType = LoggingType.Error });
+                //            Logger.Info(new LogEventArgs { LogMessage = string.Format("未能从指定的URL 成功获取Cookies.URL: {0} ", url), LogType = LoggingType.Error });
 
                 //        }
                 //    });
@@ -280,7 +280,7 @@ namespace ShoppingWebCrawler.Host
         //    _cursor_Links = 0;
         //    string firstSiteUrl = GlobalContext.SupportPlatforms[_cursor_Links].SiteUrl;
         //    string logMsg = string.Format("CEF开始发送对 {0} 的请求 .", firstSiteUrl);
-        //    Logger.WriteToLog(logMsg);
+        //    Logger.Info(logMsg);
 
         //    this.NavigateToUrl(firstSiteUrl);
         //}
@@ -292,7 +292,7 @@ namespace ShoppingWebCrawler.Host
         {
             if (null == this.WebBrowser)
             {
-                Logger.WriteToLog(string.Format("未能加载指定的地址：{0} ,因为CEF浏览器对象未能创建或已经销毁！", url));
+                Logger.Error(string.Format("未能加载指定的地址：{0} ,因为CEF浏览器对象未能创建或已经销毁！", url));
                 return;
             }
 
@@ -303,7 +303,7 @@ namespace ShoppingWebCrawler.Host
             }
             catch (Exception ex)
             {
-                Logger.WriteException(ex);
+                Logger.Error(ex);
             }
 
 

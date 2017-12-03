@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Common.Http;
 using ShoppingWebCrawler.Host.Common;
+using System.Collections;
 
 namespace ShoppingWebCrawler.Host.DeskTop.UI
 {
@@ -32,13 +33,14 @@ namespace ShoppingWebCrawler.Host.DeskTop.UI
 
         private void btn_Grapdata_Click(object sender, EventArgs e)
         {
-
-            var cks = new LazyCookieVistor().LoadCookies(this.DomainIdentity);
+            string domainUrl = this.txt_URL.Text.Trim().GetUrlStringDomainWithScheme();
+            this.DomainIdentity = domainUrl;
+            var cks = new LazyCookieVistor().LoadCookies(domainUrl);
 
                 //new LazyCookieVistor().LoadCookiesAsyc(this.DomainIdentity)
                 //.ConfigureAwait(true)
                 //.GetAwaiter().GetResult();
-            if (null == cks || cks.Count() <= 0)
+            if (null == cks || cks.IsEmpty())
             {
                 MessageBox.Show("none init cookies......");
                 return;

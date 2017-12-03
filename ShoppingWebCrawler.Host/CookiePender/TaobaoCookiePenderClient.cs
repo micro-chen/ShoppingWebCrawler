@@ -61,7 +61,7 @@ namespace ShoppingWebCrawler.Host.CookiePender
             }
             catch (Exception ex)
             {
-                Logger.WriteException(ex);
+                Logger.Error(ex);
             }
 
             return result;

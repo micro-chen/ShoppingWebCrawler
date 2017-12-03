@@ -10,7 +10,7 @@ namespace ShoppingWebCrawler.Host.Common
 {
 
 
-    public class CookieVistCompletedEventAgrs:EventArgs
+    public class CookieVistCompletedEventAgrs : EventArgs
     {
         #region 属性
 
@@ -28,8 +28,7 @@ namespace ShoppingWebCrawler.Host.Common
 
         #region 属性
         private TaskCompletionSource<IEnumerable<CefCookie>> _tcs = null;
-        private EventHandler<CookieVistCompletedEventAgrs> _handler = null;
-
+        private const string __temp_cookie_key_securityGetCookies = "_temp_cef_security_chrome";
 
         private List<CefCookie> _results;
 
@@ -75,7 +74,7 @@ namespace ShoppingWebCrawler.Host.Common
 
         protected void OnVistCookiesCompleted(CookieVistCompletedEventAgrs agrs)
         {
-            if (null!=this.VistCookiesCompleted)
+            if (null != this.VistCookiesCompleted)
             {
                 this.VistCookiesCompleted.Invoke(this, agrs);
 
@@ -111,9 +110,10 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="url"></param>
         /// <param name="toRegisterCookies"></param>
         /// <returns></returns>
-        public bool RegisterCookieToCookieManager(string url, List<CefCookie> toRegisterCookies) {
+        public bool SetCookieToCookieManager(string url, List<CefCookie> toRegisterCookies)
+        {
             bool result = false;
-            if (string.IsNullOrEmpty(url)||toRegisterCookies==null)
+            if (string.IsNullOrEmpty(url) || toRegisterCookies == null)
             {
                 return result;
             }
@@ -133,7 +133,7 @@ namespace ShoppingWebCrawler.Host.Common
 
                 throw ex;
             }
-          
+
 
             return result;
         }
@@ -153,13 +153,14 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="url"></param>
         /// <param name="cookieName"></param>
         /// <returns></returns>
-        public bool DeleteCookies(string url,string cookieName) {
+        public bool DeleteCookies(string url, string cookieName)
+        {
             var result = false;
 
             try
             {
                 var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
-                result = ckManager.DeleteCookies(url, cookieName,null);
+                result = ckManager.DeleteCookies(url, cookieName, null);
             }
             catch (Exception ex)
             {
@@ -181,13 +182,14 @@ namespace ShoppingWebCrawler.Host.Common
                 return null;
             }
 
+
             ///获取异步执行的Task的结果
-            IEnumerable<CefCookie> results= this.LoadCookiesAsyc(domain)
+            IEnumerable<CefCookie> results = this.LoadCookiesAsyc(domain)
                 .ConfigureAwait(false)
                 .GetAwaiter()
                 .GetResult();
 
-            if (null==results)
+            if (null == results)
             {
                 return null;
             }
@@ -202,7 +204,7 @@ namespace ShoppingWebCrawler.Host.Common
                 ck.Path = item.Path;
                 ck.HttpOnly = item.HttpOnly;
                 ck.Secure = item.Secure;
-                
+
                 if (null != item.Expires)
                 {
                     ck.Expires = (DateTime)item.Expires;
@@ -213,11 +215,11 @@ namespace ShoppingWebCrawler.Host.Common
                 //}
                 //ck.Version = 0;//Cookie的格式有2个不同的版本，第一个版本，我们称为Cookie Version 0，是最初由Netscape公司制定的，也被几乎所有的浏览器支持。而较新的版本，Cookie Version 1，则是根据RFC 2109文档制定的。为了确保兼容性，JAVA规定，前面所提到的涉及Cookie的操作都是针对旧版本的Cookie进行的。而新版本的Cookie目前还不被Javax.servlet.http.Cookie包所支持。
                 //ck.Discard = false;
-                
+
                 lst.Add(ck);
             }
             return lst;
-         
+
 
         }
 
@@ -229,23 +231,54 @@ namespace ShoppingWebCrawler.Host.Common
         /// <returns></returns>
         public Task<IEnumerable<CefCookie>> LoadCookiesAsyc(string domain)
         {
-            this._tcs = new TaskCompletionSource<IEnumerable<CefCookie>>();
-            //事件回调
-            this._handler = (s, e) =>
-            {
-                this._tcs.TrySetResult(e.Results);
+            //为了安全获取 首先插入一个临时无效的cookie,否则在没有访问页面cookie的时候会不能正确出发 visit 委托
+            var tempCookie = new List<CefCookie> {
+                new CefCookie {
+                    Domain =domain.GetUrlCookieDomain(),
+                    Name =__temp_cookie_key_securityGetCookies,
+                    Value =DateTime.Now.ToString(),
+                    Expires =DateTime.Now.AddYears(1),
+                    Creation =DateTime.Now ,
+                    HttpOnly=false,
+                    Path="/",
+                   LastAccess=DateTime.Now
+                },
 
             };
-            this.VistCookiesCompleted += _handler;
+
+
+            this.SetCookieToCookieManager(domain,tempCookie );
+
+            this._tcs = new TaskCompletionSource<IEnumerable<CefCookie>>();
+            //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
+            //事件回调
+            this.VistCookiesCompleted -= HandlerVistCookiesCompleted;
+            this.VistCookiesCompleted += HandlerVistCookiesCompleted;
 
             var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
-            ckManager.VisitUrlCookies(domain, true, this);
+
+            var canAccess = ckManager.VisitUrlCookies(domain, true, this);
+            if (canAccess == false)
+            {
+                //如果未能获取有效的cookie 从指定的域  那么立即返回空结果
+                return Task.FromResult<IEnumerable<CefCookie>>(null);
+            }
 
 
-           
             return this._tcs.Task;
         }
-
+        /// <summary>
+        /// 内部委托接受读取cookies 事件完毕
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void HandlerVistCookiesCompleted(object sender, CookieVistCompletedEventAgrs e)
+        {
+            if (null != this._tcs)
+            {
+                this._tcs.TrySetResult(e.Results);
+            }
+        }
 
 
         protected override bool Visit(CefCookie cookie, int count, int total, out bool delete)
@@ -254,12 +287,15 @@ namespace ShoppingWebCrawler.Host.Common
 
             this.Total = total;
 
-            if (null!=cookie)
+            if (null != cookie)
             {
-                this.Results.Add(cookie);
+                if (cookie.Name != __temp_cookie_key_securityGetCookies)
+                {
+                    this.Results.Add(cookie);
+                }
 
             }
-            if ((count+1)==total)
+            if ((count + 1) == total)
             {
                 //遍历完毕最后的Cookie后，通知订阅事件
                 var agrs = new CookieVistCompletedEventAgrs() { Results = this.Results };

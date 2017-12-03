@@ -15,7 +15,7 @@ using ShoppingWebCrawler.Host.Common;
 
 namespace ShoppingWebCrawler.Host.DeskTop.UI
 {
-    public partial class Form_Redis : Form
+    public partial class Form_Redis : BaseForm
     {
 
         public Form_Redis()
@@ -112,7 +112,16 @@ namespace ShoppingWebCrawler.Host.DeskTop.UI
         {
 
             //加载redis client
-            //var client = new RedisCacheManager(redisConfig, 1);
+            var redisConfig = new RedisConfig
+            {
+                IpAddress = this.txt_redis_ip_address.Text.Trim(),
+                Port = int.Parse(this.txt_redis_port.Text.Trim()),
+                Pwd = this.txt_redis_pwd.Text,
+
+            };
+            redisConfig.WhichDb = int.Parse(this.comboBox_RedisDbList.SelectedValue.ToString());
+            var client = new RedisCacheManager(redisConfig);
+            GlobalContext.RedisClient = client;
 
             CrawlerCookiesPopJob.SendCookiesToRemote();
             if (this.checkBox_IsPush_Cycle.Checked==true)

@@ -158,19 +158,21 @@ namespace ShoppingWebCrawler.Host.Common
         /// redis 客户端
         /// </summary>
         public static RedisCacheManager  RedisClient{ get; set; }
-        private static readonly string PrefixDeskPushToRedisCookies = "Desk.Platform.Cookies-";
+        private static readonly string PrefixDeskPushToRedisCookies = "Desk.Platform.Cookies.";
         public static EventHandler<PushToRedisCookiesEventArgs> HandlerPushToRedisCookies;
+
+
 
         /// <summary>
         /// 从桌面版发送cookie到redis
         /// </summary>
         /// <param name="platform"></param>
         /// <param name="cookies"></param>
-        public static void DeskPushToRedisCookies(SupportPlatformEnum platform, string cookies)
+        public static void DeskPushToRedisCookies(SupportPlatformEnum platform, List<Cookie> cookies)
         {
             if (null==RedisClient)
             {
-                return;
+                RedisClient = RedisCacheManager.Current; ;
             }
             //键
             var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());

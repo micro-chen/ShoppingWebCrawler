@@ -42,8 +42,8 @@ namespace ShoppingWebCrawler.Host
 
                 // Clean up CEF.
                 CefRuntime.Shutdown();
-                Logger.WriteException(new Exception("未能正确启动CEF爬行蜘蛛！异常信息如下："));
-                Logger.WriteException(ex);
+                Logger.Error(new Exception("未能正确启动CEF爬行蜘蛛！异常信息如下："));
+                Logger.Error(ex);
                 return;
             }
 

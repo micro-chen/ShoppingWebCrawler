@@ -113,7 +113,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             if (null != loginCookieCollection)
             {
                 //注册cookie集合到全局Cookie容器内
-                new LazyCookieVistor().RegisterCookieToCookieManager(GlobalContext.TaobaoSiteURL, loginCookieCollection);
+                new LazyCookieVistor().SetCookieToCookieManager(GlobalContext.TaobaoSiteURL, loginCookieCollection);
 
 
                 IsHasLoginTaobao= true;

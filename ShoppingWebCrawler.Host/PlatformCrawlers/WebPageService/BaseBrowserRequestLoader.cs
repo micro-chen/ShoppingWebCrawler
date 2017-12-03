@@ -287,7 +287,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 catch (Exception ex)
                 {
 
-                    Logger.WriteException(ex);
+                    Logger.Error(ex);
                 }
                 finally
                 {
