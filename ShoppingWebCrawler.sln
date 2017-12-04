@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingWebCrawler.Host.Des
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingWebCrawler.Host.Common", "ShoppingWebCrawler.Host.Common\ShoppingWebCrawler.Host.Common.csproj", "{09E590E4-7FB7-4308-A19E-C33D36B166D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingWebCrawler.Host.WindowService", "ShoppingWebCrawler.Host.WindowService\ShoppingWebCrawler.Host.WindowService.csproj", "{9414ED88-973E-4B7A-B41E-4F63CDDB8135}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,18 @@ Global
 		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Release|x64.Build.0 = Release|x64
 		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Release|x86.ActiveCfg = Release|Any CPU
 		{09E590E4-7FB7-4308-A19E-C33D36B166D3}.Release|x86.Build.0 = Release|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Debug|x64.Build.0 = Debug|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Debug|x86.Build.0 = Debug|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Release|x64.ActiveCfg = Release|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Release|x64.Build.0 = Release|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Release|x86.ActiveCfg = Release|Any CPU
+		{9414ED88-973E-4B7A-B41E-4F63CDDB8135}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
