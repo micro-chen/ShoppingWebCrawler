@@ -13,7 +13,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
     {
         public static int Init(string[] args)
         {
-            Logger.Init();
+           
 
             ///开启多线程任务
             bool multiThreadedMessageLoop = true;

@@ -177,11 +177,29 @@ namespace ShoppingWebCrawler.Host.Common.Caching
                 return;
 
             var entryBytes = Serialize(data);
-            var expiresIn = TimeSpan.FromMinutes(cacheTime);
+            var expiresIn = TimeSpan.FromSeconds(cacheTime);
 
+            
             Database.StringSet(key, entryBytes, expiresIn);
         }
 
+        /// <summary>
+        /// Adds the specified key and object to the cache.
+        /// </summary>
+        /// <param name="key">key</param>
+        /// <param name="data">Data</param>
+        /// <param name="cacheTime">Cache time</param>
+        public virtual void SetAsync(string key, object data, int cacheTime = CacheConfigFactory.DefaultTimeOut)
+        {
+            if (data == null)
+                return;
+
+            var entryBytes = Serialize(data);
+            var expiresIn = TimeSpan.FromSeconds(cacheTime);
+
+
+            Database.StringSetAsync(key, entryBytes, expiresIn);
+        }
         /// <summary>
         /// Gets a value indicating whether the value associated with the specified key is cached
         /// </summary>

@@ -177,8 +177,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //首先自动刷新下查询页面 会刷新Cookie
             AutoRefeshCookie(this.RefreshCookieUrl);
 
-            //每间隔10s检查一次
-            this._minitor_auto_refesh_cookies = new System.Timers.Timer(10000);
+            //每间隔5s检查一次
+            this._minitor_auto_refesh_cookies = new System.Timers.Timer(5000);
             this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
             {
 
@@ -208,7 +208,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
             //不定时刷新
-            this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(1, 5));
+            this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(3, 5));
         }
 
         /// <summary>

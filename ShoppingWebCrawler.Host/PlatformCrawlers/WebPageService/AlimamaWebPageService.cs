@@ -235,6 +235,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         {
 
 
+            private bool isQuanCacheable = ConfigHelper.GetConfigBool("QuanCacheable");
+
 
             /// <summary>
             /// 阿里妈妈请求 搜索地址页面
@@ -438,8 +440,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     ctoken = ctokenCookie.Value;
                 }
 
-                bool isQuanCacheable = false;
-                isQuanCacheable = ConfigHelper.GetConfigBool("QuanCacheable");
+
                 //-----------让两个任务并行，等待并行运算结果--------------
                 var tskAllQuanExistsList = await Task.Factory.StartNew(() =>
                 {
@@ -448,14 +449,20 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     foreach (var paraItem in queryParas.ArgumentsForExistsList)
                     {
 
-
+                        var taskModel = new YouhuiquanExistsTaskBuffer(paraItem.SellerId, paraItem.ItemId);
+                        bool isHasExistAtCache = false;
                         if (isQuanCacheable)
                         { //如果开启了缓存 那么先去缓存中查询指定键
-                            string cahceKeyQuan = string.Format("quan-exists-cache-{0}-{1}", paraItem.SellerId, paraItem.ItemId);
-
+                            isHasExistAtCache = GlobalContext.CheckFromRedisYouHuiQuanExists(SupportPlatformEnum.Alimama.ToString(), paraItem.SellerId, paraItem.ItemId);
+                            if (isHasExistAtCache)
+                            {
+                                taskModel.ResultModel = new YouhuiquanExistsModel { SellerId = paraItem.SellerId, ItemId = paraItem.ItemId, IsExistsQuan = true };
+                                dataHashTable.Add(taskModel);
+                                continue;//从缓存中的 不用再后面动态查询
+                            }
                         }
 
-                        var taskModel = new YouhuiquanExistsTaskBuffer(paraItem.SellerId, paraItem.ItemId);
+
 
                         //1 隐藏券查询
                         // var tskAlimamaHiddenQuanActivity = this.QueryHideQuanActivitysExistsListAsync(paraItem.SellerId, paraItem.ItemId);
@@ -481,14 +488,29 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     //需要等待任务并行完毕 
                     try
                     {
-                        var allTasks = dataHashTable.Select(x => x.QueryTaskEndPoint).ToArray();
-                        Task.WaitAll(allTasks);
+                        var allDynamicTasks = dataHashTable.Where(x => x.QueryTaskEndPoint != null);
+                        if (allDynamicTasks.IsNotEmpty())
+                        {
+                            var executeTasks = allDynamicTasks.Select(x => x.QueryTaskEndPoint);
+                            Task.WaitAll(executeTasks.ToArray());//一旦有执行动态查询的task 那么等待动态查询完毕
+                            //完毕后 将执行动态查询的对象  进行插入到缓存
+                            foreach (var item in allDynamicTasks)
+                            {
+                                if (item.ResultModel != null && item.ResultModel.IsExistsQuan == true)
+                                {
+                                    GlobalContext.SetToRedisYouHuiQuanExists(SupportPlatformEnum.Alimama.ToString(), item.ResultModel.SellerId, item.ResultModel.ItemId);
+                                }
+                            }
+                        }
+
 
                     }
                     catch (AggregateException aex)
                     {
                         //取消任务不做处理
                     }
+
+
 
 
                     return dataHashTable.Select(x => x.ResultModel);
@@ -536,7 +558,19 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     ctoken = ctokenCookie.Value;
                 }
 
-                //-----------让两个任务并行，等待并行运算结果--------------
+                bool isHasExistAtCache = false;
+                if (isQuanCacheable)
+                { //如果开启了缓存 那么先去缓存中查询指定键 是否存在
+                    var lstAtCache = GlobalContext.GetFromRedisYouHuiQuanDetailsList(SupportPlatformEnum.Alimama.ToString(), queryParas.ArgumentsForQuanDetails.SellerId, queryParas.ArgumentsForQuanDetails.ItemId);
+                    if (null != lstAtCache)
+                    {
+                        isHasExistAtCache = true;
+                        return lstAtCache;
+                    }
+                }
+
+                //-----------如果未存在缓存中，让两个任务并行，等待并行运算结果--------------
+
                 var tskAllQuan = await Task.Factory.StartNew(() =>
                   {
                       var dataList = new List<Youhuiquan>();
@@ -556,7 +590,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                       {
                           dataList.AddRange(tskHiddenQuan.Result);
                       }
+                      if (isQuanCacheable==true)
+                      {
+                          //插入到缓存中
+                          GlobalContext.SetToRedisYouHuiQuanDetailsList(SupportPlatformEnum.Alimama.ToString(), queryParas.ArgumentsForQuanDetails.SellerId, queryParas.ArgumentsForQuanDetails.ItemId, dataList);
 
+                      }
                       return dataList;
                   });
 
@@ -1365,6 +1404,10 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 int tskLen = currentHideQuanActivityList.Length;
                 Task<Youhuiquan>[] array_FetQuanTasks = new Task<Youhuiquan>[tskLen];
 
+                //先刷新下 淘宝 h5 sdk 的cookie
+                var taoBaoLoader = new TaobaoWebPageService().RequestLoader as TaobaoWebPageService.TaobaoMixReuestLoader;
+                taoBaoLoader.RefreshH5Api_Cookies();
+
                 for (int i = 0; i < currentHideQuanActivityList.Length; i++)
                 {
                     var itemActivity = currentHideQuanActivityList.ElementAt(i);
@@ -1544,11 +1587,11 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 var taoBaoH5Client = new TaobaoWebPageService().RequestLoader as TaobaoWebPageService.TaobaoMixReuestLoader;
 
                 var respContent = await taoBaoH5Client.LoadH5Api_YouhuiquanDetailAsync(sellerId, activityId);
-                
+
                 //对于空白的响应或者 失败的
                 //失败的结果： mtopjsonp2({"api":"mtop.taobao.couponMtopReadService.findShopBonusActivitys","v":"2.0","ret":["FAIL_SYS_SESSION_EXPIRED::SESSION失效"],"data":{}})
                 // mtopjsonp1({"api":"mtop.user.getUserSimple","v":"1.0","ret":["FAIL_SYS_ILLEGAL_ACCESS::非法请求"],"data":{}}) FAIL_SYS_TOKEN_EMPTY::令牌为空
-                if (string.IsNullOrEmpty(respContent)||respContent.IndexOf("FAIL_SYS_")!=-1)
+                if (string.IsNullOrEmpty(respContent) || respContent.IndexOf("FAIL_SYS_") != -1)
                 {
                     return null;
                 }
@@ -1559,12 +1602,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
                 //对于无效的券 返回空值
-                if (null == dataJsonObj || dataJsonObj.data == null || dataJsonObj.data.module==null||dataJsonObj.data.module.IsEmpty())
+                if (null == dataJsonObj || dataJsonObj.data == null || dataJsonObj.data.module == null || dataJsonObj.data.module.IsEmpty())
                 {
                     return null;
                 }
                 var jsonEntity = dataJsonObj.data.module.First();//mtopjsonp2({"api":"mtop.taobao.couponMtopReadService.findShopBonusActivitys","data":{"error":"false","haveNextPage":"false","module":[{"activityId":"1550472474","couponId":"973329075","couponType":"0","currencyUnit":"￥","defaultValidityCopywriter":"2017.11.29前有效","description":"使用说明","discount":"7000","endTime":"2017-11-29 23:59:59","intervalDays":"0","intervalHours":"0","poiShop":"false","sellerId":"1690420968","shopNick":"伊芳妮旗舰店","startFee":"8900","startTime":"2017-11-27 00:00:00","status":"1","transfer":"false","useIntervalMode":"false","uuid":"da4216cd2d714ddbbe5a4eca3aea2c34"}],"needInterrupt":"false","totalCount":"0"},"ret":["SUCCESS::调用成功"],"v":"2.0"})
-                if (jsonEntity.IsValidQuan()==false)
+                if (jsonEntity.IsValidQuan() == false)
                 {
                     return null;//不有效的优惠券
                 }

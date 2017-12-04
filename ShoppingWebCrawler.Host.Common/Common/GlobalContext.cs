@@ -161,7 +161,7 @@ namespace ShoppingWebCrawler.Host.Common
         {
             get
             {
-                if (null==_RedisClient)
+                if (null == _RedisClient)
                 {
                     _RedisClient = RedisCacheManager.Current;
                 }
@@ -172,6 +172,9 @@ namespace ShoppingWebCrawler.Host.Common
                 _RedisClient = value;
             }
         }
+
+        #region cookies 跨机器
+
 
         private static readonly string PrefixDeskPushToRedisCookies = "Desk.Platform.Cookies.";
         public static EventHandler<PushToRedisCookiesEventArgs> HandlerPushToRedisCookies;
@@ -186,7 +189,7 @@ namespace ShoppingWebCrawler.Host.Common
 
             //键
             var key = string.Concat(PrefixDeskPushToRedisCookies, otherPlatform);
-            RedisClient.Set(key, cookies);
+            RedisClient.SetAsync(key, cookies);
         }
         /// <summary>
         /// 从桌面版发送cookie到redis
@@ -195,10 +198,10 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="cookies"></param>
         public static void DeskPushToRedisCookies(SupportPlatformEnum platform, IEnumerable<CefCookie> cookies)
         {
- 
+
             //键
             var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());
-            RedisClient.Set(key, cookies);
+            RedisClient.SetAsync(key, cookies);
         }
 
 
@@ -223,14 +226,100 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="cookies"></param>
         public static List<CefCookie> DeskPullFromRedisCookies(SupportPlatformEnum platform)
         {
- 
+
             //键
             var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());
             var cookies = RedisClient.Get<List<CefCookie>>(key);
 
             return cookies;
         }
+        #endregion
 
+        #region 优惠券相关
+        private static readonly string PrefixYouHuiQuanExistsRedis = "YouHuiQuan.Exists.{0}.{1}.{2}";
+        private static readonly string PrefixYouHuiQuanDetailsListRedis = "YouHuiQuan.DetailsList.{0}.{1}.{2}";
+
+        /// <summary>
+        /// 保存优惠券是否已经存在到缓存
+        /// </summary>
+        /// <param name="platform"></param>
+        /// <param name="sellerId"></param>
+        /// <param name="itemId"></param>
+        /// <param name="timeOut"></param>
+        public static void SetToRedisYouHuiQuanExists(string platform, long sellerId, long itemId, int? timeOut = null)
+        {
+            if (null == timeOut)
+            {
+                timeOut = ConfigHelper.GetConfigInt("QuanCacheableTime");
+                if (timeOut <= 0)
+                {
+                    timeOut = 30;//默认为30秒
+                }
+            }
+            //键
+            var key = string.Format(PrefixYouHuiQuanExistsRedis, platform, sellerId, itemId);
+            RedisClient.SetAsync(key, 1, timeOut.Value);
+        }
+        /// <summary>
+        /// 从缓存中检索是否优惠券存在
+        /// </summary>
+        /// <param name="platform"></param>
+        /// <param name="sellerId"></param>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public static bool CheckFromRedisYouHuiQuanExists(string platform, long sellerId, long itemId)
+        {
+            var result = false;
+            //键
+            var key = string.Format(PrefixYouHuiQuanExistsRedis, platform, sellerId, itemId);
+            var value = RedisClient.Get<int>(key);
+            if (value > 0)
+            {
+                result = true;
+            }
+            return result;
+        }
+
+
+        /// <summary>
+        /// 保存优惠券列表 到缓存
+        /// </summary>
+        /// <param name="platform"></param>
+        /// <param name="sellerId"></param>
+        /// <param name="itemId"></param>
+        /// <param name="timeOut"></param>
+        public static void SetToRedisYouHuiQuanDetailsList(string platform, long sellerId, long itemId, List<Youhuiquan> quanList, int? timeOut=null)
+        {
+            if (null == timeOut)
+            {
+                timeOut = ConfigHelper.GetConfigInt("QuanCacheableTime");
+                if (timeOut <= 0)
+                {
+                    timeOut = 30;//默认为30秒
+                }
+            }
+            //键
+            var key = string.Format(PrefixYouHuiQuanDetailsListRedis, platform, sellerId, itemId);
+            RedisClient.SetAsync(key, quanList, timeOut.Value);
+        }
+        /// <summary>
+        /// 从缓存加载存在的券列表
+        /// </summary>
+        /// <param name="platform"></param>
+        /// <param name="sellerId"></param>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public static List<Youhuiquan> GetFromRedisYouHuiQuanDetailsList(string platform, long sellerId, long itemId)
+        {
+
+            //键
+            var key = string.Format(PrefixYouHuiQuanDetailsListRedis, platform, sellerId, itemId);
+            var value = RedisClient.Get<List<Youhuiquan>>(key);
+
+            return value;
+        }
+
+        #endregion
         #endregion
         /// <summary>
         /// 所有平台的 cookie 字典容器，按照网址对Cookie进行了key区分

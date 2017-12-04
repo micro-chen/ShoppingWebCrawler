@@ -21,7 +21,14 @@ namespace ShoppingWebCrawler.Host.Common.Logging
     {
         private static ILog _logWriter = log4net.LogManager.GetLogger("ShoppingWebCrawler.Host.DeskTop"); //HostLogger.Get("kyx.ReportManage.WinService.Logging");
 
-
+        /// <summary>
+        /// 静态构造函数
+        /// 在使用类的时候 进行一次配置
+        /// </summary>
+         static Logger()
+        {
+            Logger.LoadConfig();
+        }
         /// <summary>
         /// 是否输出日志
         /// </summary>
@@ -54,7 +61,7 @@ namespace ShoppingWebCrawler.Host.Common.Logging
         /// <summary>
         /// 初始化log4
         /// </summary>
-        public static void Init()
+        public static void LoadConfig()
         {
             //配置log4
             XmlConfigurator.ConfigureAndWatch(new FileInfo(ConfigFilePath));
