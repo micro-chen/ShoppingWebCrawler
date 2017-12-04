@@ -202,9 +202,10 @@ namespace ShoppingWebCrawler.Host.Common
         /// </summary>
         public List<Cookie> LoadCookies(string domain)
         {
+            var lst = new List<Cookie>();
             if (string.IsNullOrEmpty(domain))
             {
-                return null;
+                return lst;
             }
 
 
@@ -216,10 +217,10 @@ namespace ShoppingWebCrawler.Host.Common
 
             if (null == results)
             {
-                return null;
+                return lst;
             }
 
-            var lst = new List<Cookie>();
+          
             foreach (CefCookie item in results)
             {
                 var name = item.Name;

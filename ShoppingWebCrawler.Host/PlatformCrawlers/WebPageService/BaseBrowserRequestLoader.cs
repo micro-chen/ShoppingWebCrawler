@@ -224,14 +224,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// 比如：在初始化的时候 刷新Cookie用 或者刷新 Cookie 获取其他
         /// </summary>
         /// <param name="searchUrl">请求指定的地址</param>
-        /// <param name="timeOut">超时时间，不小于3000毫秒，超时将返回加载超时</param>
+        /// <param name="timeOut">超时时间，不小于30秒，超时将返回加载超时</param>
         /// <returns></returns>
-        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 6000)
+        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 60000)
         {
 
-            if (timeOut <= 1000)
+            if (timeOut <= 30000)
             {
-                timeOut = 3000;
+                timeOut = 30000;
             }
 
 

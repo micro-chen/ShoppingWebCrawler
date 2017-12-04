@@ -30,17 +30,17 @@ namespace NTCPMessage.EntityPackage
         {
             public long sellerId { get; set; }
             public string activityId { get; set; }
-            public decimal? amount { get; set; }
-            public decimal? applyAmount { get; set; }
-            public string startDate { get; set; }
+            //public decimal? amount { get; set; }
+            //public decimal? applyAmount { get; set; }
+            //public string startDate { get; set; }
 
-            public string endDate { get; set; }
+            //public string endDate { get; set; }
 
             //public string remain { get; set; }
             //public string requisitioned { get; set; }
             //public int total { get; set; }
             //public int quan_class { get; set; }
-            public bool useAble { get; set; }
+            //public bool useAble { get; set; }
         }
 
     }

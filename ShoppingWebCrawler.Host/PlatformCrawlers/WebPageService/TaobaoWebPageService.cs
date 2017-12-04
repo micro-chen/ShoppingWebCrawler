@@ -247,7 +247,10 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         public class TaobaoMixReuestLoader : BaseBrowserRequestLoader<TaobaoMixReuestLoader>
         {
             public const string TaobaoSiteUrl = "https://www.taobao.com/";
-
+            /// <summary>
+            /// 淘宝websdk 地址
+            /// </summary>
+            public const string TaobaoH5WebApiUrl = "https://api.m.taobao.com/";
             /// <summary>
             /// 淘宝淘宝网页搜索获取地址
             /// </summary>
@@ -258,6 +261,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// 请求客户端
             /// </summary>
             private static CookedHttpClient TaobaoHttpClient;
+            private static CookedHttpClient TaobaoH5ApiHttpClient;
 
 
 
@@ -278,6 +282,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 requestHeaders.Add("Host", "www.taobao.com");
                 TaobaoHttpClient = new CookedHttpClient();
                 HttpServerProxy.FormatRequestHeader(TaobaoHttpClient.Client.DefaultRequestHeaders, requestHeaders);
+
+                //淘宝h5client
+                var requestHeadersH5 = BaseRequest.GetCommonRequestHeaders();
+                requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
+                requestHeaders.Add("upgrade-insecure-requests", "1");
+                requestHeaders.Add("Pragma", "no-cache");
+                requestHeaders.Add("Host", "api.m.taobao.com");
+                TaobaoH5ApiHttpClient = new CookedHttpClient();
+                HttpServerProxy.FormatRequestHeader(TaobaoH5ApiHttpClient.Client.DefaultRequestHeaders, requestHeadersH5);
+
             }
 
             public TaobaoMixReuestLoader()
@@ -328,6 +342,77 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             }
 
+            /// <summary>
+            /// 加载淘宝 h5 webapi 优惠券查询地址-详细
+            /// </summary>
+            /// <param name="sellerId"></param>
+            /// <param name="activityId"></param>
+            /// <returns></returns>
+            public  async Task<string> LoadH5Api_YouhuiquanDetailAsync(long sellerId,string activityId)
+            {
+
+                
+                if (string.IsNullOrEmpty(activityId))
+                {
+                    return null;
+                }
+                //生成时间戳
+                string timestamp = JavascriptContext.getUnixTimestamp();
+
+                //加载Cookie
+                var ckVisitor = new LazyCookieVistor();
+                ///淘宝域下 的cookie
+                var cks_taobao = ckVisitor.LoadCookies(TaobaoSiteUrl);
+                string etao_appkey = "12574478";
+                //淘宝sdk 下的token
+                //List<Cookie> cks_h5 = ckVisitor.LoadCookies(TaobaoH5WebApiUrl);
+
+                var _m_h5_tk_cookie = cks_taobao.FirstOrDefault(x => x.Name == "_m_h5_tk");
+                string _m_h5_tk_valueString = string.Empty;
+
+            
+                if (null == _m_h5_tk_cookie)
+                {
+
+                    var data = "{\"isSec\":0}";//固定数据  只为刷token
+                    var sign_getToken = JavascriptContext.getEtaoJSSDKSign(_m_h5_tk_valueString, timestamp, etao_appkey, data);
+
+                    string h5TokenUrl = string.Format( "https://api.m.taobao.com/h5/mtop.user.getusersimple/1.0/?appKey={0}&t={1}&sign={2}&api=mtop.user.getUserSimple&v=1.0&H5Request=true&type=jsonp&dataType=jsonp&callback=mtopjsonp1&data={3}",etao_appkey,timestamp, sign_getToken, data);
+                    this.AutoRefeshCookie(h5TokenUrl);//从新刷新页面 获取 服务器颁发的私钥
+                    cks_taobao = ckVisitor.LoadCookies(TaobaoSiteUrl);
+                    _m_h5_tk_cookie = cks_taobao.FirstOrDefault(x => x.Name == "_m_h5_tk");
+                }
+                if (null == _m_h5_tk_cookie || string.IsNullOrEmpty(_m_h5_tk_cookie.Value))
+                {
+                    throw new Exception("加载授权私钥失败！无法获取对应的cookie:_m_h5_tk ");
+                }
+                  _m_h5_tk_valueString = _m_h5_tk_cookie.Value.Split('_')[0];
+
+             
+
+                string paras = string.Concat("{\"uuid\":\"", activityId,"\",\"sellerId\":\"",sellerId, "\",\"queryShop\":true}");
+
+                string sign = JavascriptContext.getEtaoJSSDKSign(_m_h5_tk_valueString, timestamp, etao_appkey, paras);
+
+                string apiUrl = string.Format("https://api.m.taobao.com/h5/mtop.taobao.couponmtopreadservice.findshopbonusactivitys/2.0/?appKey={0}&t={1}&sign={2}&api=mtop.taobao.couponMtopReadService.findShopBonusActivitys&v=2.0&AntiFlood=false&ecode=0&type=jsonp&dataType=jsonp&callback=mtopjsonp2&data={3}",etao_appkey,timestamp,sign, paras);
+
+
+                var client = TaobaoH5ApiHttpClient;
+
+                ////加载cookies
+                ////获取当前站点的Cookie
+                client.ChangeGlobleCookies(cks_taobao, TaobaoH5WebApiUrl);
+                //修改client 的refer 头
+                client.Client.DefaultRequestHeaders.Referrer = new Uri(apiUrl);
+                // 4 发送请求
+                var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
+                var taskMsg=await clientProxy.GetResponseTransferAsync(apiUrl, null);
+                
+                string content= await taskMsg.Content.ReadAsStringAsync();
+
+                return content;
+
+            }
 
 
 

@@ -59,6 +59,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
 
             //保持 Cookie 容器 跟httpclient  之间的引用关系
             this.Cookies = new CookieContainer();
+            this.Cookies.PerDomainCapacity = 80;//设置每个域最大cookie数为80个！
 
             this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies, AutomaticDecompression = DecompressionMethods.GZip, AllowAutoRedirect = true };
             this.Client = new HttpClient(_clientHander);
