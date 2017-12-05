@@ -73,6 +73,9 @@
     <Compile Include="..\ShoppingWebCrawler.Host.Common\Common\ConfigHelper.cs">
       <Link>ConfigHelper.cs</Link>
     </Compile>
+    <Compile Include="..\ShoppingWebCrawler.Host.Common\Logging\Logger.cs">
+      <Link>Logger.cs</Link>
+    </Compile>
     <Compile Include="App_Start\WinServiceConfig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,9 +100,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Logging\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Configs\Quartz_Jobs_002.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -19,7 +19,7 @@ namespace ShoppingWebCrawler.Host.Common.Logging
     /// </summary>
     public static class Logger
     {
-        private static ILog _logWriter = log4net.LogManager.GetLogger("ShoppingWebCrawler.Host.DeskTop"); //HostLogger.Get("kyx.ReportManage.WinService.Logging");
+        private static ILog _logWriter = log4net.LogManager.GetLogger("ShoppingWebCrawler.Host.WindowService"); //HostLogger.Get("kyx.ReportManage.WinService.Logging");
 
         /// <summary>
         /// 静态构造函数

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Quartz;
 using ShoppingWebCrawler.Host.WindowService.App_Start;
+using ShoppingWebCrawler.Host.Common.Logging;
 
 namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
 {
@@ -19,7 +20,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
 
         public void Execute(IJobExecutionContext context)
         {
-            WinServiceConfig.Logger.Info("ServiceHelthCheckerJob 被执行！");
+            Logger.Info("ServiceHelthCheckerJob 被执行！");
 
             if (ShoppingWebCrawlerHostMonitor.IsServiceRunning==true)
             {

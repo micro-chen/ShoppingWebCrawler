@@ -16,7 +16,7 @@ namespace ShoppingWebCrawler.Host.Common
         #region 属性
 
         //指向结果集合的引用
-        public IEnumerable<CefCookie> Results;
+        public IList<CefCookie> Results;
 
 
         #endregion
@@ -28,7 +28,7 @@ namespace ShoppingWebCrawler.Host.Common
     {
 
         #region 属性
-        private TaskCompletionSource<IEnumerable<CefCookie>> _tcs = null;
+        private TaskCompletionSource<IList<CefCookie>> _tcs = null;
         private const string __temp_cookie_key_securityGetCookies = "_temp_cef_security_chrome";
 
         private List<CefCookie> _results;
@@ -196,7 +196,7 @@ namespace ShoppingWebCrawler.Host.Common
         /// </summary>
         /// <param name="domain"></param>
         /// <returns></returns>
-        public IEnumerable<CefCookie> LoadNativCookies(string domain)
+        public IList<CefCookie> LoadNativCookies(string domain)
         {
             if (string.IsNullOrEmpty(domain))
             {
@@ -205,12 +205,12 @@ namespace ShoppingWebCrawler.Host.Common
 
 
             ///获取异步执行的Task的结果
-            IEnumerable<CefCookie> results = this.LoadCookiesAsyc(domain)
+            IList<CefCookie> results = this.LoadCookiesAsyc(domain)
                 .ConfigureAwait(false)
                 .GetAwaiter()
                 .GetResult();
 
-            return results;
+            return results as List<CefCookie>;
         }
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace ShoppingWebCrawler.Host.Common
         /// </summary>
         /// <param name="domain">指定的网址</param>
         /// <returns></returns>
-        public Task<IEnumerable<CefCookie>> LoadCookiesAsyc(string domain)
+        public Task<IList<CefCookie>> LoadCookiesAsyc(string domain)
         {
             //为了安全获取 首先插入一个临时无效的cookie,否则在没有访问页面cookie的时候会不能正确出发 visit 委托
             var tempCookie = new List<CefCookie> {
@@ -292,7 +292,7 @@ namespace ShoppingWebCrawler.Host.Common
 
             this.SetCookieToCookieManager(domain, tempCookie);
 
-            this._tcs = new TaskCompletionSource<IEnumerable<CefCookie>>();
+            this._tcs = new TaskCompletionSource<IList<CefCookie>>();
             //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
             //事件回调
             this.VistCookiesCompleted -= HandlerVistCookiesCompleted;
@@ -304,7 +304,7 @@ namespace ShoppingWebCrawler.Host.Common
             if (canAccess == false)
             {
                 //如果未能获取有效的cookie 从指定的域  那么立即返回空结果
-                return Task.FromResult<IEnumerable<CefCookie>>(null);
+                return Task.FromResult<IList<CefCookie>>(null);
             }
 
 

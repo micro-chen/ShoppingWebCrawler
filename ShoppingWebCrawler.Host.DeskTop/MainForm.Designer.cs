@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.menu_Cookies = new System.Windows.Forms.ToolStripMenuItem();
+            this.qingTaoke_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.alimam_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.shoppingPlatformsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,7 +64,7 @@
             this.tabContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newTabContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeTabContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.qingTaoke_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.oneKeyRefreshTaobaoCookie_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -74,6 +75,7 @@
             // 
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menu_Cookies,
+            this.oneKeyRefreshTaobaoCookie_ToolStripMenuItem,
             this.qingTaoke_ToolStripMenuItem,
             this.showSourceToolStripMenuItem,
             this.alimam_ToolStripMenuItem,
@@ -90,6 +92,13 @@
             this.menu_Cookies.Size = new System.Drawing.Size(85, 21);
             this.menu_Cookies.Text = "查看Cookie";
             this.menu_Cookies.Click += new System.EventHandler(this.menu_Cookies_Click);
+            // 
+            // qingTaoke_ToolStripMenuItem
+            // 
+            this.qingTaoke_ToolStripMenuItem.Name = "qingTaoke_ToolStripMenuItem";
+            this.qingTaoke_ToolStripMenuItem.Size = new System.Drawing.Size(56, 21);
+            this.qingTaoke_ToolStripMenuItem.Text = "轻淘客";
+            this.qingTaoke_ToolStripMenuItem.Click += new System.EventHandler(this.qingTaoke_ToolStripMenuItem_Click);
             // 
             // showSourceToolStripMenuItem
             // 
@@ -228,28 +237,28 @@
             // browserCheckToolStripMenuItem
             // 
             this.browserCheckToolStripMenuItem.Name = "browserCheckToolStripMenuItem";
-            this.browserCheckToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.browserCheckToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.browserCheckToolStripMenuItem.Text = "浏览器检测";
             this.browserCheckToolStripMenuItem.Click += new System.EventHandler(this.browserCheckToolStripMenuItem_Click);
             // 
             // testHttpToolStripMenuItem
             // 
             this.testHttpToolStripMenuItem.Name = "testHttpToolStripMenuItem";
-            this.testHttpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.testHttpToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.testHttpToolStripMenuItem.Text = "模拟Http";
             this.testHttpToolStripMenuItem.Click += new System.EventHandler(this.testHttpToolStripMenuItem_Click);
             // 
             // showHtmlSourceToolStripMenuItem
             // 
             this.showHtmlSourceToolStripMenuItem.Name = "showHtmlSourceToolStripMenuItem";
-            this.showHtmlSourceToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showHtmlSourceToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.showHtmlSourceToolStripMenuItem.Text = "查看Html源码";
             this.showHtmlSourceToolStripMenuItem.Click += new System.EventHandler(this.showHtmlSourceToolStripMenuItem_Click);
             // 
             // remoteRedisToolStripMenuItem
             // 
             this.remoteRedisToolStripMenuItem.Name = "remoteRedisToolStripMenuItem";
-            this.remoteRedisToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.remoteRedisToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.remoteRedisToolStripMenuItem.Text = "远程Redis";
             this.remoteRedisToolStripMenuItem.Click += new System.EventHandler(this.remoteRedisToolStripMenuItem_Click);
             // 
@@ -257,7 +266,7 @@
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 572);
+            this.statusStrip.Location = new System.Drawing.Point(0, 622);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(770, 22);
             this.statusStrip.TabIndex = 2;
@@ -276,7 +285,7 @@
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
             this.tabControl.ShowToolTips = true;
-            this.tabControl.Size = new System.Drawing.Size(770, 522);
+            this.tabControl.Size = new System.Drawing.Size(770, 572);
             this.tabControl.TabIndex = 3;
             this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
             this.tabControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tabControl_MouseUp);
@@ -285,7 +294,7 @@
             // 
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolButton,
-            this.addressTextBox,
+             this.addressTextBox,
             this.goButton});
             this.toolStrip.Location = new System.Drawing.Point(0, 25);
             this.toolStrip.Name = "toolStrip";
@@ -302,12 +311,12 @@
             this.newToolButton.Size = new System.Drawing.Size(38, 22);
             this.newToolButton.Text = "&New";
             this.newToolButton.Click += new System.EventHandler(this.newTabAction);
-            // 
             // addressTextBox
             // 
             this.addressTextBox.Name = "addressTextBox";
             this.addressTextBox.Size = new System.Drawing.Size(670, 25);
             this.addressTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.addressTextBox_KeyDown);
+            // 
             // 
             // goButton
             // 
@@ -341,18 +350,18 @@
             this.closeTabContextMenuItem.Text = "Close tab";
             this.closeTabContextMenuItem.Click += new System.EventHandler(this.closeTabAction);
             // 
-            // qingTaoke_ToolStripMenuItem
+            // oneKeyRefreshTaobaoCookie_ToolStripMenuItem
             // 
-            this.qingTaoke_ToolStripMenuItem.Name = "qingTaoke_ToolStripMenuItem";
-            this.qingTaoke_ToolStripMenuItem.Size = new System.Drawing.Size(56, 21);
-            this.qingTaoke_ToolStripMenuItem.Text = "轻淘客";
-            this.qingTaoke_ToolStripMenuItem.Click += new System.EventHandler(this.qingTaoke_ToolStripMenuItem_Click);
+            this.oneKeyRefreshTaobaoCookie_ToolStripMenuItem.Name = "oneKeyRefreshTaobaoCookie_ToolStripMenuItem";
+            this.oneKeyRefreshTaobaoCookie_ToolStripMenuItem.Size = new System.Drawing.Size(121, 21);
+            this.oneKeyRefreshTaobaoCookie_ToolStripMenuItem.Text = "一键券淘宝Cookie";
+            this.oneKeyRefreshTaobaoCookie_ToolStripMenuItem.Click += new System.EventHandler(this.oneKeyRefreshTaobaoCookie_ToolStripMenuItem_Click);
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(770, 594);
+            this.ClientSize = new System.Drawing.Size(770, 644);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
@@ -409,5 +418,6 @@
         private System.Windows.Forms.ToolStripMenuItem remoteRedisToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem oneKeyOpenAll_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem qingTaoke_ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem oneKeyRefreshTaobaoCookie_ToolStripMenuItem;
     }
 }

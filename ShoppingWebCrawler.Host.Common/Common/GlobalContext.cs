@@ -341,6 +341,10 @@ namespace ShoppingWebCrawler.Host.Common
         public const string AlimamaSiteURL = "https://pub.alimama.com/";
         public const string TaobaoSiteURL = "https://www.taobao.com/";
         /// <summary>
+        /// 爱淘宝-（原来的优惠券官网）
+        /// </summary>
+        public const string AiTaobaoSiteURL = "https://uland.taobao.com/new_cat.htm";
+        /// <summary>
         /// 轻淘客
         /// </summary>
         public const string QingTaokeSiteURL = "http://www.qingtaoke.com/";

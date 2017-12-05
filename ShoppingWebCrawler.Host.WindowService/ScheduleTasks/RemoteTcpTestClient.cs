@@ -16,8 +16,8 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using NTCPMessage;
 using ShoppingWebCrawler.Host.Common;
-using ShoppingWebCrawler.Host.WindowService.App_Start;
 using System.IO;
+using ShoppingWebCrawler.Host.Common.Logging;
 
 namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
 {
@@ -39,7 +39,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
         {
             get
             {
-                if (_Port<=0)
+                if (_Port <= 0)
                 {
                     string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "TCPServerConf.config");
                     var _DefaultSocketPort = ConfigHelper.GetConfigFromConfigFile(configPath, "Port");
@@ -52,7 +52,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
                         _Port = 10086;
                     }
                 }
-                
+
                 return _Port;
             }
 
@@ -81,7 +81,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
             try
             {
                 //可以使用重载 设置连接超时时间
-                client.Connect(10*1000);
+                client.Connect(10 * 1000);
 
                 var buffer = Encoding.UTF8.GetBytes("ping");
                 var resultBytes = client.SyncSend((UInt32)MessageType.None, buffer);
@@ -90,7 +90,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
             }
             catch (Exception ex)
             {
-                WinServiceConfig.Logger.Error(ex);
+                Logger.Error(ex);
             }
             finally
             {
@@ -99,7 +99,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
 
             if (!string.IsNullOrEmpty(result) && result.Equals("pong"))
             {
-                WinServiceConfig.Logger.Info("探针检测服务端返回正确：pong .");
+                Logger.Info("探针检测服务端返回正确：pong .");
                 isServerHelthOK = true;
             }
 

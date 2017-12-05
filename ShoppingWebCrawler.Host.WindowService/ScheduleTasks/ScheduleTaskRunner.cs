@@ -10,6 +10,7 @@ using System.Configuration;
 using Quartz;
 using Quartz.Impl;
 using ShoppingWebCrawler.Host.WindowService.App_Start;
+using ShoppingWebCrawler.Host.Common.Logging;
 
 namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
 {
@@ -87,7 +88,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
         public bool Start()
         {
 
-            WinServiceConfig.Logger.Info("服务任务调度 开启......");
+            Logger.Info("服务任务调度 开启......");
             if (!this.SchedulerContrller.IsStarted)
             {
                 this.SchedulerContrller.Start();
@@ -100,7 +101,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
         /// <returns></returns>
         public bool Stop()
         {
-            WinServiceConfig.Logger.Info("服务任务调度 停止......");
+            Logger.Info("服务任务调度 停止......");
             if (this.SchedulerContrller.IsStarted)
             {
                 this.SchedulerContrller.Shutdown(false);

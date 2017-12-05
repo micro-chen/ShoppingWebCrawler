@@ -501,5 +501,27 @@ namespace ShoppingWebCrawler.Host.DeskTop
         {
             this.NewTab(GlobalContext.QingTaokeSiteURL);
         }
+
+        /// <summary>
+        /// 一键打开获取淘宝券所需的cookie页面
+        /// 用来初始化 服务需要的cookie
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void oneKeyRefreshTaobaoCookie_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var needUrlList = new string[]
+            {
+                GlobalContext.AlimamaSiteURL,//阿里妈妈
+                GlobalContext.TaobaoSiteURL,//淘宝
+                GlobalContext.QingTaokeSiteURL,//轻淘客
+                GlobalContext.AiTaobaoSiteURL,//爱淘宝券
+            };
+
+            foreach (var item in needUrlList)
+            {
+                this.NewTab(item);
+            }
+        }
     }
 }

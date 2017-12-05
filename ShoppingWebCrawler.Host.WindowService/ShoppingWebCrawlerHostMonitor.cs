@@ -1,4 +1,5 @@
-﻿using ShoppingWebCrawler.Host.WindowService.App_Start;
+﻿using ShoppingWebCrawler.Host.Common.Logging;
+using ShoppingWebCrawler.Host.WindowService.App_Start;
 using ShoppingWebCrawler.Host.WindowService.ScheduleTasks;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace ShoppingWebCrawler.Host.WindowService
             }
             catch (Exception ex)
             {
-                WinServiceConfig.Logger.Error(ex);
+                Logger.Error(ex);
 
             }
 
@@ -62,7 +63,7 @@ namespace ShoppingWebCrawler.Host.WindowService
             }
             catch (Exception ex)
             {
-                WinServiceConfig.Logger.Error(ex);
+                Logger.Error(ex);
 
             }
 
@@ -91,14 +92,14 @@ namespace ShoppingWebCrawler.Host.WindowService
                 p.StartInfo.CreateNoWindow = true;  //设置不显示窗口
                 p.Start();    //启动
 
-                WinServiceConfig.Logger.Info("已经开启 蜘蛛进程！");
+                Logger.Info("已经开启 蜘蛛进程！");
 
                 //return p.StandardOutput.ReadToEnd(); //从输出流取得命令执行结果
             }
             catch (Exception ex)
             {
 
-                WinServiceConfig.Logger.Error(ex);
+                Logger.Error(ex);
             }
         }
         /// <summary>
@@ -106,7 +107,7 @@ namespace ShoppingWebCrawler.Host.WindowService
         /// </summary>
         public static void StopWebCrawlerHostProcess()
         {
-            WinServiceConfig.Logger.Info("关闭 蜘蛛进程！");
+            Logger.Info("清理关闭 蜘蛛进程！");
             try
             {
                 ////根据进程命获得指定的进程
@@ -122,7 +123,7 @@ namespace ShoppingWebCrawler.Host.WindowService
             }
             catch (Exception ex)
             {
-                WinServiceConfig.Logger.Error(ex);
+                Logger.Error(ex);
             }
         }
 

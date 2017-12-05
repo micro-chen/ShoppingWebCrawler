@@ -10,6 +10,7 @@ using Topshelf.Hosts;
 using System.ServiceProcess;
 using log4net.Config;
 using Topshelf.Logging;
+using ShoppingWebCrawler.Host.Common.Logging;
 
 namespace ShoppingWebCrawler.Host.WindowService.App_Start
 {
@@ -23,8 +24,7 @@ namespace ShoppingWebCrawler.Host.WindowService.App_Start
         /// </summary>
         public static bool IsTopshelfWinServiceInit { get; set; }
 
-        public static LogWriter Logger = HostLogger.Get(Service_Name);
-        /// <summary>
+         /// <summary>
         /// 初始化 当前WinService
         /// </summary>
         public static void Init()

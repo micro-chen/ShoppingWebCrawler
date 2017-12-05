@@ -1527,45 +1527,59 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
                     return null;
                 }
-                //查询隐藏券的地址
-                string queryAddress = string.Format(hidenQuanAPI, sellerId, itemId);
 
-                var qingTaokeCookies = new LazyCookieVistor().LoadCookies(GlobalContext.QingTaokeSiteURL);
-                if (null == qingTaokeCookies || qingTaokeCookies.IsEmpty())
+
+                string[] activityList = new string[] { };
+
+              
+                try
                 {
-                    return null;//没有cookie 不能查询
+
+
+                    //查询隐藏券的地址
+                    string queryAddress = string.Format(hidenQuanAPI, sellerId, itemId);
+
+                    var qingTaokeCookies = new LazyCookieVistor().LoadCookies(GlobalContext.QingTaokeSiteURL);
+                    if (null == qingTaokeCookies || qingTaokeCookies.IsEmpty())
+                    {
+                        return null;//没有cookie 不能查询
+                    }
+
+                    ////获取当前站点的Cookie
+                    qingTaoKeHttpClient.ChangeGlobleCookies(qingTaokeCookies, GlobalContext.QingTaokeSiteURL);
+
+                    var clientProxy = new HttpServerProxy() { Client = qingTaoKeHttpClient.Client, KeepAlive = true };
+
+
+                    var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
+                    if (null == resp || resp.Content == null)
+                    {
+                        return null;
+                    }
+                    //异步读取内容字符串
+                    //demo:{"status":0,"data":[{"sellerId":"38365748","activityId":"98aef717f29241b2a8209f2f3b832300","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"954784a166d447ac9dda51b6775eb46a","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"343ad6fd06a1421dbe65e67752f12824","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":"1","useAble":false},{"sellerId":"38365748","activityId":"dcbe30752d474411a93256f39fa9402f","amount":20,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"65c9d767cb6242238bc0b89a74f8edd1","amount":0,"applyAmount":0,"endDate":0,"remain":0,"requisitioned":0,"total":0,"startDate":"","quan_class":"1","useAble":false},{"sellerId":"38365748","activityId":"788d960caead44998d852e251f6e934f","amount":0,"applyAmount":0,"endDate":0,"remain":0,"requisitioned":0,"total":0,"startDate":"","quan_class":"1","useAble":true}]}
+                    string respContent = await resp.Content.ReadAsStringAsync();
+                    if (string.IsNullOrEmpty(respContent))
+                    {
+                        return null;
+                    }
+
+                    //异步任务字符串数据返回
+                    QingTaoKeHideQuanResult  dataList = JsonConvert.DeserializeObject<QingTaoKeHideQuanResult>(respContent);
+                    if (null == dataList || dataList.status != 0 || dataList.data == null || dataList.data.Count <= 0)
+                    {
+                        return null;
+                    }
+
+                     activityList= dataList.data.Select(x => x.activityId).ToArray();
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
                 }
 
-                ////获取当前站点的Cookie
-                qingTaoKeHttpClient.ChangeGlobleCookies(qingTaokeCookies, GlobalContext.QingTaokeSiteURL);
-
-                var clientProxy = new HttpServerProxy() { Client = qingTaoKeHttpClient.Client, KeepAlive = true };
-
-
-                var resp = await clientProxy.GetResponseTransferAsync(queryAddress, null);
-                if (null == resp || resp.Content == null)
-                {
-                    return null;
-                }
-                //异步读取内容字符串
-                //demo:{"status":0,"data":[{"sellerId":"38365748","activityId":"98aef717f29241b2a8209f2f3b832300","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"954784a166d447ac9dda51b6775eb46a","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"343ad6fd06a1421dbe65e67752f12824","amount":10,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":"1","useAble":false},{"sellerId":"38365748","activityId":"dcbe30752d474411a93256f39fa9402f","amount":20,"applyAmount":0,"endDate":"&nbsp;&nbsp;\u5269\u4f59:0\/0","remain":"0","requisitioned":"0","total":0,"startDate":"","quan_class":0,"useAble":false},{"sellerId":"38365748","activityId":"65c9d767cb6242238bc0b89a74f8edd1","amount":0,"applyAmount":0,"endDate":0,"remain":0,"requisitioned":0,"total":0,"startDate":"","quan_class":"1","useAble":false},{"sellerId":"38365748","activityId":"788d960caead44998d852e251f6e934f","amount":0,"applyAmount":0,"endDate":0,"remain":0,"requisitioned":0,"total":0,"startDate":"","quan_class":"1","useAble":true}]}
-                string respContent = await resp.Content.ReadAsStringAsync();
-                if (string.IsNullOrEmpty(respContent))
-                {
-                    return null;
-                }
-
-                //异步任务字符串数据返回
-
-                QingTaoKeHideQuanResult dataList = JsonConvert.DeserializeObject<QingTaoKeHideQuanResult>(respContent);
-                if (null == dataList || dataList.status != 0 || dataList.data == null || dataList.data.Count <= 0)
-                {
-                    return null;
-                }
-
-                return dataList.data.Select(x => x.activityId).ToArray();
-
-
+                return activityList;
 
             }
 

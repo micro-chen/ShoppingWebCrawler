@@ -72,6 +72,24 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
                  
                 if (null != cks && cks.IsNotEmpty())
                 {
+                    //淘宝的cookie 附加
+                    if (platform== SupportPlatformEnum.Taobao)
+                    {
+                        //推送爱淘宝-券官网的cookie到淘宝
+                        var cks_aiTaoBao = new LazyCookieVistor().LoadNativCookies(GlobalContext.AiTaobaoSiteURL);
+                        if (null != cks_aiTaoBao && cks_aiTaoBao.IsNotEmpty())
+                        {
+                            for (int i = 0; i < cks_aiTaoBao.Count; i++)
+                            {
+                                var item = cks_aiTaoBao.ElementAt(i);
+                                if (cks.FirstOrDefault(x=>x.Name==item.Name)!=null)
+                                {
+                                    continue;//跳过重名的cookie
+                                }
+                                cks.Add(item);
+                            }
+                        }
+                    }
                     GlobalContext.DeskPushToRedisCookies(platform, cks);
                 }
 
@@ -84,6 +102,8 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
             {
                 GlobalContext.DeskPushToRedisCookies(GlobalContext.QingTaokeSiteName, cks_qingTaoke);
             }
+
+            
         }
           
     }
