@@ -590,7 +590,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                       {
                           dataList.AddRange(tskHiddenQuan.Result);
                       }
-                      if (isQuanCacheable==true)
+                      if (isQuanCacheable == true)
                       {
                           //插入到缓存中
                           GlobalContext.SetToRedisYouHuiQuanDetailsList(SupportPlatformEnum.Alimama.ToString(), queryParas.ArgumentsForQuanDetails.SellerId, queryParas.ArgumentsForQuanDetails.ItemId, dataList);
@@ -1579,46 +1579,53 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <returns></returns>
             private async Task<Youhuiquan> QueryTaoQuanDetailsAsync(string ctoken, long sellerId, long itemId, string activityId)
             {
+
                 if (string.IsNullOrEmpty(ctoken) || itemId <= 0 || string.IsNullOrEmpty(activityId))
                 {
                     return null;
                 }
 
-                var taoBaoH5Client = new TaobaoWebPageService().RequestLoader as TaobaoWebPageService.TaobaoMixReuestLoader;
+                //查询券数据json
+                string searchUrl = string.Format(taobaoQuanDetailJsonUrl, ctoken, itemId, activityId);
 
-                var respContent = await taoBaoH5Client.LoadH5Api_YouhuiquanDetailAsync(sellerId, activityId);
 
-                //对于空白的响应或者 失败的
-                //失败的结果： mtopjsonp2({"api":"mtop.taobao.couponMtopReadService.findShopBonusActivitys","v":"2.0","ret":["FAIL_SYS_SESSION_EXPIRED::SESSION失效"],"data":{}})
-                // mtopjsonp1({"api":"mtop.user.getUserSimple","v":"1.0","ret":["FAIL_SYS_ILLEGAL_ACCESS::非法请求"],"data":{}}) FAIL_SYS_TOKEN_EMPTY::令牌为空
-                if (string.IsNullOrEmpty(respContent) || respContent.IndexOf("FAIL_SYS_") != -1)
+                // 发送请求
+                var clientProxy = new HttpServerProxy() { Client = taoquanHttpClient.Client, KeepAlive = true };
+
+                var resp = await clientProxy.GetResponseTransferAsync(searchUrl, null);
+                if (null == resp || resp.Content == null)
                 {
                     return null;
                 }
-                //取出中间的json body
-                int startPos = "mtopjsonp2(".Length;
-                int endPos = respContent.Length - 1;
-                respContent = respContent.Substring(startPos, endPos - startPos);
+                //异步读取内容字符串
+                //demo:{"success":true,"message":"","result":{"retStatus":0,"startFee":9.0,"amount":3.0,"shopLogo":"//img.alicdn.com/bao/uploaded//d1/2c/TB1EbF0KFXXXXbzXXXXSutbFXXX.jpg","shopName":"SHIYUAN－石岩村生态庄园官方店","couponFlowLimit":false,"effectiveStartTime":"2017-07-29 00:00:00","effectiveEndTime":"2017-08-04 23:59:59","couponKey":"65hRBDiplQbiRzMiytwfIWWCMgE60FrJf%2BDeUg6MuerimchIO0RwUkf8vBSTQl%2Bfh%2BrNzX83mLU%3D","pid":null,"item":{"clickUrl":"//s.click.taobao.com/t?e=m%3D2%26s%3D4hJECNNm%2FkFw4vFB6t2Z2ueEDrYVVa64LKpWJ%2Bin0XK3bLqV5UHdqR9nw0n9FaFSn7yqOUL3SI0UH%2BxaebRc9WL9obvJl7wO3r0WryJqDdTP7y%2Bzd%2FEOS30x7qnPuALfPVG0pCv7imWOR9%2B8W6fQrC8DJwbWoWv1jfmE2SW4AgNo%2FhgJ1Ekc4weG05KKpLRuqEoU2U2DPUX%2FkYUt1u0uX2QxeCONBP61P2l%2FcEwVQXPmbUgWg%2F6qhc0I%2FviJ36sUUSwYGlubnWs%3D","picUrl":"//gaitaobao1.alicdn.com/tfscom/i2/2649797694/TB2xOquXd3nyKJjSZFjXXcdBXXa_!!2649797694.jpg","title":"石岩村茶园丁香茶正品养胃长白山野生丁香叶茶特紫丁香花茶级包邮","reservePrice":68.0,"discountPrice":68.0,"biz30Day":12626,"tmall":"0","postFree":"1","itemId":537099364188,"commission":null,"shareUrl":"//uland.taobao.com/coupon/edetail?e=pfnf%2FKMW8LQGQASttHIRqeevCxuoq5zdyZdWxzED87iAnVXUwZx8ItKDJeYZOx7TZf1qnzJNP4XT1JpVn%2BUO1PbxKU7D3jwVm4VLH9mslwzey%2BRI7cidB8Yz6%2BiTbYgBk%2BYH%2Bw2c2MOD7ovclAc1qw%3D%3D"}}}
+                string respContent = await resp.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(respContent))
+                {
+                    return null;
+                }
+
+                //异步任务字符串数据返回
 
                 TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
                 //对于无效的券 返回空值
-                if (null == dataJsonObj || dataJsonObj.data == null || dataJsonObj.data.module == null || dataJsonObj.data.module.IsEmpty())
+                if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null)
                 {
                     return null;
                 }
-                var jsonEntity = dataJsonObj.data.module.First();//mtopjsonp2({"api":"mtop.taobao.couponMtopReadService.findShopBonusActivitys","data":{"error":"false","haveNextPage":"false","module":[{"activityId":"1550472474","couponId":"973329075","couponType":"0","currencyUnit":"￥","defaultValidityCopywriter":"2017.11.29前有效","description":"使用说明","discount":"7000","endTime":"2017-11-29 23:59:59","intervalDays":"0","intervalHours":"0","poiShop":"false","sellerId":"1690420968","shopNick":"伊芳妮旗舰店","startFee":"8900","startTime":"2017-11-27 00:00:00","status":"1","transfer":"false","useIntervalMode":"false","uuid":"da4216cd2d714ddbbe5a4eca3aea2c34"}],"needInterrupt":"false","totalCount":"0"},"ret":["SUCCESS::调用成功"],"v":"2.0"})
-                if (jsonEntity.IsValidQuan() == false)
+                if (dataJsonObj.result.IsValidQuan() == false)
                 {
-                    return null;//不有效的优惠券
+                    return null;
                 }
+
                 //构建优惠券信息
                 var modelQuan = new Youhuiquan
                 {
                     activityId = activityId,
-                    amount = jsonEntity.discount.Value / 100.0m,
-                    startFee = jsonEntity.startFee.Value / 100.0m,
-                    effectiveStartTime = jsonEntity.startTime.Value,
-                    effectiveEndTime = jsonEntity.endTime.Value,
+                    amount = dataJsonObj.result.amount.Value,
+                    startFee = dataJsonObj.result.startFee.Value,
+                    effectiveStartTime = dataJsonObj.result.effectiveStartTime.Value,
+                    effectiveEndTime = dataJsonObj.result.effectiveEndTime.Value,
                     isHiddenType = true,
                     itemId = itemId,
                     quanUrl = string.Format(taobaoQuanLingQuanGetToClickUrl, activityId, itemId, GlobalContext.Pid)
@@ -1626,6 +1633,57 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 };
 
                 return modelQuan;
+
+
+
+                //--------------注意：下面调用web h5 api  先不放开了，并发执行会被屏蔽-----------------
+                //if (string.IsNullOrEmpty(ctoken) || itemId <= 0 || string.IsNullOrEmpty(activityId))
+                //{
+                //    return null;
+                //}
+
+                //var taoBaoH5Client = new TaobaoWebPageService().RequestLoader as TaobaoWebPageService.TaobaoMixReuestLoader;
+
+                //var respContent = await taoBaoH5Client.LoadH5Api_YouhuiquanDetailAsync(sellerId, activityId);
+
+                ////对于空白的响应或者 失败的
+                ////失败的结果： mtopjsonp2({"api":"mtop.taobao.couponMtopReadService.findShopBonusActivitys","v":"2.0","ret":["FAIL_SYS_SESSION_EXPIRED::SESSION失效"],"data":{}})
+                //// mtopjsonp1({"api":"mtop.user.getUserSimple","v":"1.0","ret":["FAIL_SYS_ILLEGAL_ACCESS::非法请求"],"data":{}}) FAIL_SYS_TOKEN_EMPTY::令牌为空
+                //if (string.IsNullOrEmpty(respContent) || respContent.IndexOf("FAIL_SYS_") != -1)
+                //{
+                //    return null;
+                //}
+                ////取出中间的json body
+                //int startPos = "mtopjsonp2(".Length;
+                //int endPos = respContent.Length - 1;
+                //respContent = respContent.Substring(startPos, endPos - startPos);
+
+                //TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
+                ////对于无效的券 返回空值
+                //if (null == dataJsonObj || dataJsonObj.data == null || dataJsonObj.data.module == null || dataJsonObj.data.module.IsEmpty())
+                //{
+                //    return null;
+                //}
+                //var jsonEntity = dataJsonObj.data.module.First();//mtopjsonp2({"api":"mtop.taobao.couponMtopReadService.findShopBonusActivitys","data":{"error":"false","haveNextPage":"false","module":[{"activityId":"1550472474","couponId":"973329075","couponType":"0","currencyUnit":"￥","defaultValidityCopywriter":"2017.11.29前有效","description":"使用说明","discount":"7000","endTime":"2017-11-29 23:59:59","intervalDays":"0","intervalHours":"0","poiShop":"false","sellerId":"1690420968","shopNick":"伊芳妮旗舰店","startFee":"8900","startTime":"2017-11-27 00:00:00","status":"1","transfer":"false","useIntervalMode":"false","uuid":"da4216cd2d714ddbbe5a4eca3aea2c34"}],"needInterrupt":"false","totalCount":"0"},"ret":["SUCCESS::调用成功"],"v":"2.0"})
+                //if (jsonEntity.IsValidQuan() == false)
+                //{
+                //    return null;//不有效的优惠券
+                //}
+                ////构建优惠券信息
+                //var modelQuan = new Youhuiquan
+                //{
+                //    activityId = activityId,
+                //    amount = jsonEntity.discount.Value / 100.0m,
+                //    startFee = jsonEntity.startFee.Value / 100.0m,
+                //    effectiveStartTime = jsonEntity.startTime.Value,
+                //    effectiveEndTime = jsonEntity.endTime.Value,
+                //    isHiddenType = true,
+                //    itemId = itemId,
+                //    quanUrl = string.Format(taobaoQuanLingQuanGetToClickUrl, activityId, itemId, GlobalContext.Pid)
+
+                //};
+
+                //return modelQuan;
 
 
 

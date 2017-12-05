@@ -391,6 +391,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             /// <summary>
             /// 加载淘宝 h5 webapi 优惠券查询地址-详细
+            /// 注意： 访问过于频繁并发的时候会被 ban 掉；以后设计为N个淘宝账户使用不同 的cookie进行抓取
             /// </summary>
             /// <param name="sellerId"></param>
             /// <param name="activityId"></param>
