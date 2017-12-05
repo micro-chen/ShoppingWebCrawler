@@ -4,6 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 using System.Xml.XPath;
+using System.Linq;
+
 namespace ShoppingWebCrawler.Host.Common
 {
     public class ConfigHelper
@@ -25,6 +27,31 @@ namespace ShoppingWebCrawler.Host.Common
         }
 
 
+        /// <summary>
+        /// 读取配置文件某项的值
+        /// </summary>
+        /// <param name="key">appSettings的key</param>
+        /// <returns>appSettings的Value</returns>
+        public static string GetConfigFromConfigFile(string filePath, string key)
+        {
+            string _value = string.Empty;
+            if (System.IO.File.Exists(filePath))
+            {
+                ExeConfigurationFileMap filemap = new ExeConfigurationFileMap();
+                filemap.ExeConfigFilename = filePath;
+                var config = ConfigurationManager.OpenMappedExeConfiguration(filemap, ConfigurationUserLevel.None);
+
+
+                if (config.AppSettings.Settings.AllKeys.Contains(key))
+                {
+                    _value = config.AppSettings.Settings[key].Value;
+                }
+            }
+
+
+
+            return _value;
+        }
 
 
         /// <summary>

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+ 
+<!-- This file contains job definitions in schema version 2.0 format -->
+
+<job-scheduling-data xmlns="http://quartznet.sourceforge.net/JobSchedulingData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0">
+
+  <processing-directives>
+    <overwrite-existing-data>true</overwrite-existing-data>
+  </processing-directives>
+
+  <schedule>
+
+    <!--ServiceHelthCheckerJob 任务配置-->
+    <job>
+      <name>ServiceHelthCheckerJob</name>
+      <group>ShoppingWebCrawler</group>
+      <description>ServiceHelthCheckerJob 用来监视ShoppingWebCrawler.Host的运行状况</description>
+      <job-type>ShoppingWebCrawler.Host.WindowService.ScheduleTasks.ServiceHelthCheckerJob,ShoppingWebCrawler.Host.WindowService</job-type>
+      <durable>true</durable>
+      <recover>false</recover>
+      
+    </job>
+    <trigger>
+      <cron>
+        <name>ServiceHelthCheckerJobTrigger</name>
+        <group>ShoppingWebCrawler</group>
+        <job-name>ServiceHelthCheckerJob</job-name>
+        <job-group>ShoppingWebCrawler</job-group>
+        
+        <!--由7段构成：秒 分 时 日 月 星期 年（可选）"/" :表示增量：0/15（处于【秒段】里面） 每15秒，在0秒以后开始，3/20 每20秒，从3钟以后开始; "*" ：表是“每”，每月，每天，每周，每年等-->
+        <cron-expression>0/10 * * * * ?</cron-expression>
+      </cron>
+
+    </trigger>
+  </schedule>
+</job-scheduling-data>

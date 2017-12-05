@@ -19,11 +19,11 @@ namespace ShoppingWebCrawler.Host.AppStart
             //1 设定当前程序运行的主上下文
             GlobalContext.SyncContext = SynchronizationContext.Current;
 
+       
 
             //2 初始化CEF运行时
             #region 初始化CEF运行时
 
-         
             try
             {
                 //加载CEF 运行时  lib cef
@@ -86,8 +86,6 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             #endregion
 
-
-
             //3 开启总控TCP端口，用来接收站点的请求--开启后 会阻塞进程 防止结束
             // 总控端口 负责 1 收集请求 响应请求 2 收集分布的采集客户端 登记注册可用的端，用来做CDN 任务分发，做负载均衡
             RemoteServer.Start();
@@ -102,6 +100,9 @@ namespace ShoppingWebCrawler.Host.AppStart
             //------测试客户端获取 远程Cookie
        
             System.Threading.Tasks.Task.Factory.StartNew(() =>{
+
+
+
                 //var ckpender = new CookiePender.AlimamaCookiePenderClient();
                 //var cks = ckpender.GetCookiesFromRemoteServer();
                 //初始化 轻淘客站的登录模拟

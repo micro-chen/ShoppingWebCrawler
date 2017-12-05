@@ -136,6 +136,9 @@
     <Compile Include="Headless\HeadLessCefClient.cs" />
     <Compile Include="MessageConvert\DefaultMessageConvert.cs" />
     <Compile Include="MessageConvert\JsonMessageConvert.cs" />
+    <None Include="Configs\TCPServerConf.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.2.0.txt" />
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService3.0.txt" />
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.4.0.txt" />

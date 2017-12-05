@@ -104,6 +104,7 @@
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\RunningLocker.cs" />
     <Compile Include="Common\Singleton.cs" />
+    <Compile Include="Common\SocketHelper.cs" />
     <Compile Include="Common\StringUtil.cs" />
     <Compile Include="Common\SupportPlatformLoader.cs" />
     <Compile Include="Extensions\BytesExtension.cs" />

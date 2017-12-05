@@ -9,6 +9,7 @@ using ShoppingWebCrawler.Host.Common.Ioc;
 using NTCPMessage.EntityPackage;
 using System.Net;
 using ShoppingWebCrawler.Host.Common.Caching;
+using System.IO;
 
 namespace ShoppingWebCrawler.Host.Common
 {
@@ -64,8 +65,8 @@ namespace ShoppingWebCrawler.Host.Common
                 {
                     lock (_locker_SocketPort)
                     {
-
-                        _DefaultSocketPort = ConfigHelper.GetConfigInt("Port");
+                        string configPath= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "TCPServerConf.config");
+                        _DefaultSocketPort = ConfigHelper.GetConfigFromConfigFile(configPath, "Port").ToInt();
                         if (_DefaultSocketPort <= 0)
                         {
                             _DefaultSocketPort = 10086;

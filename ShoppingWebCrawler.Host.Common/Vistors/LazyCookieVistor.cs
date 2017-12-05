@@ -5,6 +5,7 @@ using System.Text;
 using ShoppingWebCrawler.Cef.Core;
 using System.Threading.Tasks;
 using System.Net;
+using System.Collections;
 
 namespace ShoppingWebCrawler.Host.Common
 {
@@ -121,7 +122,7 @@ namespace ShoppingWebCrawler.Host.Common
             try
             {
                 var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
-                if (null==ckManager)
+                if (null == ckManager)
                 {
                     return false;
                 }
@@ -157,14 +158,30 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="url"></param>
         /// <param name="cookieName"></param>
         /// <returns></returns>
-        public bool DeleteCookies(string url, string cookieName)
+        public bool DeleteCookies(string url, string cookieName="")
         {
             var result = false;
 
             try
             {
                 var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
-                result = ckManager.DeleteCookies(url, cookieName, null);
+                if (string.IsNullOrEmpty(cookieName))
+                {
+                    var currentDomainCookies = LoadCookies(url);
+                    if (currentDomainCookies.IsNotEmpty())
+                    {
+                        foreach (var item in currentDomainCookies)
+                        {
+                           ckManager.DeleteCookies(url, item.Name, null);
+                        }
+                        result = true;
+                    }
+                }
+                else
+                {
+                    result = ckManager.DeleteCookies(url, cookieName, null);
+                }
+
             }
             catch (Exception ex)
             {
@@ -220,7 +237,7 @@ namespace ShoppingWebCrawler.Host.Common
                 return lst;
             }
 
-          
+
             foreach (CefCookie item in results)
             {
                 var name = item.Name;
@@ -273,7 +290,7 @@ namespace ShoppingWebCrawler.Host.Common
             };
 
 
-            this.SetCookieToCookieManager(domain,tempCookie );
+            this.SetCookieToCookieManager(domain, tempCookie);
 
             this._tcs = new TaskCompletionSource<IEnumerable<CefCookie>>();
             //var oldListeners=this.VistCookiesCompleted.GetInvocationList();

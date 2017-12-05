@@ -111,14 +111,25 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <param name="loginCookieCollection">需要提供的已经登录的Cookie集合</param>
         private static void SetLogin(List<CefCookie> loginCookieCollection)
         {
-            if (null != loginCookieCollection)
+            try
             {
-                //注册cookie集合到全局Cookie容器内
-                new LazyCookieVistor().SetCookieToCookieManager(GlobalContext.TaobaoSiteURL, loginCookieCollection);
+                var ckVisitor = new LazyCookieVistor();
+
+                if (null != loginCookieCollection)
+                {
+                    //注册cookie集合到全局Cookie容器内
+                    new LazyCookieVistor().SetCookieToCookieManager(GlobalContext.TaobaoSiteURL, loginCookieCollection);
 
 
-                IsHasLoginTaobao = true;
+                    IsHasLoginTaobao = true;
+                }
+
             }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+          
 
 
 
@@ -445,6 +456,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     var taskMsg = await clientProxy.GetResponseTransferAsync(apiUrl, null);
 
                     string content = await taskMsg.Content.ReadAsStringAsync();
+
+  
+                    if (!string.IsNullOrEmpty(content)&&content.Contains("FAIL_SYS_USER_VALIDATE"))
+                    {
+                        //需要身份验证的时候 ;FAIL_SYS_USER_VALIDATE::哎哟喂,被挤爆啦,请稍后重试; 被踢的时候 如何处理？？
+                        //清除taobao 的cookie 从客户端的rediscookie 从新加载
+                        //ckVisitor.DeleteCookies(TaobaoSiteUrl);
+                       
+                        int x = 0;
+                    }
 
                     return content;
 

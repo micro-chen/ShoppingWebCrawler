@@ -13,6 +13,7 @@ using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.MessageConvert;
 using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.Common.Common;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -89,18 +90,18 @@ namespace ShoppingWebCrawler.Host.AppStart
                 case MessageType.None:
                     defaultConvertProcesso.ReceiveEventHandler(sender, args);
                     break;
-            
+
                 case MessageType.Json:
                     jsonConvertProcessor.ReceiveEventHandler(sender, args);
                     break;
 
                 default:
                     string errMsg = string.Format("未能识别的消息格式，支持 1普通字符串  2 json格式！传入的格式为：{0}", msgType.ToString());
-                    var ex= new Exception(errMsg);
+                    var ex = new Exception(errMsg);
                     Logger.Error(ex);
                     throw ex;
-                  
-                    
+
+
             }
             //Console.WriteLine("get event:{0}", args.Event);
         }
@@ -121,32 +122,51 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// 开启套接字监听
         /// </summary>
 
-        public static Task Start()
+        public static void Start()
         {
-           
-
-            //开启 异步的启动任务，由于在内部进行了线程阻塞，所以task 永远不会complete
-            return Task.Factory.StartNew(() =>
+            try
             {
-
                 int port = GlobalContext.SocketPort;
+                //检查是否已经开启了端口
+                bool isBeUsed = SocketHelper.IsUsedIPEndPoint(port);
+                if (isBeUsed==true)
+                {
+                    return;
+                }
+
+                //开启 异步的启动任务，由于在内部进行了线程阻塞，所以task 永远不会complete
+           
                 listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
                 listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
                 listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
                 listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
 
                 listener.Listen();
+            }
+            catch (Exception ex)
+            {
 
-                System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
-
-            });
-
-
+                Logger.Error(ex);
+            }
+            //System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
 
 
 
 
         }
+
+        /// <summary>
+        /// 终止tcp 服务端的监听
+        /// </summary>
+        public static void Stop()
+        {
+            if (null != listener)
+            {
+                listener.Close();
+                listener = null;
+            }
+        }
+
 
     }
 
