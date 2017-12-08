@@ -92,8 +92,19 @@ namespace ShoppingWebCrawler.Host.DeskTop
                 if (isClose == true)
                 {
                   
-                    this.tabControl.TabPages.Remove(this.tabControl.SelectedTab);
+                   
+                    var page = this.tabControl.TabPages[tabControl.SelectedIndex];
 
+                    foreach (var ctl in page.Controls)
+                    {
+                        if (ctl is CefWebBrowser)
+                        {
+                            var browser = (CefWebBrowser)ctl;
+                             browser.Dispose();
+                            break;
+                        }
+                    }
+                    this.tabControl.TabPages.Remove(this.tabControl.SelectedTab);
                     //设定选中的索引为前一个窗口的
                     var toOpenTabIndex = 0;
                     var rightTabIndex = this.tabControl.TabCount+1;

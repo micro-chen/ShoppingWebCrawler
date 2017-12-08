@@ -129,12 +129,12 @@ namespace ShoppingWebCrawler.Cef.Framework
             {
 
 
-                var host = _browser.GetHost();
-                if (host != null)
-                {
-                    host.CloseBrowser(true);
-                    host.Dispose();
-                }
+                //var host = _browser.GetHost();//--注意 ：这里作者把host 给释放了！会导致程序崩溃
+                //if (host != null)
+                //{
+                //    host.CloseBrowser(true);
+                //    host.Dispose();
+                //}
                 _browser.Dispose();
                 _browser = null;
                 _browserWindowHandle = IntPtr.Zero;

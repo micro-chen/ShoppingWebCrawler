@@ -21,6 +21,7 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
         /// </summary>
         public static event EventHandler<string> OnSendCookiesToRemoteEvent;
 
+        private static object _locker = new object();
         public void Execute(IJobExecutionContext context)
         {
             Logger.Info("CrawlerCookiesPopJob 被执行！");
@@ -48,63 +49,68 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
         /// </summary>
         public static void SendCookiesToRemote()
         {
-            string msg = "SendCookiesToRemote 被执行！时间："+DateTime.Now.ToString();
+            string msg = "SendCookiesToRemote 被执行！时间：" + DateTime.Now.ToString();
             Logger.Info(msg);
 
-            SendMessageToListerner(msg);
-
-            //todo:实现拉取cookies 然后发送到远程server
-            var allPlatforms = Enum.GetValues(typeof(SupportPlatformEnum));// SupportPlatformEnum.Alimama.get
-            //var cookieLoader = new LazyCookieVistor();
-            foreach (SupportPlatformEnum platform in allPlatforms)
+            lock (_locker)
             {
-                var siteObj = GlobalContext.SupportPlatforms.Find(x => x.Platform == platform);
-                if (null == siteObj)
-                {
-                    string platformDescription = platform.GetEnumDescription();
-                    string errMsg=string.Format($"CrawlerCookiesPopJob,未能正确从配置文件加载平台地址：{platformDescription ?? platform.ToString()}");
-                    SendMessageToListerner(errMsg);
-                    continue;
-                }
-                var domian = siteObj.SiteUrl;
-                var cks = new LazyCookieVistor().LoadNativCookies(domian);
 
-                 
-                if (null != cks && cks.IsNotEmpty())
+
+                SendMessageToListerner(msg);
+
+                //todo:实现拉取cookies 然后发送到远程server
+                var allPlatforms = Enum.GetValues(typeof(SupportPlatformEnum));// SupportPlatformEnum.Alimama.get
+                                                                               //var cookieLoader = new LazyCookieVistor();
+                foreach (SupportPlatformEnum platform in allPlatforms)
                 {
-                    //淘宝的cookie 附加
-                    if (platform== SupportPlatformEnum.Taobao)
+                    var siteObj = GlobalContext.SupportPlatforms.Find(x => x.Platform == platform);
+                    if (null == siteObj)
                     {
-                        //推送爱淘宝-券官网的cookie到淘宝
-                        var cks_aiTaoBao = new LazyCookieVistor().LoadNativCookies(GlobalContext.AiTaobaoSiteURL);
-                        if (null != cks_aiTaoBao && cks_aiTaoBao.IsNotEmpty())
+                        string platformDescription = platform.GetEnumDescription();
+                        string errMsg = string.Format($"CrawlerCookiesPopJob,未能正确从配置文件加载平台地址：{platformDescription ?? platform.ToString()}");
+                        SendMessageToListerner(errMsg);
+                        continue;
+                    }
+                    var domian = siteObj.SiteUrl;
+                    var cks = new LazyCookieVistor().LoadNativCookies(domian);
+
+
+                    if (null != cks && cks.IsNotEmpty())
+                    {
+                        //淘宝的cookie 附加
+                        if (platform == SupportPlatformEnum.Taobao)
                         {
-                            for (int i = 0; i < cks_aiTaoBao.Count; i++)
+                            //推送爱淘宝-券官网的cookie到淘宝
+                            var cks_aiTaoBao = new LazyCookieVistor().LoadNativCookies(GlobalContext.AiTaobaoSiteURL);
+                            if (null != cks_aiTaoBao && cks_aiTaoBao.IsNotEmpty())
                             {
-                                var item = cks_aiTaoBao.ElementAt(i);
-                                if (cks.FirstOrDefault(x=>x.Name==item.Name)!=null)
+                                for (int i = 0; i < cks_aiTaoBao.Count; i++)
                                 {
-                                    continue;//跳过重名的cookie
+                                    var item = cks_aiTaoBao.ElementAt(i);
+                                    if (cks.FirstOrDefault(x => x.Name == item.Name) != null)
+                                    {
+                                        continue;//跳过重名的cookie
+                                    }
+                                    cks.Add(item);
                                 }
-                                cks.Add(item);
                             }
                         }
+                        GlobalContext.DeskPushToRedisCookies(platform, cks);
                     }
-                    GlobalContext.DeskPushToRedisCookies(platform, cks);
+
+
+                }
+
+                //推送轻淘客cookies
+                var cks_qingTaoke = new LazyCookieVistor().LoadNativCookies(GlobalContext.QingTaokeSiteURL);
+                if (null != cks_qingTaoke && cks_qingTaoke.IsNotEmpty())
+                {
+                    GlobalContext.DeskPushToRedisCookies(GlobalContext.QingTaokeSiteName, cks_qingTaoke);
                 }
 
 
             }
-
-            //推送轻淘客cookies
-            var cks_qingTaoke = new LazyCookieVistor().LoadNativCookies(GlobalContext.QingTaokeSiteURL);
-            if (null != cks_qingTaoke && cks_qingTaoke.IsNotEmpty())
-            {
-                GlobalContext.DeskPushToRedisCookies(GlobalContext.QingTaokeSiteName, cks_qingTaoke);
-            }
-
-            
         }
-          
+
     }
 }
