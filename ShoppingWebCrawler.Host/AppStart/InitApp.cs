@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
+using System.Reflection;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
+using ShoppingWebCrawler.Host.Common.TypeFinder;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -54,7 +58,7 @@ namespace ShoppingWebCrawler.Host.AppStart
             var settings = new CefSettings
             {
                 // BrowserSubprocessPath = @"D:\fddima\Projects\Xilium\Xilium.CefGlue\CefGlue.Demo\bin\Release\Xilium.CefGlue.Demo.exe",
-                SingleProcess = false,
+                SingleProcess = false,//开启多进程模型，tab  进程独立模式
                 MultiThreadedMessageLoop = true,//开启多线程任务
                 WindowlessRenderingEnabled = true,//开启无头模式
                 //Locale = "en-US",
@@ -96,35 +100,33 @@ namespace ShoppingWebCrawler.Host.AppStart
             #endregion
 
             //5 阿里妈妈等平台登录
-            #region  阿里妈妈等平台登录
-            //------测试客户端获取 远程Cookie
+            #region  阿里妈妈等平台网页初始化操作
        
             System.Threading.Tasks.Task.Factory.StartNew(() =>{
 
 
+                //----------注意：由于开启了多进程模型，不同的网址在不同的tab,每个tab 在其独立的进程中-------
+                //每次打开一个程序进程，让进程开启一个端口server,向总控端口，发送注册登记，用来接受请求转发，做负载均衡---
 
-                //var ckpender = new CookiePender.AlimamaCookiePenderClient();
-                //var cks = ckpender.GetCookiesFromRemoteServer();
-                //初始化 轻淘客站的登录模拟
-                var qingTaokeService = new QingTaokeWebPageService();
-                var loader_qingTaoke = qingTaokeService.RequestLoader;
+                //初始化平台网页进程
+                //1 通过反射 获取所有的webpage service 
 
-                //初始化 阿里妈妈站的登录模拟
-                var alimamaService = new AlimamaWebPageService();
-                var loader_alimama = alimamaService.RequestLoader;
-
-
-                //模拟跳转到淘宝 进行跨站身份登录
-                var taobaoService = new TaobaoWebPageService();
-                taobaoService.RequestLoader.NavigateUrlByCefBrowser(TaobaoWebPageService.TaobaoMixReuestLoader.TaobaoSiteUrl);
-
-                //初始化淘宝券站
-                var ulandTaoService = new TaoUlandWebPageServic();
-                var loader_uland = ulandTaoService.RequestLoader;
-
+                var ass = Assembly.GetExecutingAssembly();
+                var typeFinder = new AppDomainTypeFinder();
+                var targetType = typeof(BaseWebPageService);
+                var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
+                if (webPageServiceTypes.IsNotEmpty())
+                {
+                    foreach (Type itemPageService in webPageServiceTypes)
+                    {
+                        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
+                        //静态属性访问一次 即可触发打开页面
+                        var loader=servieInstance.RequestLoader;
+                    }
+                }
 
             });
-         
+
             #endregion
             return 0;
         }

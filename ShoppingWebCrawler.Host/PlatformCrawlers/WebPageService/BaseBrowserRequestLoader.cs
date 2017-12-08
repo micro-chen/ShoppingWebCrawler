@@ -43,7 +43,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <summary>
         /// 初始化浏览器的时候锁
         /// </summary>
-        private static ReaderWriterLockSlim _readLock_mixdBrowser = new ReaderWriterLockSlim();
+        private static object _readLock_mixdBrowser = new object();
         /// <summary>
         /// CEF组合浏览器
         /// </summary>
@@ -153,23 +153,21 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             try
             {
-                if (null == mixdBrowser)
+                lock (_readLock_mixdBrowser)
                 {
-                    _readLock_mixdBrowser.EnterReadLock();
-                    mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
-                        .ConfigureAwait(false)
-                        .GetAwaiter()
-                        .GetResult();
-                }
-            }
-            catch { }
-            finally
-            {
-                if (_readLock_mixdBrowser.IsReadLockHeld)
-                {
-                    _readLock_mixdBrowser.ExitReadLock();
+                    if (null == mixdBrowser)
+                    {
+                        mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
+                           .ConfigureAwait(false)
+                           .GetAwaiter()
+                           .GetResult();
+                    }
                 }
 
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
             }
 
 

@@ -70,7 +70,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             var settings = new CefSettings
             {
                 // BrowserSubprocessPath = @"D:\fddima\Projects\Xilium\Xilium.CefGlue\CefGlue.Demo\bin\Release\Xilium.CefGlue.Demo.exe",
-                SingleProcess = false,
+                SingleProcess = false,//tab 页面多进程模型
                 MultiThreadedMessageLoop = multiThreadedMessageLoop,
                 WindowlessRenderingEnabled = true,
                 //Locale = "en-US",
