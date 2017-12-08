@@ -120,7 +120,8 @@
   <ItemGroup>
     <Compile Include="AppStart\ConsoleClean.cs" />
     <Compile Include="AppStart\InitApp.cs" />
-    <Compile Include="AppStart\RemoteServer.cs" />
+    <Compile Include="AppStart\SlaveRemoteServer.cs" />
+    <Compile Include="AppStart\MasterRemoteServer.cs" />
     <Compile Include="CookiePender\QingTaokeCookiePenderClient.cs" />
     <Compile Include="CookiePender\BaseCookiePenderClient.cs" />
     <Compile Include="CookiePender\TaobaoCookiePenderClient.cs" />
@@ -143,6 +144,7 @@
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.2.0.txt" />
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService3.0.txt" />
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.4.0.txt" />
+    <Compile Include="MessageConvert\MasterJsonMessageConvert.cs" />
     <Compile Include="Model\YouhuiquanExistsTaskBuffer.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\AlimamaWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\BaseBrowserRequestLoader.cs" />

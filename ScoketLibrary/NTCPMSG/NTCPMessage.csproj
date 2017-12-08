@@ -87,6 +87,7 @@
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
     <Compile Include="CommandConstants.cs" />
+    <Compile Include="EntityPackage\Arguments\RegisterPortArgument.cs" />
     <Compile Include="EntityPackage\Arguments\YouhuiquanFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\FilterFiled.cs" />
     <Compile Include="EntityPackage\Arguments\MeilishuoFetchWebPageArgument.cs" />

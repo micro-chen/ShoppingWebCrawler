@@ -27,8 +27,14 @@ namespace NTCPMessage.EntityPackage
         /// </summary>
         public  string Result { get; set; }
 
-
-
+        /// <summary>
+        /// 设置结果为成功
+        /// </summary>
+        public void SetSuccess()
+        {
+            this.Status = 1;
+            this.Result = "success";
+        }
         /// <summary>
         /// 返回空的内容消息容器
         /// </summary>

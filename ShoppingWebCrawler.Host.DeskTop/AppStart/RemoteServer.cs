@@ -130,7 +130,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             return Task.Factory.StartNew(() =>
             {
 
-                int port = GlobalContext.SocketPort;
+                int port = GlobalContext.MasterSocketPort;
                 listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
                 listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
                 listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);

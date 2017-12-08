@@ -15,8 +15,20 @@ namespace ShoppingWebCrawler.Host.Headless
     internal sealed class HeadLessWebBrowerApp : CefApp, IDisposable
     {
 
-        private CefBrowserProcessHandler _browserProcessHandler = new WebCrawlerBrowserProcessHandler();
-        private CefRenderProcessHandler _renderProcessHandler = new WebCrawlerRenderProcessHandler();
+        private WebCrawlerBrowserProcessHandler _browserProcessHandler = new WebCrawlerBrowserProcessHandler();
+        private WebCrawlerRenderProcessHandler _renderProcessHandler = new WebCrawlerRenderProcessHandler();
+
+        public event EventHandler<CefBrowser> HandlerOfOnBrowserCreated;
+
+        public HeadLessWebBrowerApp()
+        {
+            _renderProcessHandler.HandlerOfOnBrowserCreated += (s, e)=>{
+                if (null!= this.HandlerOfOnBrowserCreated)
+                {
+                    this.HandlerOfOnBrowserCreated(s, e);
+                }
+            };
+        }
 
         protected override void OnBeforeCommandLineProcessing(string processType, CefCommandLine commandLine)
         {
@@ -40,6 +52,7 @@ namespace ShoppingWebCrawler.Host.Headless
             return _renderProcessHandler;
         }
 
+        
 
         #region IDisposable
 

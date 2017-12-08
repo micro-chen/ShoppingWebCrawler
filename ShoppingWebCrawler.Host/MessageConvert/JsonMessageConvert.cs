@@ -13,6 +13,7 @@ using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
 using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.Common;
 using NTCPMessage;
+using ShoppingWebCrawler.Host.AppStart;
 
 namespace ShoppingWebCrawler.Host.MessageConvert
 {
@@ -67,6 +68,12 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                         result = this.FetchYouhuiquanDetails(args_yuohuiquanDetails);
 
                         break;
+
+                    case CommandConstants.CMD_RegisterSlavePort:
+
+                        var args_registerPort = JsonConvert.DeserializeObject<RegisterPortArgument>(obj.Body);
+                        result = this.RegisterSlavePort(args_registerPort.SlaveIdentity);
+                        break;
                     default:
                         result = DataContainer.CreateNullDataContainer();
                         break;
@@ -79,14 +86,14 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             return result;
 
         }
-        
+
 
         /// <summary>
         /// 搜索指定的卖家的商品的优惠券是否存在优惠券信息
         /// </summary>
         /// <param name="args_yuohuiquan"></param>
         /// <returns></returns>
-        private IDataContainer FetchYouhuiquanExistsList(YouhuiquanFetchWebPageArgument args_yuohuiquan)
+        protected virtual IDataContainer FetchYouhuiquanExistsList(YouhuiquanFetchWebPageArgument args_yuohuiquan)
         {
             IDataContainer result = DataContainer.CreateNullDataContainer();
             if (null == args_yuohuiquan)
@@ -100,7 +107,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
 
             try
             {
-                
+
                 result = webPageService.QueryYouhuiquanExistsList(args_yuohuiquan);
             }
             catch (Exception ex)
@@ -117,7 +124,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// </summary>
         /// <param name="args_yuohuiquan"></param>
         /// <returns></returns>
-        private IDataContainer FetchYouhuiquanDetails(YouhuiquanFetchWebPageArgument args_yuohuiquan)
+        protected virtual IDataContainer FetchYouhuiquanDetails(YouhuiquanFetchWebPageArgument args_yuohuiquan)
         {
             IDataContainer result = DataContainer.CreateNullDataContainer();
             if (null == args_yuohuiquan)
@@ -142,12 +149,36 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             return result;
         }
 
+        /// <summary>
+        /// 注册从节点的端口到主控节点
+        /// </summary>
+        /// <param name="slaveIdentity"></param>
+        /// <returns></returns>
+        protected virtual IDataContainer RegisterSlavePort(string slaveIdentity)
+        {
+            var result = new DataContainer();
+            result.Status = 0;
+            result.Result = "-1";
+            if (!string.IsNullOrEmpty(slaveIdentity))
+            {
+                var port=MasterRemoteServer.AddSlavePort(slaveIdentity);
+                if (port > 0)
+                {
+                    result.Result = port.ToString();
+                    result.Status =1;
+                }
+                
+            }
+
+           
+            return result;
+        }
 
         /// <summary>
         /// 获取所有支持的平台列表
         /// </summary>
         /// <returns></returns>
-        private IDataContainer GetAllSupportPlatforms()
+        protected virtual IDataContainer GetAllSupportPlatforms()
         {
             var result = new DataContainer();
 
@@ -163,7 +194,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// 抓取指定平台的搜索结果网页
         /// </summary>
         /// <returns></returns>
-        private IDataContainer FetchPlatformSearchWebPage(IFetchWebPageArgument args)
+        protected virtual IDataContainer FetchPlatformSearchWebPage(IFetchWebPageArgument args)
         {
             IDataContainer result = DataContainer.CreateNullDataContainer();
             //解析参数的Web蜘蛛服务

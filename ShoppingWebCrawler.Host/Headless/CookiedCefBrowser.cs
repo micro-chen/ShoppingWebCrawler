@@ -99,7 +99,7 @@ namespace ShoppingWebCrawler.Host.Headless
             // Start up the browser instance.
             string url = "about:blank";
             CefBrowserHost.CreateBrowser(cefWindowInfo, cefClient, cefBrowserSettings, url);
-
+             
             return tcs.Task;
         }
 

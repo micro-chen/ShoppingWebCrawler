@@ -10,6 +10,12 @@ namespace ShoppingWebCrawler.Host.Handlers
 
     internal sealed class WebCrawlerBrowserProcessHandler : CefBrowserProcessHandler
     {
+
+        protected override void OnContextInitialized()
+        {
+
+        }
+
         protected override void OnBeforeChildProcessLaunch(CefCommandLine commandLine)
         {
             Console.WriteLine("AppendExtraCommandLineSwitches: {0}", commandLine);

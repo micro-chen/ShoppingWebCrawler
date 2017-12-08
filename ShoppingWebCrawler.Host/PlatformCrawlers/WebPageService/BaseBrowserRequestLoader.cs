@@ -150,18 +150,25 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         protected void IntiCefWebBrowser()
         {
 
+            if (GlobalContext.IsInSlaveMode)//在集群模式下，从节点不允许创建tab
+            {
+                return;
+            }
 
             try
             {
                 lock (_readLock_mixdBrowser)
                 {
-                    if (null == mixdBrowser)
-                    {
-                        mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
-                           .ConfigureAwait(false)
-                           .GetAwaiter()
-                           .GetResult();
-                    }
+                    
+                        if (null == mixdBrowser)
+                        {
+                            mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
+                               .ConfigureAwait(false)
+                               .GetAwaiter()
+                               .GetResult();
+                        }
+                   
+                  
                 }
 
             }

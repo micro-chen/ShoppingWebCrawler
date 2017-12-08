@@ -29,7 +29,13 @@ namespace ShoppingWebCrawler.Host.Common
         {
             get
             {
-                return CefCookieManager.GetGlobal(null);
+                var ckManager= CefCookieManager.GetGlobal(null);
+              
+                //if (null==ckManager)
+                //{
+                //    Console.WriteLine("麻痹 的的的 的的    空cookie 管理姻缘啊  啊啊");
+                //}
+                return ckManager;
             }
         }
 
@@ -55,9 +61,9 @@ namespace ShoppingWebCrawler.Host.Common
         private static object _locker_SocketPort = new object();
         static int _DefaultSocketPort = 0;
         /// <summary>
-        /// 远程服务套接字端口
+        /// 远程服务主控Master套接字端口
         /// </summary>
-        public static int SocketPort
+        public static int MasterSocketPort
         {
             get
             {
@@ -65,7 +71,7 @@ namespace ShoppingWebCrawler.Host.Common
                 {
                     lock (_locker_SocketPort)
                     {
-                        string configPath= Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "TCPServerConf.config");
+                        string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "TCPServerConf.config");
                         _DefaultSocketPort = ConfigHelper.GetConfigFromConfigFile(configPath, "Port").ToInt();
                         if (_DefaultSocketPort <= 0)
                         {
@@ -95,8 +101,23 @@ namespace ShoppingWebCrawler.Host.Common
             }
         }
 
-
-
+        /// <summary>
+        /// 是否在从节点下运行
+        /// </summary>
+        public static bool IsInSlaveMode
+        {
+            get;set;
+        }
+        /// <summary>
+        /// 是否开启集群模式
+        /// </summary>
+        public static bool IsClusteringMode
+        {
+            get
+            {
+                return ConfigHelper.GetConfigBool("ClusteringMode");
+            }
+        }
 
         private static object _locker_SupportPlatform = new object();
         private static List<SupportPlatform> _SupportPlatforms;
@@ -289,7 +310,7 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="sellerId"></param>
         /// <param name="itemId"></param>
         /// <param name="timeOut"></param>
-        public static void SetToRedisYouHuiQuanDetailsList(string platform, long sellerId, long itemId, List<Youhuiquan> quanList, int? timeOut=null)
+        public static void SetToRedisYouHuiQuanDetailsList(string platform, long sellerId, long itemId, List<Youhuiquan> quanList, int? timeOut = null)
         {
             if (null == timeOut)
             {

@@ -23,7 +23,7 @@ namespace ShoppingWebCrawler.Host.AppStart
             //1 设定当前程序运行的主上下文
             GlobalContext.SyncContext = SynchronizationContext.Current;
 
-       
+
 
             //2 初始化CEF运行时
             #region 初始化CEF运行时
@@ -32,67 +32,75 @@ namespace ShoppingWebCrawler.Host.AppStart
             {
                 //加载CEF 运行时  lib cef
                 CefRuntime.Load();
-           
 
 
-          
 
-            var mainArgs = new CefMainArgs(args);
-            var app = new HeadLessWebBrowerApp();
-
-
-            //执行CEF启动进程
-            var exitCode = CefRuntime.ExecuteProcess(mainArgs, app, IntPtr.Zero);
-            if (exitCode != -1)
-                return exitCode;
-
-            // CEF的配置参数，有很多参数，我们这里挑几个解释一下： 
-            //SingleProcess = false：此处目的是使用多进程。 
-            //注意： 强烈不建议使用单进程，单进程不稳定，而且Chromium内核不支持
-            //MultiThreadedMessageLoop = true：此处的目的是让浏览器的消息循环在一个单独的线程中执行
-            //注意： 强烈建议设置成true,要不然你得在你的程序中自己处理消息循环；自己调用CefDoMessageLoopWork()
-            //Locale = "zh-CN"：webkit用到的语言资源，如果不设置，默认将为en - US
-            //注意： 可执行文件所在的目录一定要有locals目录，而且这个目录下要有相应的资源文件
+                var mainArgs = new CefMainArgs(args);
+                var app = new HeadLessWebBrowerApp();
 
 
-            var settings = new CefSettings
-            {
-                // BrowserSubprocessPath = @"D:\fddima\Projects\Xilium\Xilium.CefGlue\CefGlue.Demo\bin\Release\Xilium.CefGlue.Demo.exe",
-                SingleProcess = false,//开启多进程模型，tab  进程独立模式
-                MultiThreadedMessageLoop = true,//开启多线程任务
-                WindowlessRenderingEnabled = true,//开启无头模式
-                //Locale = "en-US",
-                LogSeverity = CefLogSeverity.Disable,
-                //LogFile = "CefGlue.log",
-                NoSandbox = true,
-                UserAgent=GlobalContext.ChromeUserAgent,
-                UserDataPath =System.IO.Path.Combine(Environment.CurrentDirectory,"UserData"),
-                CachePath = System.IO.Path.Combine(Environment.CurrentDirectory, "LocalCache")
-            };
+                //执行CEF启动进程，如果是二级进程 ，那么执行后返回exitCode，启动进程是 -1
+                /*// CefExecuteProcess returns -1 for the host process
+                 CefExecuteProcess()方法来检测是否要启动其它的子进程。此处的CefExecuteProcess是在libcef_dll_wrapper.cc中的，它内部又调用了cef_execute_process方法（libcef_dll.cc），cef_execute_process又调用了libcef/browser/context.cc文件内实现的CefExecuteProcess方法
+                它分析了命令行参数，提取”type”参数，如果为空，说明是Browser进程，返回-1，这样一路回溯到wWinMain方法里，然后开始创建Browser进程相关的内容。
+如果”type”参数不为空，做一些判断，最后调用了content::ContentMain方法，直到这个方法结束，子进程随之结束。
+                 *  */
+
+                SlaveRemoteServer.StartAsync(app);
+                var exitCode = CefRuntime.ExecuteProcess(mainArgs, app, IntPtr.Zero);
+
+                if (exitCode != -1)
+                {
+                    return exitCode;
+                }
+
+                //一旦为 -1 ,那么表示为Host  进程，对cef  运行时进行初始化操作---
+
+                // CEF的配置参数，有很多参数，我们这里挑几个解释一下： 
+                //SingleProcess = false：此处目的是使用多进程。 
+                //注意： 强烈不建议使用单进程，单进程不稳定，而且Chromium内核不支持
+                //MultiThreadedMessageLoop = true：此处的目的是让浏览器的消息循环在一个单独的线程中执行
+                //注意： 强烈建议设置成true,要不然你得在你的程序中自己处理消息循环；自己调用CefDoMessageLoopWork()
+                //Locale = "zh-CN"：webkit用到的语言资源，如果不设置，默认将为en - US
+                //注意： 可执行文件所在的目录一定要有locals目录，而且这个目录下要有相应的资源文件
+
+                var settings = new CefSettings
+                {
+                    // BrowserSubprocessPath = @"D:\fddima\Projects\Xilium\Xilium.CefGlue\CefGlue.Demo\bin\Release\Xilium.CefGlue.Demo.exe",
+                    SingleProcess = false,//开启多进程模型，tab  进程独立模式
+                    MultiThreadedMessageLoop = true,//开启多线程任务
+                    WindowlessRenderingEnabled = true,//开启无头模式
+                                                      //Locale = "en-US",
+                    LogSeverity = CefLogSeverity.Disable,
+                    //LogFile = "CefGlue.log",
+                    NoSandbox = true,
+                    UserAgent = GlobalContext.ChromeUserAgent,
+                    UserDataPath = System.IO.Path.Combine(Environment.CurrentDirectory, "UserData"),
+                    CachePath = System.IO.Path.Combine(Environment.CurrentDirectory, "LocalCache")
+                };
 
 
-            // DevTools doesn't seem to be working when this is enabled
-            // http://magpcss.org/ceforum/viewtopic.php?f=6&t=14095
-            //settings.CefCommandLineArgs.Add("enable-begin-frame-scheduling", "1");
+                // DevTools doesn't seem to be working when this is enabled
+                // http://magpcss.org/ceforum/viewtopic.php?f=6&t=14095
+                //settings.CefCommandLineArgs.Add("enable-begin-frame-scheduling", "1");
 
-            // Disable GPU in WPF and Offscreen examples until #1634 has been resolved
-            //settings.CefCommandLineArgs.Add("disable-gpu", "1");
-
-            //初始化  CEF进程参数设置
-            CefRuntime.Initialize(mainArgs, settings, app, IntPtr.Zero);
+                // Disable GPU in WPF and Offscreen examples until #1634 has been resolved
+                //settings.CefCommandLineArgs.Add("disable-gpu", "1");
+                //初始化  CEF进程参数设置
+                CefRuntime.Initialize(mainArgs, settings, app, IntPtr.Zero);
 
             }
             catch (Exception ex)
             {
+
                 Logger.Error(ex);
                 return 3;
             }
 
             #endregion
-
             //3 开启总控TCP端口，用来接收站点的请求--开启后 会阻塞进程 防止结束
             // 总控端口 负责 1 收集请求 响应请求 2 收集分布的采集客户端 登记注册可用的端，用来做CDN 任务分发，做负载均衡
-            RemoteServer.Start();
+            MasterRemoteServer.Start();
 
             //4 定时清理器
             #region 定时清理控制台
@@ -101,8 +109,9 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             //5 阿里妈妈等平台登录
             #region  阿里妈妈等平台网页初始化操作
-       
-            System.Threading.Tasks.Task.Factory.StartNew(() =>{
+
+            System.Threading.Tasks.Task.Factory.StartNew(() =>
+            {
 
 
                 //----------注意：由于开启了多进程模型，不同的网址在不同的tab,每个tab 在其独立的进程中-------
@@ -121,7 +130,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                     {
                         BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
                         //静态属性访问一次 即可触发打开页面
-                        var loader=servieInstance.RequestLoader;
+                        var loader = servieInstance.RequestLoader;
                     }
                 }
 

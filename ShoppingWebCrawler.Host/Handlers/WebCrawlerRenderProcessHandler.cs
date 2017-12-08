@@ -10,6 +10,10 @@ namespace ShoppingWebCrawler.Host.Handlers
 
     internal sealed class WebCrawlerRenderProcessHandler : CefRenderProcessHandler
     {
+ 
+
+        public event EventHandler<CefBrowser> HandlerOfOnBrowserCreated;
+
         internal static bool DumpProcessMessages { get; private set; }
 
         public WebCrawlerRenderProcessHandler()
@@ -27,6 +31,17 @@ namespace ShoppingWebCrawler.Host.Handlers
         protected override void OnContextReleased(CefBrowser browser, CefFrame frame, CefV8Context context)
         {
             MessageRouter.OnContextReleased(browser, frame, context);
+        }
+        /// <summary>
+        /// 当CefBrowser 创建完毕后的事件
+        /// </summary>
+        /// <param name="browser"></param>
+        protected override void OnBrowserCreated(CefBrowser browser)
+        {
+            if (null!= HandlerOfOnBrowserCreated)
+            {
+                HandlerOfOnBrowserCreated.Invoke(this, browser);
+            }
         }
 
         protected override bool OnProcessMessageReceived(CefBrowser browser, CefProcessId sourceProcess, CefProcessMessage message)

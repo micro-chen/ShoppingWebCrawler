@@ -28,5 +28,10 @@ namespace NTCPMessage
         /// 检索指定商品的券详细
         /// </summary>
         public const string CMD_FetchquanDetails = "quan_details";
+
+        /// <summary>
+        /// 从节点注册端口到主节点
+        /// </summary>
+        public const string CMD_RegisterSlavePort = "register_port";
     }
 }
