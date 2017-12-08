@@ -51,7 +51,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
 
 
         private HttpClientHandler _clientHander;
-        public CookedHttpClient() : this(5000)
+        public CookedHttpClient() : this(10000)
         {
         }
         public CookedHttpClient(int timeOut)
@@ -63,7 +63,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
 
             this._clientHander = new HttpClientHandler() { CookieContainer = this.Cookies, AutomaticDecompression = DecompressionMethods.GZip, AllowAutoRedirect = true };
             this.Client = new HttpClient(_clientHander);
-            this.Client.Timeout = TimeSpan.FromMilliseconds(5000);
+            this.Client.Timeout = TimeSpan.FromMilliseconds(timeOut);
            // this.Client.MaxResponseContentBufferSize = 256000;
         }
 
