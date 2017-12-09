@@ -47,7 +47,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <summary>
         /// CEF组合浏览器
         /// </summary>
-        internal static CookiedCefBrowser mixdBrowser;
+        internal  CookiedCefBrowser mixdBrowser;
 
         //线程队列锁
         private static AutoResetEvent waitHandler = new AutoResetEvent(false);

@@ -24,11 +24,26 @@ https://uland.taobao.com/coupon/list?pid=mm_31965263_6394774_21932422#channel=3
 不确定能不能 附加插件
  public static void AddWebPluginDirectory(string directory)
 
+ 在无头模式下，一个进程承载了所有的webbrowser 对象，
 
+ cef  中文文档
+ https://github.com/fanfeilong/cefutil/blob/master/doc/CEF%20General%20Usage-zh-cn.md#off-screen-rendering
+ 进程(Processes)
 
+CEF3是多进程架构的。Browser被定义为主进程，负责窗口管理，界面绘制和网络交互。
+Blink的渲染和Js的执行被放在一个独立的Render 进程中；除此之外，Render进程还负责Js Binding和对Dom节点的访问。
+ 默认的进程模型中，会为每个标签页创建一个新的Render进程。
+其他进程按需创建，例如管理插件的进程以及处理合成加速的进程等都是按需创建。
 
+ HeadLessCefClient WebCrawlerRenderProcessHandler 中进行IPC消息通信
+ http://blog.csdn.net/foruok/article/details/50584985
+ 发送消息
+ 发送消息需要时 browser对象的实例
+发送消息使用CefBrowser::SendProcessMessage() ，SendProcessMessage第一个参数是CefProcessId，给Browser进程发送，就用PID_BROWSER，给Render进程发送，就用PID_RENDERER。
 
-
+一个从Browser进程发送到Render进程的消息将会在CefRenderProcessHandler::OnProcessMessageReceived()方法里被接收
+一个从Render进程发送到Browser进程的消息将会在CefClient::OnProcessMessageReceived()方法里被接收。
+只要有对应的browser 对象 那么就可以尝试发送消息；两边都有对应的过滤器处理机制
 
 
 

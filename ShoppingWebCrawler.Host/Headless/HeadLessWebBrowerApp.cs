@@ -18,28 +18,34 @@ namespace ShoppingWebCrawler.Host.Headless
         private WebCrawlerBrowserProcessHandler _browserProcessHandler = new WebCrawlerBrowserProcessHandler();
         private WebCrawlerRenderProcessHandler _renderProcessHandler = new WebCrawlerRenderProcessHandler();
 
-        public event EventHandler<CefBrowser> HandlerOfOnBrowserCreated;
+        //public event EventHandler<CefBrowser> HandlerOfOnBrowserCreated;
 
         public HeadLessWebBrowerApp()
         {
-            _renderProcessHandler.HandlerOfOnBrowserCreated += (s, e)=>{
-                if (null!= this.HandlerOfOnBrowserCreated)
-                {
-                    this.HandlerOfOnBrowserCreated(s, e);
-                }
-            };
+            //_renderProcessHandler.HandlerOfOnBrowserCreated += (s, e) =>
+            //{
+            //    if (null != this.HandlerOfOnBrowserCreated)
+            //    {
+            //        this.HandlerOfOnBrowserCreated(s, e);
+            //    }
+            //};
         }
 
+
+          
         protected override void OnBeforeCommandLineProcessing(string processType, CefCommandLine commandLine)
         {
             //禁止使用gpu 加速 在headless 模式下  gpu 有问题
             //参考 http://www.cnblogs.com/koangel/p/5396975.html 
             //https://bitbucket.org/xilium/xilium.cefglue/commits/4146c2b46923593f55d28c7435f017631f86dca0
-            //commandLine.AppendSwitch("disable-gpu", "1");
+            //commandLine.AppendSwitch("renderer-process-limit", "5");//限制render process 的数目
+            //commandLine.AppendSwitch("process-per-tab");
             commandLine.AppendSwitch("disable-gpu");
             commandLine.AppendSwitch("disable-gpu-compositing");
             commandLine.AppendSwitch("enable-begin-frame-scheduling");
             commandLine.AppendSwitch("disable-smooth-scrolling");
+             
+
         }
 
         protected override CefBrowserProcessHandler GetBrowserProcessHandler()

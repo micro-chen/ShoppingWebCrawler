@@ -17,7 +17,7 @@ namespace ShoppingWebCrawler.Host.Handlers
         /// </summary>
         public CefBrowser Browser { get; private set; }
 
-       
+        //public event EventHandler<CefBrowser> HandlerOfOnBrowserCreated;
 
         public HeadLessCefWebLifeSpanHandler()
         {
@@ -30,7 +30,10 @@ namespace ShoppingWebCrawler.Host.Handlers
             base.OnAfterCreated(browser);
 
             Console.WriteLine("CefBrowser has been created .and in lifespan.");
-
+            //if (null != HandlerOfOnBrowserCreated)
+            //{
+            //    HandlerOfOnBrowserCreated.Invoke(this, browser);
+            //}
             //_core.InvokeIfRequired(() => _core.OnBrowserAfterCreated(browser));
         }
 
@@ -42,7 +45,7 @@ namespace ShoppingWebCrawler.Host.Handlers
 
         //protected override void OnBeforeClose(CefBrowser browser)
         //{
-           
+
         //}
 
     }

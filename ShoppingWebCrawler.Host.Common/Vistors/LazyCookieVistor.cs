@@ -6,22 +6,15 @@ using ShoppingWebCrawler.Cef.Core;
 using System.Threading.Tasks;
 using System.Net;
 using System.Collections;
+using ShoppingWebCrawler.Cef.Framework;
+using System.Threading;
 
 namespace ShoppingWebCrawler.Host.Common
 {
 
 
-    public class CookieVistCompletedEventAgrs : EventArgs
-    {
-        #region 属性
+  
 
-        //指向结果集合的引用
-        public IList<CefCookie> Results;
-
-
-        #endregion
-
-    }
 
 
     public class LazyCookieVistor : CefCookieVisitor
@@ -114,6 +107,10 @@ namespace ShoppingWebCrawler.Host.Common
         public bool SetCookieToCookieManager(string url, List<CefCookie> toRegisterCookies)
         {
             bool result = false;
+            if (GlobalContext.IsInSlaveMode)
+            {
+                throw new NotImplementedException("从节点不允许设置cookie！");
+            }
             if (string.IsNullOrEmpty(url) || toRegisterCookies == null)
             {
                 return result;
@@ -161,7 +158,10 @@ namespace ShoppingWebCrawler.Host.Common
         public bool DeleteCookies(string url, string cookieName="")
         {
             var result = false;
-
+            if (GlobalContext.IsInSlaveMode)
+            {
+                throw new NotImplementedException("从节点不允许删除 cookie！");
+            }
             try
             {
                 var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
@@ -270,14 +270,65 @@ namespace ShoppingWebCrawler.Host.Common
         /// <summary>
         /// 返回异步的获取 指定网址的cookies 的Task
         /// </summary>
-        /// <param name="domain">指定的网址</param>
+        /// <param name="domainName">指定的网址</param>
         /// <returns></returns>
-        public Task<IList<CefCookie>> LoadCookiesAsyc(string domain)
+        public Task<IList<CefCookie>> LoadCookiesAsyc(string domainName)
         {
+            //如果是在从节点下运行，那么需要从render 进程，放ipc 消息到browser进程获取cookies
+            if (GlobalContext.IsInSlaveMode)
+            {
+                this._tcs = new TaskCompletionSource<IList<CefCookie>>();
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));//注册一个超时等待的任务
+                cts.Token.Register(() => this._tcs.TrySetCanceled(), useSynchronizationContext: false);
+                //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
+                //事件回调
+                EventHandler<CookieVistCompletedEventAgrs> handler = null;
+                handler = (object s, CookieVistCompletedEventAgrs e) => {
+                    if (null != this._tcs && null != e && e.DomainName == domainName)
+                    {
+                        this._tcs.TrySetResult(e.Results);
+                    }
+                    else
+                    {
+                        //如果没有值  那么设置空值，阻塞结束
+                        this._tcs.TrySetResult(null);
+                    }
+                    //完毕后 移除事件
+                    IPCCommand.OnGetCookieFromBrowserProcessHandler -= handler;
+                };
+
+                IPCCommand.OnGetCookieFromBrowserProcessHandler += handler;
+                
+                try
+                {
+                    //从当前的render 绑定的browser对象，发送进程消息
+                    if (null==GlobalContext.SlaveModeCefBrowserInRenderProcess)
+                    {
+                        string msg = "在 render 进程无对应的browser 对象！！";
+                        Logging.Logger.Info(msg);
+                        Console.WriteLine(msg);
+                    }
+                    var message = CefProcessMessage.Create(IPCCommand.CommandType.GET_COOKIE_FROM_BROWSER_PROCESS.ToString());
+                    message.Arguments.SetString(0, domainName);
+                    var success= GlobalContext.SlaveModeCefBrowserInRenderProcess.SendProcessMessage(CefProcessId.Browser, message);
+                    Console.WriteLine("Sending myMessage3 to browser process = {0}", success);
+                     
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+
+                return this._tcs.Task;
+
+            }
+
+
+            //下面的是 ---------------在 browser 进程----------------------
             //为了安全获取 首先插入一个临时无效的cookie,否则在没有访问页面cookie的时候会不能正确出发 visit 委托
             var tempCookie = new List<CefCookie> {
                 new CefCookie {
-                    Domain =domain.GetUrlCookieDomain(),
+                    Domain =domainName.GetUrlCookieDomain(),
                     Name =__temp_cookie_key_securityGetCookies,
                     Value =DateTime.Now.ToString(),
                     Expires =DateTime.Now.AddYears(1),
@@ -290,7 +341,7 @@ namespace ShoppingWebCrawler.Host.Common
             };
 
 
-            this.SetCookieToCookieManager(domain, tempCookie);
+            this.SetCookieToCookieManager(domainName, tempCookie);
 
             this._tcs = new TaskCompletionSource<IList<CefCookie>>();
             //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
@@ -300,7 +351,7 @@ namespace ShoppingWebCrawler.Host.Common
 
             var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
 
-            var canAccess = ckManager.VisitUrlCookies(domain, true, this);
+            var canAccess = ckManager.VisitUrlCookies(domainName, true, this);
             if (canAccess == false)
             {
                 //如果未能获取有效的cookie 从指定的域  那么立即返回空结果

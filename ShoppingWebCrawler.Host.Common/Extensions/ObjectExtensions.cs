@@ -19,9 +19,10 @@ namespace System
         /// <returns></returns>
         public static string ToJson(this object obj)
         {
-            IsoDateTimeConverter timeFormat = new IsoDateTimeConverter();
-            timeFormat.DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-            return Newtonsoft.Json.JsonConvert.SerializeObject(obj, timeFormat);
+            //IsoDateTimeConverter timeFormat = new IsoDateTimeConverter();
+            //timeFormat.DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+            //return Newtonsoft.Json.JsonConvert.SerializeObject(obj, timeFormat);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
         }
 
        ///// <summary>

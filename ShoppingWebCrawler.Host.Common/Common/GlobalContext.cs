@@ -10,6 +10,7 @@ using NTCPMessage.EntityPackage;
 using System.Net;
 using ShoppingWebCrawler.Host.Common.Caching;
 using System.IO;
+using ShoppingWebCrawler.Cef.Framework;
 
 namespace ShoppingWebCrawler.Host.Common
 {
@@ -107,6 +108,14 @@ namespace ShoppingWebCrawler.Host.Common
         public static bool IsInSlaveMode
         {
             get;set;
+        }
+        /// <summary>
+        /// 在从节点进行运行的进程是在 cef  的rende 进程中；
+        /// 在 render 进程创建browser 回调事件中，获取对应的绑定browser对象
+        /// </summary>
+        public static CefBrowser SlaveModeCefBrowserInRenderProcess
+        {
+            get; set;
         }
         /// <summary>
         /// 是否开启集群模式
@@ -415,10 +424,6 @@ namespace ShoppingWebCrawler.Host.Common
 
                     ////获取当前域名下的Cookies 
                     var currentDomainCookies = (agrs as CookieVistCompletedEventAgrs).Results;
-
-                    //设定全局的Cookie集合
-                    ///GlobalContext.MainPageCooies = currentDomainCookies;
-
 
 
                     if (null != callBackHandler)

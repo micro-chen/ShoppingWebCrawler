@@ -71,6 +71,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="CefWebClient.cs" />
+    <Compile Include="CookieVistCompletedEventAgrs.cs" />
     <Compile Include="FilterSpecialUrlEventArgs.cs" />
     <Compile Include="Handler\CefWebLifeSpanHandler.cs" />
     <Compile Include="Handler\CefWebDisplayHandler.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="ConsoleMessageEventArgs.cs" />
     <Compile Include="Handler\CefWebRequestHandler.cs" />
     <Compile Include="Handler\DefaultContextMenuHandler.cs" />
+    <Compile Include="IPCCommand.cs" />
     <Compile Include="LoadEndEventArgs.cs" />
     <Compile Include="LoadErrorEventArgs.cs" />
     <Compile Include="LoadingStateChangeEventArgs.cs" />

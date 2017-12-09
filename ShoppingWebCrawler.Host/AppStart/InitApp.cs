@@ -73,7 +73,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                                                       //Locale = "en-US",
                     LogSeverity = CefLogSeverity.Disable,
                     //LogFile = "CefGlue.log",
-                    NoSandbox = true,
+                     PersistSessionCookies=true,
                     UserAgent = GlobalContext.ChromeUserAgent,
                     UserDataPath = System.IO.Path.Combine(Environment.CurrentDirectory, "UserData"),
                     CachePath = System.IO.Path.Combine(Environment.CurrentDirectory, "LocalCache")
@@ -82,7 +82,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
                 // DevTools doesn't seem to be working when this is enabled
                 // http://magpcss.org/ceforum/viewtopic.php?f=6&t=14095
-                //settings.CefCommandLineArgs.Add("enable-begin-frame-scheduling", "1");
+                
 
                 // Disable GPU in WPF and Offscreen examples until #1634 has been resolved
                 //settings.CefCommandLineArgs.Add("disable-gpu", "1");

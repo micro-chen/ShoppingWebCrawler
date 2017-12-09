@@ -140,64 +140,27 @@ namespace ShoppingWebCrawler.Host.AppStart
                     return;
                 }
 
-                app.HandlerOfOnBrowserCreated += (s, e) =>
+
+                int port = 0;
+
+                var slaveIdentity = Guid.NewGuid().ToString().ToLower();
+                //开启监听前 ,发送注册当前从节点到主节点，如果可以登记注册成功，那么服务端分配端口
+                port = MasterRemoteServer.RegisterSlaveToMasterAsync(slaveIdentity).Result;
+                if (port <= 0)
                 {
-                    var ck = CefCookieManager.GetGlobal(null);
-                    if (null == ck)
-                    {
-                        var host = e.GetHost().GetRequestContext();
-                        if (null!= host)
-                        {
-                            Console.WriteLine("11111111111111111111111");
-                        }
-                       
-                    }
-                    else
-                    {
-                        Console.WriteLine("666666666666666666666666666");
-                    }
+                    return;//一旦服务端返回无效端口 那么禁止从节点启动监听
+                }
+                listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
+                listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
+                listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
+                listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
 
-                    try
-                    {
-                        var ta = new CookiesSetTask(new List<Cookie> {
-                        new Cookie {
-                        Domain = "www.baidu.com", Value = "aaa", Name = "ggggg" ,Expires=DateTime.Now.AddDays(11),Path="/"
-                        }
-                    });
-                        Console.WriteLine("5555555555555555555555555");
-                        CefRuntime.PostTask(CefThreadId.IO, ta);
+                GlobalContext.IsInSlaveMode = true;//标识正在从节点下工作
 
-                    }
-                    catch
-                    {
-                        Console.WriteLine("22222222222222222222222222222");
-                        return;
-                    }
-
-
-                    int port = 0;
-
-                    var slaveIdentity = Guid.NewGuid().ToString().ToLower();
-                    //开启监听前 ,发送注册当前从节点到主节点，如果可以登记注册成功，那么服务端分配端口
-                    port = MasterRemoteServer.RegisterSlaveToMasterAsync(slaveIdentity).Result;
-                    if (port <= 0)
-                    {
-
-                        return;//一旦服务端返回无效端口 那么禁止从节点启动监听
-                    }
-                    listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
-                    listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
-                    listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
-                    listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
-
-                    GlobalContext.IsInSlaveMode = true;//标识正在从节点下工作
-
-                    //var gg=GlobalContext.DefaultCEFGlobalCookieManager;
-
-                    //开启从节点的监听
-                    listener.Listen();
-                };
+                //开启从节点的监听
+                listener.Listen();
             }
+
             catch (Exception ex)
             {
                 Logger.Error(ex);

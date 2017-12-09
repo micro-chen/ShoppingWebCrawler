@@ -4,20 +4,27 @@ using System.Linq;
 using System.Text;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Cef.Core.Wrapper;
+using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Cef.Framework;
+using System.Collections;
+using Newtonsoft.Json;
 
 namespace ShoppingWebCrawler.Host.Handlers
 {
-
+    /// <summary>
+    /// 存活在 render 进程中
+    /// </summary>
     internal sealed class WebCrawlerRenderProcessHandler : CefRenderProcessHandler
     {
  
 
-        public event EventHandler<CefBrowser> HandlerOfOnBrowserCreated;
+       // public event EventHandler<CefBrowser> HandlerOfOnBrowserCreated;
 
         internal static bool DumpProcessMessages { get; private set; }
 
         public WebCrawlerRenderProcessHandler()
         {
+            DumpProcessMessages = true;
             MessageRouter = new CefMessageRouterRendererSide(new CefMessageRouterConfig());
         }
 
@@ -38,12 +45,29 @@ namespace ShoppingWebCrawler.Host.Handlers
         /// <param name="browser"></param>
         protected override void OnBrowserCreated(CefBrowser browser)
         {
-            if (null!= HandlerOfOnBrowserCreated)
+            //if (null != HandlerOfOnBrowserCreated)
+            //{
+            //    HandlerOfOnBrowserCreated.Invoke(this, browser);
+            //}
+
+            //var message3 = CefProcessMessage.Create("myMessage33");
+            //message3.Arguments.SetString(0, "AAAAAAAAAAAA");
+            //var success2 = browser.SendProcessMessage(CefProcessId.Browser, message3);
+            //Console.WriteLine("Sending myMessage3 to browser process = {0}", success2);
+            if (GlobalContext.IsInSlaveMode==true)
             {
-                HandlerOfOnBrowserCreated.Invoke(this, browser);
+                //当在从节点 工作的时候，其实是在 render 进程工作，此时记录下对应的cef browser 对象
+                GlobalContext.SlaveModeCefBrowserInRenderProcess = browser;
             }
         }
 
+        /// <summary>
+        /// 从对应的browser 进程中消息过滤filter 处理
+        /// </summary>
+        /// <param name="browser"></param>
+        /// <param name="sourceProcess"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         protected override bool OnProcessMessageReceived(CefBrowser browser, CefProcessId sourceProcess, CefProcessMessage message)
         {
             if (DumpProcessMessages)
@@ -72,17 +96,33 @@ namespace ShoppingWebCrawler.Host.Handlers
             var handled = MessageRouter.OnProcessMessageReceived(browser, sourceProcess, message);
             if (handled) return true;
 
-            if (message.Name == "myMessage2") return true;
+            //if (message.Name == "myMessage2") return true;
 
-            var message2 = CefProcessMessage.Create("myMessage2");
-            var success = browser.SendProcessMessage(CefProcessId.Renderer, message2);
-            Console.WriteLine("Sending myMessage2 to renderer process = {0}", success);
+            //var message2 = CefProcessMessage.Create("myMessage2");
+            //var success = browser.SendProcessMessage(CefProcessId.Renderer, message2);
+            //Console.WriteLine("Sending myMessage2 to renderer process = {0}", success);
 
-            var message3 = CefProcessMessage.Create("myMessage3");
-            var success2 = browser.SendProcessMessage(CefProcessId.Browser, message3);
-            Console.WriteLine("Sending myMessage3 to browser process = {0}", success);
-
-            return false;
+            //var message3 = CefProcessMessage.Create("myMessage3");
+            //var success2 = browser.SendProcessMessage(CefProcessId.Browser, message3);
+            //Console.WriteLine("Sending myMessage3 to browser process = {0}", success);
+            if (message.Name.Equals(IPCCommand.CommandType.GET_COOKIE_FROM_BROWSER_PROCESS.ToString()))
+            {
+                var argumentsInMsg = message.Arguments;
+                string domainName = argumentsInMsg.GetString(0);
+                string message_cookies = argumentsInMsg.GetString(1);
+                if (!string.IsNullOrEmpty(domainName))
+                {
+                    //todo call back
+                    if (!string.IsNullOrEmpty(message_cookies))
+                    {
+                        var lstCookies = JsonConvert.DeserializeObject<List<CefCookie>>(message_cookies);
+                        IPCCommand.OnGetCookieFromBrowserProcess(domainName, lstCookies);
+                    }
+                 
+                 
+                }
+            }
+            return true;
         }
     }
 

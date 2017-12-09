@@ -79,5 +79,10 @@
                 // FIXME: caching ?
             }
         }
+
+        public static object Create(object p)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

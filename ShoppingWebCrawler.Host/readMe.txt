@@ -1,4 +1,31 @@
 ﻿    HeadLessWebBrowerApp  实现了无头浏览器的操作
+	  // Instruct CEF to not render to a window at all.
+            CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
+            cefWindowInfo.SetAsWindowless(IntPtr.Zero, true);
+
+            // Settings for the browser window itself (e.g. should JavaScript be enabled?).
+            var cefBrowserSettings = new CefBrowserSettings();
+
+            // Initialize some the cust interactions with the browser process.
+            // The browser window will be 1280 x 720 (pixels).
+            var cefClient = new HeadLessCefClient(1, 1);
+            var loader = cefClient.GetCurrentLoadHandler();
+            loader.BrowserCreated += (s, e) =>
+            {
+
+                //事件通知 当cef  browser 创建完毕
+                //创建完毕后 保存 browser 对象的实例
+                var brw = e.Browser;
+                var etaoBrowser = new CookiedCefBrowser { CefBrowser = brw, CefLoader = loader, CefClient = cefClient };
+
+                tcs.TrySetResult(etaoBrowser);
+            };
+            ////注册  加载完毕事件handler
+            //loader.LoadEnd += this.OnWebBrowserLoadEnd;
+            // Start up the browser instance.
+            string url = "about:blank";
+            CefBrowserHost.CreateBrowser(cefWindowInfo, cefClient, cefBrowserSettings, url);
+             
 
 	在部署的时候 一定要部署N>1 个实例  一个程序实例 在运行基于CEF内核操作数据请求的时候 ，效果不理想
 并且在单个程序进程中，用多个线程去处理CEF内核 会出现 Cookie 抢用的情况；比如操作同一个网址  出现设置同名Cookie

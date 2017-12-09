@@ -161,6 +161,10 @@
       <Project>{703ff300-34b9-48d4-a5d6-e741f48d5f95}</Project>
       <Name>ShoppingWebCrawler.Cef.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ShoppingWebCrawler.Cef.Framework\ShoppingWebCrawler.Cef.Framework.csproj">
+      <Project>{679AF14D-8FF5-4608-BFF8-EC1A7DED04A4}</Project>
+      <Name>ShoppingWebCrawler.Cef.Framework</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Common\readMe.txt" />
