@@ -127,9 +127,13 @@ namespace ShoppingWebCrawler.Host.AppStart
         public  static void StartAsync(HeadLessWebBrowerApp app)
         {
             //Task.Run(() => {
-
+           
             try
             {
+                if (false == GlobalContext.IsClusteringMode)//是否开启集群模式
+                {
+                    return;
+                }
                 if (null == app)
                 {
                     return;

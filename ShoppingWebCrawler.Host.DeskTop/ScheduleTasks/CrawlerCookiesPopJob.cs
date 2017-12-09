@@ -72,7 +72,7 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
                         continue;
                     }
                     var domian = siteObj.SiteUrl;
-                    var cks = new LazyCookieVistor().LoadNativCookies(domian);
+                    var cks = new LazyCookieVistor().LoadNativCookies(domian,true);
 
 
                     if (null != cks && cks.IsNotEmpty())
@@ -81,7 +81,7 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
                         if (platform == SupportPlatformEnum.Taobao)
                         {
                             //推送爱淘宝-券官网的cookie到淘宝
-                            var cks_aiTaoBao = new LazyCookieVistor().LoadNativCookies(GlobalContext.AiTaobaoSiteURL);
+                            var cks_aiTaoBao = new LazyCookieVistor().LoadNativCookies(GlobalContext.AiTaobaoSiteURL, true);
                             if (null != cks_aiTaoBao && cks_aiTaoBao.IsNotEmpty())
                             {
                                 for (int i = 0; i < cks_aiTaoBao.Count; i++)
@@ -95,17 +95,17 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
                                 }
                             }
                         }
-                        GlobalContext.DeskPushToRedisCookies(platform, cks);
+                        GlobalContext.PushToRedisCookies(domian, cks);
                     }
 
 
                 }
 
                 //推送轻淘客cookies
-                var cks_qingTaoke = new LazyCookieVistor().LoadNativCookies(GlobalContext.QingTaokeSiteURL);
+                var cks_qingTaoke = new LazyCookieVistor().LoadNativCookies(GlobalContext.QingTaokeSiteURL,true);
                 if (null != cks_qingTaoke && cks_qingTaoke.IsNotEmpty())
                 {
-                    GlobalContext.DeskPushToRedisCookies(GlobalContext.QingTaokeSiteName, cks_qingTaoke);
+                    GlobalContext.PushToRedisCookies(GlobalContext.QingTaokeSiteURL, cks_qingTaoke);
                 }
 
 

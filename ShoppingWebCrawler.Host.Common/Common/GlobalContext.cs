@@ -31,11 +31,7 @@ namespace ShoppingWebCrawler.Host.Common
             get
             {
                 var ckManager= CefCookieManager.GetGlobal(null);
-              
-                //if (null==ckManager)
-                //{
-                //    Console.WriteLine("麻痹 的的的 的的    空cookie 管理姻缘啊  啊啊");
-                //}
+
                 return ckManager;
             }
         }
@@ -207,62 +203,64 @@ namespace ShoppingWebCrawler.Host.Common
         #region cookies 跨机器
 
 
-        private static readonly string PrefixDeskPushToRedisCookies = "Desk.Platform.Cookies.";
+        private static readonly string PrefixPushToRedisCookies = "CefCookies.";
         public static EventHandler<PushToRedisCookiesEventArgs> HandlerPushToRedisCookies;
 
         /// <summary>
         /// 推送其他平台的cookie
         /// </summary>
-        /// <param name="otherPlatform"></param>
+        /// <param name="domainName"></param>
         /// <param name="cookies"></param>
-        public static void DeskPushToRedisCookies(string otherPlatform, IEnumerable<CefCookie> cookies)
+        /// <param name="timeOut"></param>
+        public static void PushToRedisCookies(string domainName, IEnumerable<CefCookie> cookies,int timeOut=30)
         {
-
             //键
-            var key = string.Concat(PrefixDeskPushToRedisCookies, otherPlatform);
-            RedisClient.SetAsync(key, cookies);
+            var key = string.Concat(PrefixPushToRedisCookies, domainName);
+            RedisClient.SetAsync(key, cookies, timeOut);
         }
+        ///// <summary>
+        ///// 发送cookie到redis
+        ///// </summary>
+        ///// <param name="platform"></param>
+        ///// <param name="cookies"></param>
+        //public static void PushToRedisCookies(SupportPlatformEnum platform, IEnumerable<CefCookie> cookies)
+        //{
+
+        //    //键
+        //    var key = string.Concat(PrefixPushToRedisCookies, platform.ToString());
+        //    RedisClient.SetAsync(key, cookies);
+        //}
+
+
         /// <summary>
-        /// 从桌面版发送cookie到redis
+        /// 拉取发送cookie到redis
         /// </summary>
-        /// <param name="platform"></param>
-        /// <param name="cookies"></param>
-        public static void DeskPushToRedisCookies(SupportPlatformEnum platform, IEnumerable<CefCookie> cookies)
+        /// <param name="domainName"></param>
+        public static List<CefCookie> PullFromRedisCookies(string domainName)
         {
 
             //键
-            var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());
-            RedisClient.SetAsync(key, cookies);
-        }
-
-
-        /// <summary>
-        /// 拉取桌面版发送cookie到redis
-        /// </summary>
-        /// <param name="platform"></param>
-        /// <param name="cookies"></param>
-        public static List<CefCookie> DeskPullFromRedisCookies(string otherPlatform)
-        {
-
-            //键
-            var key = string.Concat(PrefixDeskPushToRedisCookies, otherPlatform);
+            var key = string.Concat(PrefixPushToRedisCookies, domainName);
             var cookies = RedisClient.Get<List<CefCookie>>(key);
 
             return cookies;
         }
         /// <summary>
-        /// 拉取桌面版发送cookie到redis
+        /// 拉取发送cookie到redis
         /// </summary>
         /// <param name="platform"></param>
         /// <param name="cookies"></param>
-        public static List<CefCookie> DeskPullFromRedisCookies(SupportPlatformEnum platform)
+        public static List<CefCookie> PullFromRedisCookies(SupportPlatformEnum platform)
         {
-
+            var siteObj = GlobalContext.SupportPlatforms.Find(x => x.Platform == platform);
+            if (null == siteObj)
+            {
+                string platformDescription = platform.GetEnumDescription();
+                string errMsg = string.Format($"CrawlerCookiesPopJob,未能正确从配置文件加载平台地址：{platformDescription ?? platform.ToString()}");
+                throw new Exception(errMsg);
+            }
             //键
-            var key = string.Concat(PrefixDeskPushToRedisCookies, platform.ToString());
-            var cookies = RedisClient.Get<List<CefCookie>>(key);
-
-            return cookies;
+            return PullFromRedisCookies(siteObj.SiteUrl);
         }
         #endregion
 

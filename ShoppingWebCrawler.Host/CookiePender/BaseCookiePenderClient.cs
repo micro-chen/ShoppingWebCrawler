@@ -34,7 +34,7 @@ namespace ShoppingWebCrawler.Host.CookiePender
             try
             {
 
-                var cks_Platform = GlobalContext.DeskPullFromRedisCookies(platform);
+                var cks_Platform = GlobalContext.PullFromRedisCookies(platform);
                 if (null == cks_Platform || cks_Platform.IsEmpty())
                 {
                     return result;
@@ -60,7 +60,7 @@ namespace ShoppingWebCrawler.Host.CookiePender
             try
             {
 
-                var cks_Platform = GlobalContext.DeskPullFromRedisCookies(otherPlatform);
+                var cks_Platform = GlobalContext.PullFromRedisCookies(otherPlatform);
                 if (null == cks_Platform || cks_Platform.IsEmpty())
                 {
                     return result;

@@ -12,11 +12,9 @@ using System.Threading;
 namespace ShoppingWebCrawler.Host.Common
 {
 
-
-  
-
-
-
+    /// <summary>
+    /// cef  cookie管理器的扩展类
+    /// </summary>
     public class LazyCookieVistor : CefCookieVisitor
     {
 
@@ -109,7 +107,7 @@ namespace ShoppingWebCrawler.Host.Common
             bool result = false;
             if (GlobalContext.IsInSlaveMode)
             {
-                throw new NotImplementedException("从节点不允许设置cookie！");
+                return true;
             }
             if (string.IsNullOrEmpty(url) || toRegisterCookies == null)
             {
@@ -155,12 +153,12 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="url"></param>
         /// <param name="cookieName"></param>
         /// <returns></returns>
-        public bool DeleteCookies(string url, string cookieName="")
+        public bool DeleteCookies(string url, string cookieName = "")
         {
             var result = false;
             if (GlobalContext.IsInSlaveMode)
             {
-                throw new NotImplementedException("从节点不允许删除 cookie！");
+                return true;
             }
             try
             {
@@ -172,7 +170,7 @@ namespace ShoppingWebCrawler.Host.Common
                     {
                         foreach (var item in currentDomainCookies)
                         {
-                           ckManager.DeleteCookies(url, item.Name, null);
+                            ckManager.DeleteCookies(url, item.Name, null);
                         }
                         result = true;
                     }
@@ -192,11 +190,12 @@ namespace ShoppingWebCrawler.Host.Common
         }
 
         /// <summary>
-        /// 获取原始的 cefcookie集合
+        /// 获取原生的 cefcookie集合
         /// </summary>
         /// <param name="domain"></param>
+        /// <param name="isForceNative"></param>
         /// <returns></returns>
-        public IList<CefCookie> LoadNativCookies(string domain)
+        public IList<CefCookie> LoadNativCookies(string domain, bool isForceNative = false)
         {
             if (string.IsNullOrEmpty(domain))
             {
@@ -205,7 +204,7 @@ namespace ShoppingWebCrawler.Host.Common
 
 
             ///获取异步执行的Task的结果
-            IList<CefCookie> results = this.LoadCookiesAsyc(domain)
+            IList<CefCookie> results = this.LoadCookiesAsyc(domain, isForceNative)
                 .ConfigureAwait(false)
                 .GetAwaiter()
                 .GetResult();
@@ -214,10 +213,12 @@ namespace ShoppingWebCrawler.Host.Common
         }
 
         /// <summary>
-        /// 加载Cookies
         /// 加载cefcookie到 CLR 的Cookie对象集合
         /// </summary>
-        public List<Cookie> LoadCookies(string domain)
+        /// <param name="domain"></param>
+        /// <param name="isForceNative"></param>
+        /// <returns></returns>
+        public List<Cookie> LoadCookies(string domain, bool isForceNative = false)
         {
             var lst = new List<Cookie>();
             if (string.IsNullOrEmpty(domain))
@@ -227,7 +228,7 @@ namespace ShoppingWebCrawler.Host.Common
 
 
             ///获取异步执行的Task的结果
-            IEnumerable<CefCookie> results = this.LoadCookiesAsyc(domain)
+            IEnumerable<CefCookie> results = this.LoadCookiesAsyc(domain, isForceNative)
                 .ConfigureAwait(false)
                 .GetAwaiter()
                 .GetResult();
@@ -271,38 +272,70 @@ namespace ShoppingWebCrawler.Host.Common
         /// 返回异步的获取 指定网址的cookies 的Task
         /// </summary>
         /// <param name="domainName">指定的网址</param>
+        /// <param name="isForceNative">强行加载浏览器cookie 不从缓存中</param>
         /// <returns></returns>
-        public Task<IList<CefCookie>> LoadCookiesAsyc(string domainName)
+        public Task<IList<CefCookie>> LoadCookiesAsyc(string domainName,bool isForceNative=false)
         {
+
+          
+            if (string.IsNullOrEmpty(domainName))
+            {
+                return Task.FromResult<IList<CefCookie>>(null);
+            }
+            if (!isForceNative)
+            {
+                //加上redis  缓存
+                var cookiesFromCache = GlobalContext.PullFromRedisCookies(domainName);
+                if (null != cookiesFromCache && cookiesFromCache.IsNotEmpty())
+                {
+                    return Task.FromResult<IList<CefCookie>>(cookiesFromCache);
+                }
+            }
+           
+
+
+            this._tcs = new TaskCompletionSource<IList<CefCookie>>();
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));//注册一个超时等待的任务
+            cts.Token.Register(() => this._tcs.TrySetCanceled(), useSynchronizationContext: false);
+            //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
+            //事件回调
+            EventHandler<CookieVistCompletedEventAgrs> handler = null;
+            handler = (object s, CookieVistCompletedEventAgrs e) =>
+            {
+                if (null != this._tcs && null != e )
+                {
+                    this._tcs.TrySetResult(e.Results);
+                    GlobalContext.PushToRedisCookies(domainName, e.Results);//异步推送cookie到redis
+                }
+                else
+                {
+                    //如果没有值  那么设置空值，阻塞结束
+                    this._tcs.TrySetResult(null);
+                }
+                //完毕后 移除事件
+                if (GlobalContext.IsInSlaveMode)
+                {
+                    //从节点注销委托
+                    IPCCommand.OnGetCookieFromBrowserProcessHandler -= handler;
+                }
+                else
+                {
+                    //主节点 注销委托
+                    this.VistCookiesCompleted -= handler;
+                }
+               
+            };
+
             //如果是在从节点下运行，那么需要从render 进程，放ipc 消息到browser进程获取cookies
             if (GlobalContext.IsInSlaveMode)
             {
-                this._tcs = new TaskCompletionSource<IList<CefCookie>>();
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));//注册一个超时等待的任务
-                cts.Token.Register(() => this._tcs.TrySetCanceled(), useSynchronizationContext: false);
-                //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
-                //事件回调
-                EventHandler<CookieVistCompletedEventAgrs> handler = null;
-                handler = (object s, CookieVistCompletedEventAgrs e) => {
-                    if (null != this._tcs && null != e && e.DomainName == domainName)
-                    {
-                        this._tcs.TrySetResult(e.Results);
-                    }
-                    else
-                    {
-                        //如果没有值  那么设置空值，阻塞结束
-                        this._tcs.TrySetResult(null);
-                    }
-                    //完毕后 移除事件
-                    IPCCommand.OnGetCookieFromBrowserProcessHandler -= handler;
-                };
-
+                //向IPC  render  进程注册事件委托
                 IPCCommand.OnGetCookieFromBrowserProcessHandler += handler;
-                
+
                 try
                 {
                     //从当前的render 绑定的browser对象，发送进程消息
-                    if (null==GlobalContext.SlaveModeCefBrowserInRenderProcess)
+                    if (null == GlobalContext.SlaveModeCefBrowserInRenderProcess)
                     {
                         string msg = "在 render 进程无对应的browser 对象！！";
                         Logging.Logger.Info(msg);
@@ -310,9 +343,9 @@ namespace ShoppingWebCrawler.Host.Common
                     }
                     var message = CefProcessMessage.Create(IPCCommand.CommandType.GET_COOKIE_FROM_BROWSER_PROCESS.ToString());
                     message.Arguments.SetString(0, domainName);
-                    var success= GlobalContext.SlaveModeCefBrowserInRenderProcess.SendProcessMessage(CefProcessId.Browser, message);
+                    var success = GlobalContext.SlaveModeCefBrowserInRenderProcess.SendProcessMessage(CefProcessId.Browser, message);
                     Console.WriteLine("Sending myMessage3 to browser process = {0}", success);
-                     
+
                 }
                 catch (Exception ex)
                 {
@@ -343,11 +376,10 @@ namespace ShoppingWebCrawler.Host.Common
 
             this.SetCookieToCookieManager(domainName, tempCookie);
 
-            this._tcs = new TaskCompletionSource<IList<CefCookie>>();
+            //this._tcs = new TaskCompletionSource<IList<CefCookie>>();
             //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
             //事件回调
-            this.VistCookiesCompleted -= HandlerVistCookiesCompleted;
-            this.VistCookiesCompleted += HandlerVistCookiesCompleted;
+            this.VistCookiesCompleted += handler;
 
             var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
 
@@ -361,18 +393,18 @@ namespace ShoppingWebCrawler.Host.Common
 
             return this._tcs.Task;
         }
-        /// <summary>
-        /// 内部委托接受读取cookies 事件完毕
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void HandlerVistCookiesCompleted(object sender, CookieVistCompletedEventAgrs e)
-        {
-            if (null != this._tcs)
-            {
-                this._tcs.TrySetResult(e.Results);
-            }
-        }
+        ///// <summary>
+        ///// 内部委托接受读取cookies 事件完毕
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void HandlerVistCookiesCompleted(object sender, CookieVistCompletedEventAgrs e)
+        //{
+        //    if (null != this._tcs)
+        //    {
+        //        this._tcs.TrySetResult(e.Results);
+        //    }
+        //}
 
 
         protected override bool Visit(CefCookie cookie, int count, int total, out bool delete)
@@ -392,7 +424,7 @@ namespace ShoppingWebCrawler.Host.Common
             if ((count + 1) == total)
             {
                 //遍历完毕最后的Cookie后，通知订阅事件
-                var agrs = new CookieVistCompletedEventAgrs() { Results = this.Results };
+                var agrs = new CookieVistCompletedEventAgrs() {  Results = this.Results };
                 this.OnVistCookiesCompleted(agrs);
             }
 
