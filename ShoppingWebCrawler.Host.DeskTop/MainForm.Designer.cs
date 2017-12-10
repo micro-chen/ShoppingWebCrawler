@@ -294,7 +294,7 @@
             // 
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolButton,
-             this.addressTextBox,
+            this.addressTextBox,
             this.goButton});
             this.toolStrip.Location = new System.Drawing.Point(0, 25);
             this.toolStrip.Name = "toolStrip";
@@ -392,7 +392,7 @@
         private System.Windows.Forms.ContextMenuStrip tabContextMenu;
         private System.Windows.Forms.ToolStripMenuItem newTabContextMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeTabContextMenuItem;
-        private ToolStripSpringTextBox addressTextBox;
+        private ShoppingWebCrawler.Host.DeskTop.ToolStripSpringTextBox addressTextBox;
         private System.Windows.Forms.ToolStripButton goButton;
         private System.Windows.Forms.ToolStripStatusLabel statusLabel;
         private System.Windows.Forms.ToolStripMenuItem menu_Cookies;

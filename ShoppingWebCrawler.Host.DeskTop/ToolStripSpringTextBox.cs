@@ -1,12 +1,16 @@
-﻿namespace ShoppingWebCrawler.Host.DeskTop
+﻿
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+namespace ShoppingWebCrawler.Host.DeskTop
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Linq;
-    using System.Text;
-    using System.Windows.Forms;
 
+    /// <summary>
+    /// 地址栏控件
+    /// </summary>
     internal class ToolStripSpringTextBox : ToolStripTextBox
     {
        public  override Size GetPreferredSize(Size constrainingSize)
