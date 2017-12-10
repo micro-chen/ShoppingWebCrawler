@@ -124,56 +124,57 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// 开启套接字监听
         /// </summary>
 
-        public  static void StartAsync(HeadLessWebBrowerApp app)
+        public static void StartAsync(HeadLessWebBrowerApp app)
         {
-            //Task.Run(() => {
-           
-            try
+            Task.Run(() =>
             {
-                if (false == GlobalContext.IsClusteringMode)//是否开启集群模式
+
+                try
                 {
-                    return;
+                    if (false == GlobalContext.IsClusteringMode)//是否开启集群模式
+                    {
+                        return;
+                    }
+                    if (null == app)
+                    {
+                        return;
+                    }
+                    //一旦主控节点开启并正确返回结果
+                    if (!MasterRemoteServer.IsMasterStarted())
+                    {
+                        return;
+                    }
+
+
+                    int port = 0;
+
+                    var slaveIdentity = Guid.NewGuid().ToString().ToLower();
+                    //开启监听前 ,发送注册当前从节点到主节点，如果可以登记注册成功，那么服务端分配端口
+                    port = MasterRemoteServer.RegisterSlaveToMasterAsync(slaveIdentity).Result;
+                    if (port <= 0)
+                    {
+                        return;//一旦服务端返回无效端口 那么禁止从节点启动监听
+                    }
+                    listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
+                    listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
+                    listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
+                    listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
+
+                    GlobalContext.IsInSlaveMode = true;//标识正在从节点下工作
+
+                    //开启从节点的监听
+                    listener.Listen();
                 }
-                if (null == app)
+
+                catch (Exception ex)
                 {
-                    return;
-                }
-                //一旦主控节点开启并正确返回结果
-                if (!MasterRemoteServer.IsMasterStarted())
-                {
-                    return;
+                    Logger.Error(ex);
                 }
 
 
-                int port = 0;
 
-                var slaveIdentity = Guid.NewGuid().ToString().ToLower();
-                //开启监听前 ,发送注册当前从节点到主节点，如果可以登记注册成功，那么服务端分配端口
-                port = MasterRemoteServer.RegisterSlaveToMasterAsync(slaveIdentity).Result;
-                if (port <= 0)
-                {
-                    return;//一旦服务端返回无效端口 那么禁止从节点启动监听
-                }
-                listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
-                listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
-                listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
-                listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
 
-                GlobalContext.IsInSlaveMode = true;//标识正在从节点下工作
-
-                //开启从节点的监听
-                listener.Listen();
-            }
-
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
-         
-
-               
-
-            // });
+            });
 
             //System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
 
@@ -208,7 +209,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         protected override void Execute()
         {
-           
+
             foreach (var cookie in _cookies)
             {
                 CefCookieManager.GetGlobal(null).SetCookie(cookie.Domain, new CefCookie()
@@ -222,9 +223,9 @@ namespace ShoppingWebCrawler.Host.AppStart
                     Path = cookie.Path,
                     Secure = cookie.Secure,
                     Value = cookie.Value
-                },null
-                
-                
+                }, null
+
+
                 );
             }
         }

@@ -7,7 +7,10 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-
+using NTCPMessage.Client;
+using NTCPMessage;
+using Newtonsoft.Json;
+using NTCPMessage.EntityPackage.Arguments;
 using NTCPMessage.Server;
 using NTCPMessage.Event;
 using NTCPMessage.Serialize;
@@ -16,10 +19,7 @@ using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.MessageConvert;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.Common.Common;
-using NTCPMessage.Client;
-using NTCPMessage;
-using Newtonsoft.Json;
-using NTCPMessage.EntityPackage.Arguments;
+
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -32,7 +32,7 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// <summary>
         /// 集群最大从节点数
         /// </summary>
-        public const int MaxClusterCount = 20;
+        public const int MaxSlaveNodeCount = 20;
 
         static NTCPMessage.Server.NTcpListener listener;
 
@@ -47,43 +47,56 @@ namespace ShoppingWebCrawler.Host.AppStart
         static Dictionary<string, int> _slavePorts = new Dictionary<string, int>();
 
         /// <summary>
+        /// 静态构造函数
+        /// </summary>
+        static MasterRemoteServer()
+        {
+            //主节点 也在服务端口内
+            _slavePorts.Add("master", GlobalContext.MasterSocketPort);
+        }
+        /// <summary>
         /// 注册从节点端口，并返回可用的端口
         /// </summary>
         /// <param name="slaveIdentity"></param>
         public static int AddSlavePort(string slaveIdentity)
         {
-            int port = -1;
-            ///不得超过最大从节点阈值
-            if (_slavePorts.Count < MaxClusterCount)
+            lock (_LockObj)
             {
-                
-                if (_slavePorts.Keys.Count>0)
+
+
+                int port = -1;
+                ///不得超过最大从节点阈值
+                if (_slavePorts.Count < MaxSlaveNodeCount)
                 {
-                    port = _slavePorts.Values.Max() + 1;
-                }
-                else
-                {
-                    port = GlobalContext.MasterSocketPort + 1;
-                }
-                int counuter = 1;
-                while (counuter <= 10)
-                {
-                   
-                    bool isBeUsed = SocketHelper.IsUsedIPEndPoint(port);
-                    if (isBeUsed == false)
+
+                    if (_slavePorts.Keys.Count > 0)
                     {
-                        break;//一旦发现合适端口 那么返回
+                        port = _slavePorts.Values.Max() + 1;
                     }
                     else
                     {
-                        port = port + counuter;
+                        port = GlobalContext.MasterSocketPort + 1;
                     }
-                    counuter++;
-                }
-                _slavePorts.Add(slaveIdentity, port);
+                    int counuter = 1;
+                    while (counuter <= 10)
+                    {
 
+                        bool isBeUsed = SocketHelper.IsUsedIPEndPoint(port);
+                        if (isBeUsed == false)
+                        {
+                            break;//一旦发现合适端口 那么返回
+                        }
+                        else
+                        {
+                            port = port + counuter;
+                        }
+                        counuter++;
+                    }
+                    _slavePorts.Add(slaveIdentity, port);
+
+                }
+                return port;
             }
-            return port;
         }
 
         /// <summary>
@@ -209,15 +222,15 @@ namespace ShoppingWebCrawler.Host.AppStart
                 bool isBeUsed = SocketHelper.IsUsedIPEndPoint(GlobalContext.MasterSocketPort);
                 if (isBeUsed == true)
                 {
-                   // 发送ping 接受pong 后算是启动完毕
-                   SingleConnectionCable client = new SingleConnectionCable(new IPEndPoint(IPAddress.Parse("127.0.0.1"), GlobalContext.MasterSocketPort), 7);
+                    // 发送ping 接受pong 后算是启动完毕
+                    SingleConnectionCable client = new SingleConnectionCable(new IPEndPoint(IPAddress.Parse("127.0.0.1"), GlobalContext.MasterSocketPort), 7);
                     ISerialize<SoapMessage> iSendMessageSerializer = new NTCPMessage.Serialize.JsonSerializer<SoapMessage>(); ;
 
                     try
                     {
                         //可以使用重载 设置连接超时时间
                         int timeOut = 20 * 1000;
-                       client.Connect(timeOut);
+                        client.Connect(timeOut);
                         var paras = new RegisterPortArgument { SlaveIdentity = slaveIdentity };
                         string msg = JsonConvert.SerializeObject(paras);
                         SoapMessage sopMsg = new SoapMessage()
@@ -229,9 +242,9 @@ namespace ShoppingWebCrawler.Host.AppStart
                         var repResult = client.SyncSend((UInt32)MessageType.Json,
                         sopMsg, timeOut,
                        iSendMessageSerializer);
-                        if (repResult.Status==1)
+                        if (repResult.Status == 1)
                         {
-                        
+
                             result = repResult.Result.ToInt();
                         }
 

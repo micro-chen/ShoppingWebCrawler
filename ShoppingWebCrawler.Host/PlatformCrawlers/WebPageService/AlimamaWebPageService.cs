@@ -593,7 +593,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                       if (isQuanCacheable == true)
                       {
                           //插入到缓存中
-                          GlobalContext.SetToRedisYouHuiQuanDetailsList(SupportPlatformEnum.Alimama.ToString(), queryParas.ArgumentsForQuanDetails.SellerId, queryParas.ArgumentsForQuanDetails.ItemId, dataList);
+                          GlobalContext.SetToRedisYouHuiQuanDetailsList(SupportPlatformEnum.Alimama.ToString(), queryParas.ArgumentsForQuanDetails.SellerId, queryParas.ArgumentsForQuanDetails.ItemId, dataList,5*60);
 
                       }
                       return dataList;
@@ -1404,12 +1404,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 int tskLen = currentHideQuanActivityList.Length;
                 Task<Youhuiquan>[] array_FetQuanTasks = new Task<Youhuiquan>[tskLen];
 
-                //先刷新下 淘宝 h5 sdk 的cookie
-                var taoBaoLoader = new TaobaoWebPageService().RequestLoader as TaobaoWebPageService.TaobaoMixReuestLoader;
-                taoBaoLoader.RefreshH5Api_Cookies();
+                ////////////先刷新下 淘宝 h5 sdk 的cookie
+                //////////var taoBaoLoader = new TaobaoWebPageService().RequestLoader as TaobaoWebPageService.TaobaoMixReuestLoader;
+                //////////taoBaoLoader.RefreshH5Api_Cookies();
 
+                
                 for (int i = 0; i < currentHideQuanActivityList.Length; i++)
                 {
+                    var delayTime = new Random().Next(1, 5);//延迟时间 防止并发请求导致被ban
+                    RunningLocker.CreateNewLock().CancelAfter(delayTime);
                     var itemActivity = currentHideQuanActivityList.ElementAt(i);
                     //获取活动后 去查询优惠券信息
                     var tskYouhuiquan = this.QueryTaoQuanDetailsAsync(ctoken, para.SellerId, para.ItemId, itemActivity);
@@ -1620,35 +1623,43 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 }
 
                 //异步任务字符串数据返回
-
-                TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
-                //对于无效的券 返回空值
-                if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null)
+                try
                 {
-                    return null;
+
+
+                    TaobaoQuanDetailJsonResult dataJsonObj = JsonConvert.DeserializeObject<TaobaoQuanDetailJsonResult>(respContent);
+                    //对于无效的券 返回空值
+                    if (null == dataJsonObj || dataJsonObj.success == false || dataJsonObj.result == null)
+                    {
+                        return null;
+                    }
+                    if (dataJsonObj.result.IsValidQuan() == false)
+                    {
+                        return null;
+                    }
+
+                    //构建优惠券信息
+                    var modelQuan = new Youhuiquan
+                    {
+                        activityId = activityId,
+                        amount = dataJsonObj.result.amount.Value,
+                        startFee = dataJsonObj.result.startFee.Value,
+                        effectiveStartTime = dataJsonObj.result.effectiveStartTime.Value,
+                        effectiveEndTime = dataJsonObj.result.effectiveEndTime.Value,
+                        isHiddenType = true,
+                        itemId = itemId,
+                        quanUrl = string.Format(taobaoQuanLingQuanGetToClickUrl, activityId, itemId, GlobalContext.Pid)
+
+                    };
+
+                    return modelQuan;
                 }
-                if (dataJsonObj.result.IsValidQuan() == false)
+                catch (Exception ex)
                 {
-                    return null;
+                    Logger.Error(ex);
                 }
 
-                //构建优惠券信息
-                var modelQuan = new Youhuiquan
-                {
-                    activityId = activityId,
-                    amount = dataJsonObj.result.amount.Value,
-                    startFee = dataJsonObj.result.startFee.Value,
-                    effectiveStartTime = dataJsonObj.result.effectiveStartTime.Value,
-                    effectiveEndTime = dataJsonObj.result.effectiveEndTime.Value,
-                    isHiddenType = true,
-                    itemId = itemId,
-                    quanUrl = string.Format(taobaoQuanLingQuanGetToClickUrl, activityId, itemId, GlobalContext.Pid)
-
-                };
-
-                return modelQuan;
-
-
+                return null;
 
                 //--------------注意：下面调用web h5 api  先不放开了，并发执行会被屏蔽-----------------
                 //if (string.IsNullOrEmpty(ctoken) || itemId <= 0 || string.IsNullOrEmpty(activityId))
@@ -1706,11 +1717,11 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             #endregion
 
 
-            /// <summary>
-            /// 阿里妈妈商品搜索API
-            /// </summary>
-            /// <param name="queryParas"></param>
-            /// <returns></returns>
+                /// <summary>
+                /// 阿里妈妈商品搜索API
+                /// </summary>
+                /// <param name="queryParas"></param>
+                /// <returns></returns>
             public override string LoadUrlGetSearchApiContent(IFetchWebPageArgument queryParas)
             {
 

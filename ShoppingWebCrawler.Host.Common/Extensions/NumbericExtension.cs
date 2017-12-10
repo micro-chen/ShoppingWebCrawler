@@ -47,6 +47,27 @@ namespace System
             return result;
         }
 
+        public static bool IsNumeric(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return false;
+            }
+            int len = value.Length;
+            if ('-' != value[0] && '+' != value[0] && !char.IsNumber(value[0]))
+            {
+                return false;
+            }
+            for (int i = 1; i < len; i++)
+            {
+                if (!char.IsNumber(value[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         /// <summary>
         /// 补 "0"方法.

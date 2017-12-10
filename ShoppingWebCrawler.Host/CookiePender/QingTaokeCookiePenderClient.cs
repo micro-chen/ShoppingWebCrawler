@@ -42,7 +42,7 @@ namespace ShoppingWebCrawler.Host.CookiePender
             List<CefCookie> cks = null;
             try
             {
-                cks = this.GetCookiesFromRemoteRedisServer(GlobalContext.QingTaokeSiteName);
+                cks = this.GetCookiesFromRemoteRedisServer(GlobalContext.QingTaokeSiteURL);
 
                 return cks;
             }

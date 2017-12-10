@@ -11,6 +11,7 @@ using System.Net;
 using ShoppingWebCrawler.Host.Common.Caching;
 using System.IO;
 using ShoppingWebCrawler.Cef.Framework;
+using ShoppingWebCrawler.Host.Common.Http;
 
 namespace ShoppingWebCrawler.Host.Common
 {
@@ -203,7 +204,7 @@ namespace ShoppingWebCrawler.Host.Common
         #region cookies 跨机器
 
 
-        private static readonly string PrefixPushToRedisCookies = "CefCookies.";
+        private static readonly string PrefixPushToRedisCookies = "CefCookies:";
         public static EventHandler<PushToRedisCookiesEventArgs> HandlerPushToRedisCookies;
 
         /// <summary>
@@ -211,27 +212,16 @@ namespace ShoppingWebCrawler.Host.Common
         /// </summary>
         /// <param name="domainName"></param>
         /// <param name="cookies"></param>
-        /// <param name="timeOut"></param>
-        public static void PushToRedisCookies(string domainName, IEnumerable<CefCookie> cookies,int timeOut=30)
+        /// <param name="timeOut">过期时间（秒），默认：5min</param>
+        public static void PushToRedisCookies(string domainName, IEnumerable<CefCookie> cookies,int timeOut=5*60)
         {
             //键
-            var key = string.Concat(PrefixPushToRedisCookies, domainName);
+            string host = new Uri(domainName).Host;
+            string topDomainName = HttpRequestHelper.GetTopDomainName(host);
+            var key = string.Concat(PrefixPushToRedisCookies, topDomainName);
             RedisClient.SetAsync(key, cookies, timeOut);
         }
-        ///// <summary>
-        ///// 发送cookie到redis
-        ///// </summary>
-        ///// <param name="platform"></param>
-        ///// <param name="cookies"></param>
-        //public static void PushToRedisCookies(SupportPlatformEnum platform, IEnumerable<CefCookie> cookies)
-        //{
-
-        //    //键
-        //    var key = string.Concat(PrefixPushToRedisCookies, platform.ToString());
-        //    RedisClient.SetAsync(key, cookies);
-        //}
-
-
+      
         /// <summary>
         /// 拉取发送cookie到redis
         /// </summary>
@@ -240,7 +230,9 @@ namespace ShoppingWebCrawler.Host.Common
         {
 
             //键
-            var key = string.Concat(PrefixPushToRedisCookies, domainName);
+            string host = new Uri(domainName).Host;
+            string topDomainName = HttpRequestHelper.GetTopDomainName(host);
+            var key = string.Concat(PrefixPushToRedisCookies, topDomainName);
             var cookies = RedisClient.Get<List<CefCookie>>(key);
 
             return cookies;
@@ -316,7 +308,7 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="platform"></param>
         /// <param name="sellerId"></param>
         /// <param name="itemId"></param>
-        /// <param name="timeOut"></param>
+        /// <param name="timeOut">过期时间（单位：秒）</param>
         public static void SetToRedisYouHuiQuanDetailsList(string platform, long sellerId, long itemId, List<Youhuiquan> quanList, int? timeOut = null)
         {
             if (null == timeOut)

@@ -13,6 +13,8 @@ using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.DeskTop.UI;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace ShoppingWebCrawler.Host.DeskTop
 {
@@ -52,7 +54,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             InitializeComponent();
 
             this.Load += MainForm_Load;
-
+            this.FormClosed += MainForm_FormClosed;
 
             //设定当前程序运行的主上下文
             GlobalContext.SyncContext = SynchronizationContext.Current;
@@ -61,6 +63,39 @@ namespace ShoppingWebCrawler.Host.DeskTop
             _mainTitle = Text;
 
            
+        }
+
+        /// <summary>
+        /// 窗体关闭后事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            //1 将其他的同名进程杀死，基于多进程的CEF
+            Process mainProcess=null;
+            try
+            {
+                var appName = Assembly.GetExecutingAssembly().GetName().Name;
+                  mainProcess = Process.GetCurrentProcess();
+                var psArray = Process.GetProcessesByName(appName);
+                foreach (var ps in psArray)
+                {
+                    if (ps.Id!=mainProcess.Id)
+                    {
+                        ps.Kill();//终止同名的 非当前进程id
+                    }
+                }
+
+            }
+            catch { }
+            finally
+            {
+                if (null!=mainProcess)
+                {
+                    mainProcess.Close();
+                }
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)

@@ -23,6 +23,32 @@ namespace ShoppingWebCrawler.Cef.Framework
 
         }
 
+        #region 示范代码
+
+        //    //向IPC  render  进程注册事件委托
+        //    IPCCommand.OnGetCookieFromBrowserProcessHandler += handler;
+
+        //            try
+        //            {
+        //                //从当前的render 绑定的browser对象，发送进程消息
+        //                if (null == GlobalContext.SlaveModeCefBrowserInRenderProcess)
+        //                {
+        //                    string msg = "在 render 进程无对应的browser 对象！！";
+        //    Logging.Logger.Info(msg);
+        //                    Console.WriteLine(msg);
+        //                }
+        //var message = CefProcessMessage.Create(IPCCommand.CommandType.GET_COOKIE_FROM_BROWSER_PROCESS.ToString());
+        //message.Arguments.SetString(0, domainName);
+        //                var success = GlobalContext.SlaveModeCefBrowserInRenderProcess.SendProcessMessage(CefProcessId.Browser, message);
+        //Console.WriteLine("Sending myMessage3 to browser process = {0}", success);
+
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                throw ex;
+        //            }
+
+        #endregion
         /// <summary>
         /// 当从browser 进程获取完毕cookie 触发的事件
         /// </summary>

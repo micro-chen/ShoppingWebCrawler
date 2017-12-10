@@ -212,8 +212,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //然后从新加载下链接 即可刷新Cookie
 
             this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
-            //不定时刷新
-            this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(3, 5));
+            //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
+            this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(1, 4));
         }
 
         /// <summary>
@@ -304,14 +304,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //2 开始发送请求LoadString
             // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
 
-            //var ckVisitor = new LazyCookieVistor();
+           
             handlerRequest = (s, e) =>
             {
 
                 string url = HttpUtility.UrlDecode(e.Frame.Url);
                 System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
 
-
+                //刷新 cookie
+                var ckVisitor = new LazyCookieVistor();
+                ckVisitor.LoadCookiesAsyc(url,true);
                 disposeHandler("loaded");
 
             };

@@ -85,6 +85,54 @@ namespace ShoppingWebCrawler.Host.Common.Http
         public event EventHandler<HTTPRequestCompletedAgrs> OnPostUrlRequestCompleted;
 
 
+        /// <summary>
+        /// 获取域名的顶级域名
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        public static string GetTopDomainName(string domain)
+        {
+            string str = domain;
+            if (str.IndexOf(".") > 0)
+            {
+                string[] strArr = str.Split(':')[0].Split('.');
+                if (NumbericExtension.IsNumeric(strArr[strArr.Length - 1]))
+                {
+                    return str;
+                }
+                else
+                {
+                    string domainRules = "||com.cn|net.cn|org.cn|gov.cn|com.hk|公司|中国|网络|com|net|org|int|edu|gov|mil|arpa|Asia|biz|info|name|pro|coop|aero|museum|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cf|cg|ch|ci|ck|cl|cm|cn|co|cq|cr|cu|cv|cx|cy|cz|de|dj|dk|dm|do|dz|ec|ee|eg|eh|es|et|ev|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gh|gi|gl|gm|gn|gp|gr|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|in|io|iq|ir|is|it|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|ml|mm|mn|mo|mp|mq|mr|ms|mt|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nt|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pt|pw|py|qa|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sy|sz|tc|td|tf|tg|th|tj|tk|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|va|vc|ve|vg|vn|vu|wf|ws|ye|yu|za|zm|zr|zw|";
+                    string tempDomain;
+                    if (strArr.Length >= 4)
+                    {
+                        tempDomain = strArr[strArr.Length - 3] + "." + strArr[strArr.Length - 2] + "." + strArr[strArr.Length - 1];
+                        if (domainRules.IndexOf("|" + tempDomain + "|") > 0)
+                        {
+                            return strArr[strArr.Length - 4] + "." + tempDomain;
+                        }
+                    }
+                    if (strArr.Length >= 3)
+                    {
+                        tempDomain = strArr[strArr.Length - 2] + "." + strArr[strArr.Length - 1];
+                        if (domainRules.IndexOf("|" + tempDomain + "|") > 0)
+                        {
+                            return strArr[strArr.Length - 3] + "." + tempDomain;
+                        }
+                    }
+                    if (strArr.Length >= 2)
+                    {
+                        tempDomain = strArr[strArr.Length - 1];
+                        if (domainRules.IndexOf("|" + tempDomain + "|") > 0)
+                        {
+                            return strArr[strArr.Length - 2] + "." + tempDomain;
+                        }
+                    }
+                }
+            }
+            return str;
+        }
+
         /// <summary>  
         /// 创建GET方式的HTTP请求  
         /// </summary>  

@@ -55,7 +55,7 @@
         <job-group>CrawlerCookiesPop</job-group>
 
         <!--由7段构成：秒 分 时 日 月 星期 年（可选）"/" :表示增量：0/15（处于【秒段】里面） 每15秒，在0秒以后开始，3/20 每20秒，从3钟以后开始; "*" ：表是“每”，每月，每天，每周，每年等-->
-        <cron-expression>0/5 * * * * ?</cron-expression>
+        <cron-expression>0/15 * * * * ?</cron-expression>
       </cron>
 
     </trigger>
