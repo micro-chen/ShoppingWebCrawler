@@ -17,7 +17,13 @@ namespace ShoppingWebCrawler.Host.DeskTop
         {
             if (DesignMode) return base.GetPreferredSize(constrainingSize);
 
-            if (!this.Visible) return DefaultSize;
+            if (!this.Visible)
+            {
+                Size sizeDefault = base.GetPreferredSize(constrainingSize);
+                sizeDefault.Width = Owner.DisplayRectangle.Width - 80;
+                sizeDefault.Height = this.Height;
+                return sizeDefault;
+            }
 
             // Use the default size if the text box is on the overflow menu
             // or is on a vertical ToolStrip.
