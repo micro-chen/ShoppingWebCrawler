@@ -85,6 +85,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 case SupportPlatformEnum.Pdd:
                     webPageService = new PddWebPageService();
                     break;
+                case SupportPlatformEnum.Vip:
+                    webPageService = new VipWebPageService();
+                    break;
                 case SupportPlatformEnum.Guomei:
                     webPageService = new GuomeiWebPageService();
                     break;

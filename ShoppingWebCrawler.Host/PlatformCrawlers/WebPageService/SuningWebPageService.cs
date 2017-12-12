@@ -62,7 +62,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class SuningMixReuestLoader : BaseBrowserRequestLoader<SuningMixReuestLoader>
         {
-            private const string SuningSiteUrl = "https://www.suning.com/";
+            public static readonly string SuningSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Suning).SiteUrl;
 
             /// <summary>
             /// 苏宁请求 搜索地址页面

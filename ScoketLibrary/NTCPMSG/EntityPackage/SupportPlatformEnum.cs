@@ -16,6 +16,8 @@ namespace NTCPMessage.EntityPackage
         Jingdong = 2,
         [Description("拼多多")]
         Pdd = 3,
+        [Description("唯品会")]
+        Vip = 4,
         [Description("国美")]
         Guomei = 5,
         [Description("苏宁")]

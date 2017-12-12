@@ -56,7 +56,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class DangdangMixReuestLoader : BaseBrowserRequestLoader<DangdangMixReuestLoader>
         {
-            private const string DangdangSiteUrl = "http://www.dangdang.com";
+            public static readonly string DangdangSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Dangdang).SiteUrl;
             /// <summary>
             /// 当当请求 搜索地址页面
             /// </summary>

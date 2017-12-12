@@ -65,7 +65,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class YhdMixReuestLoader : BaseBrowserRequestLoader<YhdMixReuestLoader>
         {
-            private const string YihaodianSiteUrl = "http://www.yhd.com/";
+            public static readonly string YihaodianSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Yhd).SiteUrl;
 
             /// <summary>
             /// 一号店请求 搜索地址页面

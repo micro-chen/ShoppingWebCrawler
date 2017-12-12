@@ -63,7 +63,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class MeilishuoMixReuestLoader : BaseBrowserRequestLoader<MeilishuoMixReuestLoader>
         {
-            private const string MeilishuoSiteUrl = "http://www.meilishuo.com/";
+            public static readonly string MeilishuoSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Meilishuo).SiteUrl;
 
             /// <summary>
             /// 美丽说请求 搜索地址页面

@@ -65,7 +65,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class MogujieMixReuestLoader : BaseBrowserRequestLoader<MogujieMixReuestLoader>
         {
-            private const string MogujieSiteUrl = "http://www.mogujie.com/";
+            public static readonly string MogujieSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Mogujie).SiteUrl;
 
             /// <summary>
             /// 蘑菇街请求 搜索地址页面

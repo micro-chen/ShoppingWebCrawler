@@ -12,28 +12,20 @@ using System.Net;
 using ShoppingWebCrawler.Host.Headless;
 using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Host.Common;
-
-/*
-测试代码：
-         var etaoWeb = new JingdongWebPageService();
-
-            string con = etaoWeb.QuerySearchContent("洗面奶男") ;
-
-            System.Diagnostics.Debug.WriteLine(con);
-
-
-*/
+ 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
     /// <summary>
-    ///京东搜索页面抓取
+    /// 唯品会搜索页面抓取
+    /// 未完成--再具体做这家的时候 再做详细的地址解析参数
     /// </summary>
-    public class JingdongWebPageService : BaseWebPageService
+    public class VipWebPageService : BaseWebPageService
     {
 
 
+        
 
-        public JingdongWebPageService()
+        public VipWebPageService()
         {
         }
 
@@ -45,9 +37,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         {
             get
             {
-                return JingdongMixReuestLoader.Current;
+                return VipMixReuestLoader.Current;
             }
         }
+
+
+
 
 
 
@@ -55,7 +50,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         ///------------内部类-----------------
 
         /// <summary>
-        /// 京东的混合请求类
+        /// 唯品会的混合请求类
         /// 1 根据传入的搜索url  使用 CEF打开 指定地址
         /// 2 拦截出来请求数据的地址
         /// 3 拦截后 把对应的Cookie拿出来
@@ -63,19 +58,28 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// 
         /// 为了保证性能  保持此类单个实例 
         /// </summary>
-        public class JingdongMixReuestLoader : BaseBrowserRequestLoader<JingdongMixReuestLoader>
+        public class VipMixReuestLoader : BaseBrowserRequestLoader<VipMixReuestLoader>
         {
-            public static readonly string JingdongSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Jingdong).SiteUrl;
+            public static readonly string VipSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform ==  SupportPlatformEnum.Vip).SiteUrl;
 
             /// <summary>
-            /// 京东请求 搜索地址页面
+            /// 唯品会请求 搜索地址页面
             /// </summary>
-            private const string templateOfSearchUrl = "https://search.jd.com/Search?keyword={0}&enc=utf-8&suggest=2.def.0.T17&wq={0}&pvid=e155e1803dba45d1b160a943ba803ea1";
+            private const string templateOfSearchUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getSearchList&f=&_=1513070519238";
+
+            /// <summary>
+            /// 检索当前关键词下的-【品类】
+            /// </summary>
+            private const string queryCategoryUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getCategoryTree&f=&_=1513070166483";
+            /// <summary>
+            /// 检索当前关键词下的-【查询品牌】
+            /// </summary>
+            private const string queryBrandUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getBrandStoreList&f=&_=1513070611746";
 
             /// <summary>
             /// 请求客户端
             /// </summary>
-            private static CookedHttpClient JingdongHttpClient;
+            private static CookedHttpClient YihaodianHttpClient;
 
 
 
@@ -83,26 +87,26 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <summary>
             /// 静态构造函数
             /// </summary>
-            static JingdongMixReuestLoader()
+            static VipMixReuestLoader()
             {
                 //静态创建请求客户端
-                //JingdongHttpClient = new CookiedCefBrowser().BindingHttpClient;
+               // YihaodianHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
-                var requestHeaders = BaseRequest.GetCommonRequestHeaders();
+                var requestHeaders = BaseRequest.GetCommonRequestHeaders(true);
                 requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
-                requestHeaders.Add("Host", "search.jd.com");
-                requestHeaders.Add("Referer", JingdongSiteUrl);
-                requestHeaders.Add("Upgrade-Insecure-Requests", "1");
-
-                JingdongHttpClient = new CookedHttpClient();
-                HttpServerProxy.FormatRequestHeader(JingdongHttpClient.Client.DefaultRequestHeaders, requestHeaders);
+                requestHeaders.Add("Host", "m.vip.com");
+                requestHeaders.Add("Referer", VipSiteUrl);
+             
+                
+                YihaodianHttpClient = new CookedHttpClient();
+                HttpServerProxy.FormatRequestHeader(YihaodianHttpClient.Client.DefaultRequestHeaders, requestHeaders);
             }
 
-            public JingdongMixReuestLoader()
+            public VipMixReuestLoader()
             {
-                ///京东刷新搜索页cookie的地址
-                this.RefreshCookieUrlTemplate = templateOfSearchUrl;
+                ///唯品会刷新搜索页cookie的地址
+                this.RefreshCookieUrlTemplate = VipSiteUrl;
 
                 this.IntiCefWebBrowser();
             }
@@ -119,18 +123,18 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 //加载Cookie
                 var ckVisitor = new LazyCookieVistor();
-                var cks = ckVisitor.LoadCookies(JingdongSiteUrl);
+                var cks = ckVisitor.LoadCookies(VipSiteUrl);
 
 
 
 
                 string searchUrl = string.Format(templateOfSearchUrl, keyWord);
 
-                var client = JingdongHttpClient;
-
+                var client = YihaodianHttpClient;
+                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://search.Vip.com/c0-0/k{0}/?tp=1.1.12.0.3.LpPV5SK-10-93L!6", keyWord));
                 ////加载cookies
                 ////获取当前站点的Cookie
-                client.ChangeGlobleCookies(cks, JingdongSiteUrl);
+                client.ChangeGlobleCookies(cks, VipSiteUrl);
 
                 // 4 发送请求
                 var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
@@ -138,7 +142,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //注意：对于响应的内容 不要使用内置的文本 工具打开，这个工具有bug.看到的文本不全面
                 //使用json格式打开即可看到里面所有的字符串
 
-                string content = clientProxy.GetRequestTransfer(searchUrl, null);
+               string content = clientProxy.GetRequestTransfer(searchUrl, null);
 
 
 
@@ -154,6 +158,4 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
     }
-
-
 }

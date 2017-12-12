@@ -19,7 +19,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers
         /// 静态公共头信息  由于是静态头信息，所以不要添加键值对
         /// 直接使用键 访问修改值即可
         /// </summary>
-        public static NameValueCollection GetCommonRequestHeaders()
+        public static NameValueCollection GetCommonRequestHeaders(bool isMobile=false)
         {
 
             var commonRequestHeaders = new NameValueCollection();
@@ -27,7 +27,17 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers
             commonRequestHeaders.Add("Cache-Control", "no-cache");
             commonRequestHeaders.Add("Accept-Language", "zh-CN,zh;q=0.8");
             commonRequestHeaders.Add("Connection", "Keep-Alive");
-            commonRequestHeaders.Add("User-Agent", GlobalContext.ChromeUserAgent);
+            if (isMobile==true)
+            {
+                //移动端UA
+                commonRequestHeaders.Add("User-Agent", GlobalContext.MobileUserAgent);
+            }
+            else
+            {
+                //PC 端UA
+                commonRequestHeaders.Add("User-Agent", GlobalContext.ChromeUserAgent);
+
+            }
 
             return commonRequestHeaders;
         }

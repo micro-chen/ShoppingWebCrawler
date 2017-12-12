@@ -76,7 +76,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class ETaoMixReuestLoader : BaseBrowserRequestLoader<ETaoMixReuestLoader>
         {
-            private const string eTaoSiteUrl = "https://www.etao.com/";
+            public static readonly string eTaoSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.ETao).SiteUrl;
 
             /// <summary>
             /// 一淘请求 搜索地址页面

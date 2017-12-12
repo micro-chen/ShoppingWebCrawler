@@ -61,7 +61,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         public class Zhe800MixReuestLoader : BaseBrowserRequestLoader<Zhe800MixReuestLoader>
         {
 
-            private const string Zhe800SiteUrl = "https://www.zhe800.com/";
+           public  static readonly string Zhe800SiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Zhe800).SiteUrl;
 
             /// <summary>
             /// 折800请求 搜索地址页面

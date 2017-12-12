@@ -258,7 +258,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class TaobaoMixReuestLoader : BaseBrowserRequestLoader<TaobaoMixReuestLoader>
         {
-            public const string TaobaoSiteUrl = "https://www.taobao.com/";
+            public static readonly string TaobaoSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Taobao).SiteUrl;
             /// <summary>
             /// 淘宝websdk 地址
             /// </summary>

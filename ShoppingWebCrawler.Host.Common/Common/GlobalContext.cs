@@ -55,6 +55,24 @@ namespace ShoppingWebCrawler.Host.Common
             }
         }
 
+        private static string _MobileUserAgent = string.Empty;
+        /// <summary>
+        /// 移动端浏览器的UA标识
+        /// </summary>
+        public static string MobileUserAgent
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_MobileUserAgent))
+                {
+                    string uaConfig = ConfigHelper.GetConfig("UserAgent");
+                    _MobileUserAgent = uaConfig;
+                }
+
+                return _MobileUserAgent;
+            }
+        }
+
 
         private static object _locker_SocketPort = new object();
         static int _DefaultSocketPort = 0;

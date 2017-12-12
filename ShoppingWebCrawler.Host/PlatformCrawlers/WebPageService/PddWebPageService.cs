@@ -69,7 +69,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         public class PddMixReuestLoader : BaseBrowserRequestLoader<PddMixReuestLoader>
         {
 
-            private const string PddSiteUrl = "http://mobile.yangkeduo.com/";
+            public static readonly string PddSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Pdd).SiteUrl;
 
             /// <summary>
             /// 拼多多请求 搜索地址页面

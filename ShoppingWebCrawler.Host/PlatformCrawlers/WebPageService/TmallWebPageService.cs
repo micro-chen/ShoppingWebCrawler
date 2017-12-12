@@ -70,7 +70,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class TmallMixReuestLoader : BaseBrowserRequestLoader<TmallMixReuestLoader>
         {
-            private const string tmallSiteUrl = "https://www.tmall.com/";
+            public static readonly string tmallSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Tmall).SiteUrl;
 
             /// <summary>
             /// 天猫请求 搜索地址页面

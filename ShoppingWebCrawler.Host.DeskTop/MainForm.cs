@@ -455,6 +455,10 @@ namespace ShoppingWebCrawler.Host.DeskTop
         {
             this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Pdd);
         }
+        private void vip_ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Vip);
+        }
 
         private void suning_ToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -569,5 +573,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
                 this.NewTab(item);
             }
         }
+
+       
     }
 }

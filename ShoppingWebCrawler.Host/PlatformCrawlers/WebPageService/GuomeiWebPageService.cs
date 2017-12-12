@@ -62,7 +62,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class GuomeiMixReuestLoader : BaseBrowserRequestLoader<GuomeiMixReuestLoader>
         {
-            private const string GuomeiSiteUrl = "https://www.gome.com.cn";
+            public static readonly string GuomeiSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Guomei).SiteUrl;
 
             /// <summary>
             /// 国美请求 搜索地址页面
