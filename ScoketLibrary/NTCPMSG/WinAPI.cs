@@ -42,6 +42,9 @@ namespace NTCPMessage
         internal static extern IntPtr OpenThread(ThreadAccess dwDesiredAccess, bool bInheritHandle,
            uint dwThreadId);
 
+        [DllImport("kernel32.dll")]
+        static extern int ResumeThread(IntPtr hThread);
+
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern bool CloseHandle(IntPtr hHandle);
 
