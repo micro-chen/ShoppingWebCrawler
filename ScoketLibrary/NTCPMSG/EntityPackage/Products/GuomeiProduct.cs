@@ -12,5 +12,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class GuomeiProduct : ProductBase
     {
+        public GuomeiProduct()
+        {
+            this.Platform = SupportPlatformEnum.Guomei;
+        }
     }
 }

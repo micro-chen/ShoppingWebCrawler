@@ -87,6 +87,8 @@
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
     <Compile Include="CommandConstants.cs" />
+    <Compile Include="EntityPackage\Arguments\KeyWordTag.cs" />
+    <Compile Include="EntityPackage\Arguments\KeyWordTagGroup.cs" />
     <Compile Include="EntityPackage\Arguments\VipFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\Arguments\RegisterPortArgument.cs" />
     <Compile Include="EntityPackage\Arguments\YouhuiquanFetchWebPageArgument.cs" />
@@ -118,6 +120,7 @@
     <Compile Include="EntityPackage\Products\TaobaoProduct.cs" />
     <Compile Include="EntityPackage\Products\JingdongProduct.cs" />
     <Compile Include="EntityPackage\Products\PddProduct.cs" />
+    <Compile Include="EntityPackage\Products\VipProduct.cs" />
     <Compile Include="EntityPackage\Products\Zhe800Product.cs" />
     <Compile Include="EntityPackage\Products\YhdProduct.cs" />
     <Compile Include="EntityPackage\Products\SuningProduct.cs" />

@@ -12,5 +12,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class MeilishuoProduct : ProductBase
     {
+        public MeilishuoProduct()
+        {
+            this.Platform = SupportPlatformEnum.Meilishuo;
+        }
     }
 }

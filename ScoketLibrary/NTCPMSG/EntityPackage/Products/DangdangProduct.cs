@@ -11,5 +11,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class DangdangProduct : ProductBase
     {
+        public DangdangProduct()
+        {
+            this.Platform = SupportPlatformEnum.Dangdang;
+        }
     }
 }

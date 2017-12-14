@@ -11,30 +11,34 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class TaobaoProduct:ProductBase
     {
+        public TaobaoProduct()
+        {
+            this.Platform = SupportPlatformEnum.Taobao;
+        }
 
         /// <summary>
         /// 卖家地址
         /// </summary>
-        public string sellerAddress { get; set; }
+        public string SellerAddress { get; set; }
         /// <summary>
         /// 是否为金牌卖家
         /// </summary>
-        public bool isGold { get; set; }
+        public bool IsGold { get; set; }
 
         /// <summary>
         /// 是否天猫商品
         /// </summary>
-        public bool isTmall { get; set; }
+        public bool IsTmall { get; set; }
 
         /// <summary>
         /// 卖家承诺N天包退换
         /// </summary>
-        public int dayReturn { get; set; }
+        public int DayReturn { get; set; }
 
         /// <summary>
         /// 是否有运费险
         /// </summary>
-        public bool hasYunfeiXian { get; set; }
+        public bool IsHasYunfeiXian { get; set; }
 
         
     }

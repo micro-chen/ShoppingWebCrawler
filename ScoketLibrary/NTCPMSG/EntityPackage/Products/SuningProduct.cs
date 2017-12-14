@@ -11,5 +11,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class SuningProduct : ProductBase
     {
+        public SuningProduct()
+        {
+            this.Platform = SupportPlatformEnum.Suning;
+        }
     }
 }

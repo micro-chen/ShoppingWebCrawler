@@ -11,5 +11,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class YhdProduct : ProductBase
     {
+        public YhdProduct()
+        {
+            this.Platform = SupportPlatformEnum.Yhd;
+        }
     }
 }

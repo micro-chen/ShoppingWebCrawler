@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace NTCPMessage.EntityPackage.Products
 {
-
     /// <summary>
-    /// 京东商品
+    /// 唯品会商品
     /// </summary>
-    public class JingdongProduct : ProductBase
+    public class VipProduct : ProductBase
     {
-        public JingdongProduct()
+        public VipProduct()
         {
-            this.Platform = SupportPlatformEnum.Jingdong;
+            this.Platform = SupportPlatformEnum.Vip;
         }
     }
 }

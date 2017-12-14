@@ -12,5 +12,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class MogujieProduct : ProductBase
     {
+        public MogujieProduct()
+        {
+            this.Platform = SupportPlatformEnum.Mogujie;
+        }
     }
 }

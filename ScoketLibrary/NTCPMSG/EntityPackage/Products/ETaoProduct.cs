@@ -11,5 +11,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class ETaoProduct : ProductBase
     {
+        public ETaoProduct()
+        {
+            this.Platform = SupportPlatformEnum.ETao;
+        }
     }
 }

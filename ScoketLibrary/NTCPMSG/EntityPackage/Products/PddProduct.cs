@@ -12,5 +12,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class PddProduct : ProductBase
     {
+        public PddProduct()
+        {
+            this.Platform = SupportPlatformEnum.Pdd;
+        }
     }
 }

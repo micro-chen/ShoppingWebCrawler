@@ -16,20 +16,23 @@ namespace NTCPMessage.EntityPackage.Arguments
         public virtual SupportPlatformEnum Platform { get;  set; }
 
         /// <summary>
+        /// 查询关键词
+        /// </summary>
+        public string KeyWord { get; set; }
+
+
+        /// <summary>
         /// 品牌
         /// </summary>
         public string BrandName { get; set; }
 
 
-        /// <summary>
-        /// 查询关键词
-        /// </summary>
-        public string KeyWord { get; set; }
+  
 
         /// <summary>
         /// 高级筛选-选中的tag标签
         /// </summary>
-        public List<string> Tags { get; set; }
+        public KeyWordTagGroup Tags { get; set; }
         /// <summary>
         /// 价格区间-起始价格
         /// </summary>
@@ -66,11 +69,21 @@ namespace NTCPMessage.EntityPackage.Arguments
         /// <returns></returns>
         public virtual List<OrderField> GetCurrentPlatformSupportOrderFields()
         {
-
             return null;
         }
+        /// <summary>
+        /// 是否是合法的参数
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool IsValid()
+        {
+            if (string.IsNullOrEmpty(this.KeyWord))
+            {
+                return false;
+            }
 
-        
+            return true;
+        }
 
 
     }

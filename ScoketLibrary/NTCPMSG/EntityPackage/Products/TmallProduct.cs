@@ -8,5 +8,9 @@ namespace NTCPMessage.EntityPackage.Products
 {
     public class TmallProduct: ProductBase
     {
+        public TmallProduct()
+        {
+            this.Platform = SupportPlatformEnum.Tmall;
+        }
     }
 }

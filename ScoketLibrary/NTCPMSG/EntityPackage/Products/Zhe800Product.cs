@@ -11,5 +11,9 @@ namespace NTCPMessage.EntityPackage.Products
     /// </summary>
     public class Zhe800Product : ProductBase
     {
+        public Zhe800Product()
+        {
+            this.Platform = SupportPlatformEnum.Zhe800;
+        }
     }
 }
