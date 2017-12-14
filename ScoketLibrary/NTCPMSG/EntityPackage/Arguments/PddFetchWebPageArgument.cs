@@ -17,21 +17,8 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Pdd;
         }
 
-        /// <summary>
-        /// 平台标识
-        /// </summary>
-        public override SupportPlatformEnum Platform
-        {
-            get
-            {
-                return base.Platform;
-            }
+      
 
-             set
-            {
-                base.Platform = value;
-            }
-        }
 
 
         /// <summary>

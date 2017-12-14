@@ -19,21 +19,7 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Yhd;
         }
 
-        /// <summary>
-        /// 平台标识
-        /// </summary>
-        public override SupportPlatformEnum Platform
-        {
-            get
-            {
-                return base.Platform;   
-            }
-
-             set
-            {
-                base.Platform = value;
-            }
-        }
+        
         /// <summary>
         /// 获取【一号店】平台支持的排序字段列表
         /// </summary>

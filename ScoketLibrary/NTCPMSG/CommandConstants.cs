@@ -11,10 +11,14 @@ namespace NTCPMessage
     /// </summary>
     public static class CommandConstants
     {
+
+        public const string CMD_Ping = "ping";
+
         /// <summary>
         /// 支持的电商平台集合
         /// </summary>
         public const string CMD_Platforms = "platforms";
+
         /// <summary>
         /// 抓取网页
         /// </summary>

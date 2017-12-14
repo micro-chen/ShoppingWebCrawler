@@ -16,15 +16,36 @@ namespace NTCPMessage.EntityPackage.Arguments
         public virtual SupportPlatformEnum Platform { get;  set; }
 
         /// <summary>
+        /// 品牌
+        /// </summary>
+        public string BrandName { get; set; }
+
+
+        /// <summary>
         /// 查询关键词
         /// </summary>
         public string KeyWord { get; set; }
+
+        /// <summary>
+        /// 高级筛选-选中的tag标签
+        /// </summary>
+        public List<string> Tags { get; set; }
+        /// <summary>
+        /// 价格区间-起始价格
+        /// </summary>
+        public decimal FromPrice { get; set; }
+        /// <summary>
+        /// 价格区间-最高价格
+        /// </summary>
+        public decimal ToPrice { get; set; }
+
 
         /// <summary>
         /// 页码
         /// </summary>
 
         public int PageNumber { get; set; }
+
 
         /// <summary>
         /// 排序字段集合
