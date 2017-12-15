@@ -18,8 +18,18 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Meilishuo;
         }
 
-      
 
+        /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "sort";
+            }
+
+        }
 
         /// <summary>
         /// 获取【美丽说】平台支持的排序字段列表

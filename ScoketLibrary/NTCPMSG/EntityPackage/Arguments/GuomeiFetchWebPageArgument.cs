@@ -18,6 +18,18 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Guomei;
         }
 
+        /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "sort";
+            }
+
+
+        }
 
 
         /// <summary>

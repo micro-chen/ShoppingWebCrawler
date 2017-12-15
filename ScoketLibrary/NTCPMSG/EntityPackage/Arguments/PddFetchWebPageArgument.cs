@@ -17,7 +17,18 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Pdd;
         }
 
-      
+
+        /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "sort";
+            }
+
+        }
 
 
 

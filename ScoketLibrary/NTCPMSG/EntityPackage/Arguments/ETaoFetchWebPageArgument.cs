@@ -20,6 +20,20 @@ namespace NTCPMessage.EntityPackage.Arguments
 
 
         /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "sort";
+            }
+
+
+        }
+
+
+        /// <summary>
         /// 获取【一淘】平台支持的排序字段列表
         /// </summary>
         /// <returns></returns>

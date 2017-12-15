@@ -11,16 +11,19 @@ namespace NTCPMessage.EntityPackage
     /// </summary>
     public enum OrderRule
     {
-
+        /// <summary>
+        /// 默认排序
+        /// </summary>
+        Default=0,
         /// <summary>
         /// 正序排列
         /// </summary>
-        ASC = 0,
+        ASC = 1,
 
         /// <summary>
         /// 倒序
         /// </summary>
-        DESC = 1
+        DESC = 2
 
 
 

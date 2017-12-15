@@ -18,7 +18,7 @@ namespace NTCPMessage.EntityPackage
         public string DisplayName { get; set; }
 
         /// <summary>
-        /// 字段值，多个可选的值用 逗号 , 分开
+        /// 排序字段值
         /// </summary>
         public string FieldValue { get; set; }
 
@@ -26,5 +26,6 @@ namespace NTCPMessage.EntityPackage
         /// 排序规则
         /// </summary>
         public OrderRule Rule { get; set; }
+
     }
 }

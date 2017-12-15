@@ -17,7 +17,19 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Vip;
         }
 
-       
+        /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "sort";
+            }
+
+        }
+
+
         /// <summary>
         /// 获取【唯品会】平台支持的排序字段列表
         /// 0 默认 ，1价格升序 ，2价格降序，3 折扣升序 ，4 折扣降序
@@ -27,10 +39,11 @@ namespace NTCPMessage.EntityPackage.Arguments
         {
             List<OrderField> fields = new List<OrderField>() {
                  new OrderField { DisplayName="综合", FieldValue="0" },
-                 new OrderField { DisplayName="价格", FieldValue="1,2" },
-                 new OrderField { DisplayName="折扣", FieldValue="3,4" },
-              
-                
+                 new OrderField { DisplayName="价格升序", FieldValue="1" },
+                 new OrderField { DisplayName="价格降序", FieldValue="2" },
+                 new OrderField { DisplayName="折扣升序", FieldValue="3" },
+               new OrderField { DisplayName="折扣降序", FieldValue="4" },
+
             };
 
             return fields;

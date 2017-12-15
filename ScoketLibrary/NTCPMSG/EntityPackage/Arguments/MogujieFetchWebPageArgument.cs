@@ -17,7 +17,19 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Mogujie;
         }
 
-       
+
+        /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "sort";
+            }
+
+        }
+
 
         /// <summary>
         /// 获取【蘑菇街】平台支持的排序字段列表

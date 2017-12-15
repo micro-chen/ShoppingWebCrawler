@@ -19,7 +19,17 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Zhe800;
         }
 
-       
+        /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "sort";
+            }
+
+        }
         /// <summary>
         /// 获取【zhe800】平台支持的排序字段列表
         /// </summary>

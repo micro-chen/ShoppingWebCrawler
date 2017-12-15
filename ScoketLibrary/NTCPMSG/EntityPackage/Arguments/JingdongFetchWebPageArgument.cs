@@ -16,8 +16,19 @@ namespace NTCPMessage.EntityPackage.Arguments
         {
             this.Platform = SupportPlatformEnum.Jingdong;
         }
+        /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "psort";
+            }
 
-       
+        }
+
+        
         /// <summary>
         /// 获取【京东】平台支持的排序字段列表
         /// </summary>

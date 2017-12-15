@@ -18,8 +18,18 @@ namespace NTCPMessage.EntityPackage.Arguments
             this.Platform = SupportPlatformEnum.Suning;
         }
 
-       
 
+        /// <summary>
+        /// 排序参数
+        /// </summary>
+        public override string OrderFiledName
+        {
+            get
+            {
+                return "st";
+            }
+
+        }
         /// <summary>
         /// 获取【苏宁】平台支持的排序字段列表
         /// </summary>
