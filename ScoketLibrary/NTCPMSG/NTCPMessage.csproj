@@ -115,6 +115,7 @@
     <Compile Include="EntityPackage\IFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\PriceVolumesResult.cs" />
     <Compile Include="EntityPackage\ProductBase.cs" />
+    <Compile Include="EntityPackage\ProductBaseCollection.cs" />
     <Compile Include="EntityPackage\Products\DangdangProduct.cs" />
     <Compile Include="EntityPackage\Products\ETaoProduct.cs" />
     <Compile Include="EntityPackage\Products\TaobaoProduct.cs" />
