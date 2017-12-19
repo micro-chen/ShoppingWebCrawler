@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-
-
-using System.Collections.Specialized;
-using System.Net.Http;
-using ShoppingWebCrawler.Host.Common.Http;
-using System.Net;
-using ShoppingWebCrawler.Host.Headless;
 using System.Text;
 using System.IO;
+using System.Threading.Tasks;
+using System.Net;
+using Newtonsoft.Json;
+using System.Collections.Specialized;
+using System.Net.Http;
 using NTCPMessage.EntityPackage;
+using ShoppingWebCrawler.Host.Common.Http;
+using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Host.Common;
 
 
@@ -105,7 +103,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public TmallMixReuestLoader()
             {
                 ///天猫刷新搜索页cookie的地址
-                this.RefreshCookieUrlTemplate = "https://list.tmall.com/search_product.htm?spm=a220m.1000858.1000724.3.2a70033eTRXtEm&q={0}&sort=new&style=g&from=mallfp..pc_1_searchbutton#J_Filter" ;
+                this.RefreshCookieUrlTemplate = "https://list.tmall.com/search_product.htm?spm=a220m.1000858.1000724.3.2a70033eTRXtEm&q={0}&sort=s&style=g&from=mallfp..pc_1_searchbutton#J_Filter" ;
 
                 this.IntiCefWebBrowser();
             }
@@ -124,10 +122,21 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 var ckVisitor = new LazyCookieVistor();
                 var cks = ckVisitor.LoadCookies(tmallSiteUrl);
 
-                
 
 
-                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
+                //天猫应该是有解析的搜索url的，如果没有，那么使用基于拼接的默认关键词的检索地址
+                string searchUrl = queryParas.ResolvedSearUrl;
+                if (string.IsNullOrEmpty(searchUrl))
+                {
+                    string sortValue = "s";//综合排序
+                    if (null!=queryParas.OrderFiled)
+                    {
+                        sortValue = queryParas.OrderFiled.FieldValue;
+                    }
+                  
+                    searchUrl=string.Format(templateOfSearchUrl, keyWord, sortValue);
+                }
+                    
 
                 var client = TmallHttpClient;
 

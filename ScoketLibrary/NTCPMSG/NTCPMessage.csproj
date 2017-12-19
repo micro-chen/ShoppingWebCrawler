@@ -87,6 +87,7 @@
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
     <Compile Include="CommandConstants.cs" />
+    <Compile Include="EntityPackage\Arguments\BrandTag.cs" />
     <Compile Include="EntityPackage\Arguments\KeyWordTag.cs" />
     <Compile Include="EntityPackage\Arguments\KeyWordTagGroup.cs" />
     <Compile Include="EntityPackage\Arguments\VipFetchWebPageArgument.cs" />

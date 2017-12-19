@@ -118,22 +118,26 @@ namespace ShoppingWebCrawler.Host.AppStart
                 //每次打开一个程序进程，让进程开启一个端口server,向总控端口，发送注册登记，用来接受请求转发，做负载均衡---
 
                 //初始化平台网页进程
-                //1 通过反射 获取所有的webpage service 
+                //1 通过反射 获取所有的webpage service --正式版
 
-                var ass = Assembly.GetExecutingAssembly();
-                var typeFinder = new AppDomainTypeFinder();
-                var targetType = typeof(BaseWebPageService);
-                var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
-                if (webPageServiceTypes.IsNotEmpty())
-                {
-                    foreach (Type itemPageService in webPageServiceTypes)
-                    {
-                        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
-                        //静态属性访问一次 即可触发打开页面
-                        var loader = servieInstance.RequestLoader;
-                    }
-                }
+                //var ass = Assembly.GetExecutingAssembly();
+                //var typeFinder = new AppDomainTypeFinder();
+                //var targetType = typeof(BaseWebPageService);
+                //var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
+                //if (webPageServiceTypes.IsNotEmpty())
+                //{
+                //    foreach (Type itemPageService in webPageServiceTypes)
+                //    {
+                //        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
+                //        静态属性访问一次 即可触发打开页面
+                //        var loader = servieInstance.RequestLoader;
+                //    }
+                //}
 
+                // --------------测试环境begin 不建议打开多个tabpage，影响测试加载-------------
+                var tmallService = new TmallWebPageService();
+                var loader = tmallService.RequestLoader;
+                //--------------测试环境end-------使用一个tabpage ,即可测试是否正确加载----------
             });
 
             #endregion
