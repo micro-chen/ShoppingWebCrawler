@@ -448,11 +448,11 @@ namespace ShoppingWebCrawler.Host.Common.Http
         /// <param name="url"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public string PostRequestTransfer(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders, CancellationToken cancellationToken)
+        public string PostRequestTransfer(string url, PostDataContentType dataType, Dictionary<string, string> data, NameValueCollection fromHeaders)
         {
             try
             {
-                var tskResponse = this.PostRequestTransferAsync(url, dataType, data, fromHeaders,  cancellationToken);
+                var tskResponse = this.PostRequestTransferAsync(url, dataType, data, fromHeaders);
                 if (null == tskResponse)
                 {
                     return string.Empty;
@@ -478,12 +478,11 @@ namespace ShoppingWebCrawler.Host.Common.Http
         public Task<HttpResponseMessage> PostRequestTransferAsync(string url, 
             PostDataContentType dataType, 
             Dictionary<string, string> data, 
-            NameValueCollection fromHeaders, 
-            CancellationToken cancellationToken
+            NameValueCollection fromHeaders
             )
         {
 
-            cancellationToken = CancellationToken.None;
+           
             if (null == this.Client)
             {
                 this.Client = this.CreateNewHttpClient();
@@ -510,7 +509,7 @@ namespace ShoppingWebCrawler.Host.Common.Http
                     ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
                 }
                 //post 响应  。异步返回内容字符串
-                var tskResponse = this.Client.PostAsync(targetUri, content,cancellationToken);
+                var tskResponse = this.Client.PostAsync(targetUri, content);
 
                 return tskResponse;
             }

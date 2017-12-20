@@ -92,6 +92,8 @@
     <Compile Include="EntityPackage\Arguments\KeyWordTagGroup.cs" />
     <Compile Include="EntityPackage\Arguments\VipFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\Arguments\RegisterPortArgument.cs" />
+    <Compile Include="EntityPackage\Arguments\VipSearchPara.cs" />
+    <Compile Include="EntityPackage\Arguments\VipSearchResultBag.cs" />
     <Compile Include="EntityPackage\Arguments\YouhuiquanFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\FilterFiled.cs" />
     <Compile Include="EntityPackage\Arguments\MeilishuoFetchWebPageArgument.cs" />

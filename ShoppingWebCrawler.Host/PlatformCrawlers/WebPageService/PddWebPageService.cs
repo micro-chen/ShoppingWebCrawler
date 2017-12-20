@@ -74,7 +74,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <summary>
             /// 拼多多请求 搜索地址页面
             /// </summary>
-            private const string templateOfSearchUrl = "http://apiv3.yangkeduo.com/search?q={0}&requery=0&page=1&size=40&pdduid=";
+            private const string templateOfSearchUrl = "http://apiv4.yangkeduo.com/search?q={0}&page={1}&size=50&requery=0&sort={2}&pdduid=";
 
             /// <summary>
             /// 请求客户端
@@ -127,7 +127,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
 
-                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
+                string searchUrl = queryParas.ResolvedSearUrl;
+                if (string.IsNullOrEmpty(searchUrl))
+                {
+                    searchUrl = string.Format(templateOfSearchUrl
+                        ,keyWord,queryParas.PageIndex+1
+                        ,queryParas.OrderFiled.FieldValue);
+                }
+                    
+                    
 
                 var client = PddHttpClient;
                 //设置跳转头 Referrer

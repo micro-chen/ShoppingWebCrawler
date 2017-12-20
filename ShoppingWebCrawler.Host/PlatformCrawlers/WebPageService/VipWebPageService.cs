@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +13,8 @@ using System.Net;
 using ShoppingWebCrawler.Host.Headless;
 using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Host.Common;
- 
+using NTCPMessage.EntityPackage.Arguments;
+
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
     {
 
 
-        
+
 
         public VipWebPageService()
         {
@@ -60,7 +62,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         public class VipMixReuestLoader : BaseBrowserRequestLoader<VipMixReuestLoader>
         {
-            public static readonly string VipSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform ==  SupportPlatformEnum.Vip).SiteUrl;
+            public static readonly string VipSiteUrl = GlobalContext.SupportPlatforms.Find(x => x.Platform == SupportPlatformEnum.Vip).SiteUrl;
 
             /// <summary>
             /// 唯品会请求 搜索地址页面
@@ -79,7 +81,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <summary>
             /// 请求客户端
             /// </summary>
-            private static CookedHttpClient YihaodianHttpClient;
+            private static CookedHttpClient VipHttpClient;
 
 
 
@@ -89,18 +91,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// </summary>
             static VipMixReuestLoader()
             {
-                //静态创建请求客户端
-               // YihaodianHttpClient = new CookiedCefBrowser().BindingHttpClient;
 
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders(true);
                 requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
                 requestHeaders.Add("Host", "m.vip.com");
                 requestHeaders.Add("Referer", VipSiteUrl);
-             
-                
-                YihaodianHttpClient = new CookedHttpClient();
-                HttpServerProxy.FormatRequestHeader(YihaodianHttpClient.Client.DefaultRequestHeaders, requestHeaders);
+
+
+                VipHttpClient = new CookedHttpClient();
+                HttpServerProxy.FormatRequestHeader(VipHttpClient.Client.DefaultRequestHeaders, requestHeaders);
             }
 
             public VipMixReuestLoader()
@@ -114,39 +114,115 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             public override string LoadUrlGetSearchApiContent(IFetchWebPageArgument queryParas)
             {
 
+                VipSearchResultBag resultBag = new VipSearchResultBag();
+
                 string keyWord = queryParas.KeyWord;
                 if (string.IsNullOrEmpty(keyWord))
                 {
                     return string.Empty;
                 }
 
-
-                //加载Cookie
-                var ckVisitor = new LazyCookieVistor();
-                var cks = ckVisitor.LoadCookies(VipSiteUrl);
+                try
+                {
 
 
 
-
-                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
-
-                var client = YihaodianHttpClient;
-                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://search.Vip.com/c0-0/k{0}/?tp=1.1.12.0.3.LpPV5SK-10-93L!6", keyWord));
-                ////加载cookies
-                ////获取当前站点的Cookie
-                client.ChangeGlobleCookies(cks, VipSiteUrl);
-
-                // 4 发送请求
-                var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
-
-                //注意：对于响应的内容 不要使用内置的文本 工具打开，这个工具有bug.看到的文本不全面
-                //使用json格式打开即可看到里面所有的字符串
-
-               string content = clientProxy.GetRequestTransfer(searchUrl, null);
+                    //加载Cookie
+                    var ckVisitor = new LazyCookieVistor();
+                    var cks = ckVisitor.LoadCookies(VipSiteUrl);
 
 
 
-                return content;
+
+                    string searchUrl = string.Format(templateOfSearchUrl, keyWord);
+
+                    var client = VipHttpClient;
+                    client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("https://m.vip.com/searchlist.html?q={0}&channel_id=", keyWord));
+                    ////加载cookies
+                    ////获取当前站点的Cookie
+                    client.ChangeGlobleCookies(cks, VipSiteUrl);
+
+                    // 4 发送请求
+                    var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
+
+                    //注意：对于响应的内容 不要使用内置的文本 工具打开，这个工具有bug.看到的文本不全面
+                    //使用json格式打开即可看到里面所有的字符串
+                    Task<HttpResponseMessage> brandTask;
+                    Task<HttpResponseMessage> categoryTreeTask;
+                    Task<HttpResponseMessage> searchListTask;
+                    if (queryParas.IsNeedResolveHeaderTags == true)
+                    {
+                        //1 查询品牌
+                        var brandPara = new Dictionary<string, string>();
+                        brandPara.Add("para", new VipSearchParaBrand(keyWord).ToJson());
+                        brandTask = clientProxy.PostRequestTransferAsync(queryBrandUrl, PostDataContentType.Json, brandPara, null);
+                        // 2 查询分类
+                        var categoryTreePara = new Dictionary<string, string>();
+                        categoryTreePara.Add("para", new VipSearchParaCategoryTree(keyWord).ToJson());
+                        categoryTreeTask = clientProxy.PostRequestTransferAsync(queryCategoryUrl, PostDataContentType.Json, categoryTreePara, null);
+
+                    }
+                    else
+                    {
+                        brandTask = Task.FromResult<HttpResponseMessage>(null);
+                        categoryTreeTask = Task.FromResult<HttpResponseMessage>(null);
+                    }
+
+                    //3检索内容
+                    var searchListPara = new Dictionary<string, string>();
+                    var paraDetais = new VipSearchParaSearchList(keyWord);
+                    //分页
+                    paraDetais.paramsDetails.np = queryParas.PageIndex + 1;
+                    //排序
+                    int tempSort = 0;
+                    int.TryParse(queryParas.OrderFiled.FieldValue, out tempSort);
+                    paraDetais.paramsDetails.sort = tempSort;
+                    //品牌
+                    if (null != queryParas.Brands && queryParas.Brands.IsNotEmpty())
+                    {
+                        paraDetais.paramsDetails.brand_store_sn = string.Join(",", queryParas.Brands.Select(x => x.BrandId));
+                    }
+                    //分类+规格
+                    if (null != queryParas.TagGroup)
+                    {
+                        //分类
+                        var category_id_1_5_show = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "category_id_1_5_showTags");
+                        paraDetais.paramsDetails.category_id_1_5_show = string.Join(",", category_id_1_5_show.Select(x => x.Value));
+                        var category_id_1_show = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "category_id_1_showTags");
+                        paraDetais.paramsDetails.category_id_1_show = string.Join(",", category_id_1_show.Select(x => x.Value));
+                        var category_id_2_show = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "category_id_2_showTags");
+                        paraDetais.paramsDetails.category_id_2_show = string.Join(",", category_id_2_show.Select(x => x.Value));
+                        var category_id_3_show = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "category_id_3_showTags");
+                        paraDetais.paramsDetails.category_id_3_show = string.Join(",", category_id_3_show.Select(x => x.Value));
+                        //规格
+                        var props = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "props");
+                        paraDetais.paramsDetails.props = string.Join(";", props.Select(x => x.Value));
+                    }
+                    searchListPara.Add("para", paraDetais.ToJson());
+                    searchListTask = clientProxy.PostRequestTransferAsync(templateOfSearchUrl, PostDataContentType.Json, searchListPara, null);
+
+                    //等待任务完毕
+                    Task.WaitAll(new Task[] { brandTask, categoryTreeTask, searchListTask });
+                    if (brandTask.Result != null)
+                    {
+                        resultBag.BrandStoreList = brandTask.Result.Content.ReadAsStringAsync().Result;
+                    }
+                    if (categoryTreeTask.Result != null)
+                    {
+                        resultBag.CategoryTree = categoryTreeTask.Result.Content.ReadAsStringAsync().Result;
+                    }
+                    if (searchListTask.Result != null)
+                    {
+                        resultBag.SearchList = searchListTask.Result.Content.ReadAsStringAsync().Result;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+
+                    throw ex;
+                }
+                return resultBag.ToJson();
 
             }
 

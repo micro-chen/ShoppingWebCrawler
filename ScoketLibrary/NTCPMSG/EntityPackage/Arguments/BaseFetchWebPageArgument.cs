@@ -16,6 +16,11 @@ namespace NTCPMessage.EntityPackage.Arguments
         public virtual SupportPlatformEnum Platform { get;  set; }
 
         /// <summary>
+        /// 是否需要解析 品牌、类别、规格内容
+        /// </summary>
+        public bool IsNeedResolveHeaderTags { get; set; }
+
+        /// <summary>
         /// 已经解析完毕的搜索页面地址
         /// 有的平台搜索url 参数需要频繁变更，所以，需要在插件中解析地址
         /// 但是有的平台需要具体的参数；所以传递的时候 先尝试在site 的插件中进行解析地址
