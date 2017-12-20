@@ -108,9 +108,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 var cks = ckVisitor.LoadCookies(DangdangSiteUrl);
 
 
-
-
-                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
+                //优先使用格式化好的查询地址
+                string searchUrl = queryParas.ResolvedSearUrl;
+                if (string.IsNullOrEmpty(searchUrl))
+                {
+                    searchUrl = string.Format(templateOfSearchUrl, keyWord);
+                }
 
                 var client = DangdangHttpClient;
                 client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://search.dangdang.com/?key={0}", keyWord));

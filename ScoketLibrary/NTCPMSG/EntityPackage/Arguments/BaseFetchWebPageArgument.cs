@@ -60,10 +60,10 @@ namespace NTCPMessage.EntityPackage.Arguments
 
 
         /// <summary>
-        /// 页码
+        /// 页码-从0开始的页索引
         /// </summary>
 
-        public int PageNumber { get; set; }
+        public int PageIndex { get; set; }
 
 
 

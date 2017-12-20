@@ -28,7 +28,7 @@ namespace NTCPMessage.EntityPackage
         /// 页码
         /// </summary>
 
-        int PageNumber { get; set; }
+        int PageIndex { get; set; }
 
         /// <summary>
         /// 支持的排序字段名
