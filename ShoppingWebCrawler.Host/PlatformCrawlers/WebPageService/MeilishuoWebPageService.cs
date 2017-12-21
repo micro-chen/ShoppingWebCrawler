@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-
-
-using System.Collections.Specialized;
-using System.Net.Http;
-using ShoppingWebCrawler.Host.Common.Http;
-using System.Net;
-using ShoppingWebCrawler.Host.Headless;
 using NTCPMessage.EntityPackage;
+
+using ShoppingWebCrawler.Host.Common.Http;
+using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Host.Common;
 
 /*
@@ -120,8 +119,17 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
 
+                //优先使用格式化好的查询地址
+                string searchUrl = "";
+                if (null != queryParas.ResolvedUrl)
+                {
+                    searchUrl = queryParas.ResolvedUrl.Url;
+                }
+                else
+                {
+                    searchUrl = string.Format(templateOfSearchUrl, keyWord);
+                }
 
-                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
 
                 var client = MeilishuoHttpClient;
 
