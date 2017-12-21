@@ -9,13 +9,14 @@ using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Net;
 using System.Web;
+using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Host.Common.Http;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Host.Handlers;
 using ShoppingWebCrawler.Host.Common;
-using NTCPMessage.EntityPackage;
+
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
