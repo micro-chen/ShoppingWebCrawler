@@ -126,14 +126,19 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
 
-
-                string searchUrl = queryParas.ResolvedSearUrl;
-                if (string.IsNullOrEmpty(searchUrl))
+                //优先使用格式化好的查询地址
+                string searchUrl = "";
+                if (null != queryParas.ResolvedUrl)
+                {
+                    searchUrl = queryParas.ResolvedUrl.Url;
+                }
+                else
                 {
                     searchUrl = string.Format(templateOfSearchUrl
-                        ,keyWord,queryParas.PageIndex+1
-                        ,queryParas.OrderFiled.FieldValue);
+                       , keyWord, queryParas.PageIndex + 1
+                       , queryParas.OrderFiled.FieldValue);
                 }
+                 
                     
                     
 

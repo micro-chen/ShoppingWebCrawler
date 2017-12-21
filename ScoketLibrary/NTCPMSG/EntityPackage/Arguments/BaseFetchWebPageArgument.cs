@@ -25,7 +25,7 @@ namespace NTCPMessage.EntityPackage.Arguments
         /// 有的平台搜索url 参数需要频繁变更，所以，需要在插件中解析地址
         /// 但是有的平台需要具体的参数；所以传递的时候 先尝试在site 的插件中进行解析地址
         /// </summary>
-        public string ResolvedSearUrl { get; set; }
+        public ResolvedSearchUrlWithParas ResolvedUrl { get; set; }
 
         /// <summary>
         /// 查询关键词

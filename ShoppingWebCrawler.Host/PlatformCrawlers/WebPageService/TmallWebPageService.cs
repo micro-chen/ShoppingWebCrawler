@@ -125,9 +125,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
                 //天猫应该是有解析的搜索url的，如果没有，那么使用基于拼接的默认关键词的检索地址
-                string searchUrl = queryParas.ResolvedSearUrl;
-                if (string.IsNullOrEmpty(searchUrl))
+                string searchUrl = "";
+                if (null != queryParas.ResolvedUrl)
                 {
+                    searchUrl = queryParas.ResolvedUrl.Url;
+                }
+                else
+                {
+                  
                     string sortValue = "s";//综合排序
                     if (null!=queryParas.OrderFiled)
                     {

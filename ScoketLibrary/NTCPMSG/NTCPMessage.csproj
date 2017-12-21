@@ -133,6 +133,7 @@
     <Compile Include="EntityPackage\Products\GuomeiProduct.cs" />
     <Compile Include="EntityPackage\Products\TmallProduct.cs" />
     <Compile Include="EntityPackage\QingTaoKeHideQuanResult.cs" />
+    <Compile Include="EntityPackage\ResolvedSearchUrlWithParas.cs" />
     <Compile Include="EntityPackage\SkuItem.cs" />
     <Compile Include="EntityPackage\SoapMessage.cs" />
     <Compile Include="EntityPackage\SupportPlatform.cs" />

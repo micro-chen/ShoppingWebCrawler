@@ -2,18 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-
+using NTCPMessage.EntityPackage;
+using NTCPMessage.EntityPackage.Arguments;
 
 using System.Collections.Specialized;
-using System.Net.Http;
+
 using ShoppingWebCrawler.Host.Common.Http;
-using System.Net;
 using ShoppingWebCrawler.Host.Headless;
-using NTCPMessage.EntityPackage;
 using ShoppingWebCrawler.Host.Common;
-using NTCPMessage.EntityPackage.Arguments;
 
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
@@ -67,16 +67,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <summary>
             /// 唯品会请求 搜索地址页面
             /// </summary>
-            private const string templateOfSearchUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getSearchList&f=&_=1513070519238";
+            private  string templateOfSearchUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getSearchList&f=&_="+JavascriptContext.getUnixTimestamp();
 
             /// <summary>
             /// 检索当前关键词下的-【品类】
             /// </summary>
-            private const string queryCategoryUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getCategoryTree&f=&_=1513070166483";
+            private  string queryCategoryUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getCategoryTree&f=&_=" + JavascriptContext.getUnixTimestamp();
             /// <summary>
             /// 检索当前关键词下的-【查询品牌】
             /// </summary>
-            private const string queryBrandUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getBrandStoreList&f=&_=1513070611746";
+            private  string queryBrandUrl = "https://m.vip.com/server.html?rpc&method=SearchRpc.getBrandStoreList&f=&_="+JavascriptContext.getUnixTimestamp();
 
             /// <summary>
             /// 请求客户端
@@ -150,15 +150,37 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     Task<HttpResponseMessage> brandTask;
                     Task<HttpResponseMessage> categoryTreeTask;
                     Task<HttpResponseMessage> searchListTask;
+                    string para_brandJson = "";
+                    string para_categoryTreeJson = "";
+                    string para_searchListJson = "";
+                    if (null!=queryParas.ResolvedUrl&&null!=queryParas.ResolvedUrl.ParasPost)
+                    {
+                        para_brandJson = queryParas.ResolvedUrl.ParasPost["para_brand"].ToString();
+                        para_categoryTreeJson = queryParas.ResolvedUrl.ParasPost["para_categoryTree"].ToString();
+                        para_searchListJson = queryParas.ResolvedUrl.ParasPost["para_searchList"].ToString();
+                    }
+                    else
+                    {
+                         para_brandJson = new VipSearchParaBrand(keyWord).ToJson();
+                         para_categoryTreeJson = new VipSearchParaCategoryTree(keyWord).ToJson();
+                       
+                        //插件不解析的话，那么使用最简单的基本关键词过滤分页，不进行复杂过滤，复杂过滤筛选应该在插件实现
+                        var paraDetais = new VipSearchParaSearchList(keyWord);
+                        //分页
+                        paraDetais.paramsDetails.np = queryParas.PageIndex + 1;
+                       
+                        para_searchListJson = paraDetais.ToJson();
+                         
+                    }
                     if (queryParas.IsNeedResolveHeaderTags == true)
                     {
                         //1 查询品牌
                         var brandPara = new Dictionary<string, string>();
-                        brandPara.Add("para", new VipSearchParaBrand(keyWord).ToJson());
+                        brandPara.Add("para_brand", para_brandJson);
                         brandTask = clientProxy.PostRequestTransferAsync(queryBrandUrl, PostDataContentType.Json, brandPara, null);
                         // 2 查询分类
                         var categoryTreePara = new Dictionary<string, string>();
-                        categoryTreePara.Add("para", new VipSearchParaCategoryTree(keyWord).ToJson());
+                        categoryTreePara.Add("para_categoryTree", para_categoryTreeJson);
                         categoryTreeTask = clientProxy.PostRequestTransferAsync(queryCategoryUrl, PostDataContentType.Json, categoryTreePara, null);
 
                     }
@@ -170,35 +192,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                     //3检索内容
                     var searchListPara = new Dictionary<string, string>();
-                    var paraDetais = new VipSearchParaSearchList(keyWord);
-                    //分页
-                    paraDetais.paramsDetails.np = queryParas.PageIndex + 1;
-                    //排序
-                    int tempSort = 0;
-                    int.TryParse(queryParas.OrderFiled.FieldValue, out tempSort);
-                    paraDetais.paramsDetails.sort = tempSort;
-                    //品牌
-                    if (null != queryParas.Brands && queryParas.Brands.IsNotEmpty())
-                    {
-                        paraDetais.paramsDetails.brand_store_sn = string.Join(",", queryParas.Brands.Select(x => x.BrandId));
-                    }
-                    //分类+规格
-                    if (null != queryParas.TagGroup)
-                    {
-                        //分类
-                        var category_id_1_5_show = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "category_id_1_5_showTags");
-                        paraDetais.paramsDetails.category_id_1_5_show = string.Join(",", category_id_1_5_show.Select(x => x.Value));
-                        var category_id_1_show = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "category_id_1_showTags");
-                        paraDetais.paramsDetails.category_id_1_show = string.Join(",", category_id_1_show.Select(x => x.Value));
-                        var category_id_2_show = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "category_id_2_showTags");
-                        paraDetais.paramsDetails.category_id_2_show = string.Join(",", category_id_2_show.Select(x => x.Value));
-                        var category_id_3_show = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "category_id_3_showTags");
-                        paraDetais.paramsDetails.category_id_3_show = string.Join(",", category_id_3_show.Select(x => x.Value));
-                        //规格
-                        var props = queryParas.TagGroup.Tags.Where(x => x.FilterFiled == "props");
-                        paraDetais.paramsDetails.props = string.Join(";", props.Select(x => x.Value));
-                    }
-                    searchListPara.Add("para", paraDetais.ToJson());
+                    searchListPara.Add("para_searchList", para_searchListJson);
                     searchListTask = clientProxy.PostRequestTransferAsync(templateOfSearchUrl, PostDataContentType.Json, searchListPara, null);
 
                     //等待任务完毕
