@@ -70,7 +70,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             /// <summary>
             /// 一号店请求 搜索地址页面
             /// </summary>
-            private const string templateOfSearchUrl = "http://search.yhd.com/c0-0/k{0}/?tp=1.1.12.0.3.LpPTkdw-10-93L!6";
+            private const string templateOfSearchUrl = "http://search.yhd.com/c0-0/k{0}/";
 
             /// <summary>
             /// 请求客户端
@@ -121,12 +121,21 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 var cks = ckVisitor.LoadCookies(YihaodianSiteUrl);
 
 
+                //优先使用格式化好的查询地址
+                string searchUrl = "";
+                if (null != queryParas.ResolvedUrl)
+                {
+                    searchUrl = queryParas.ResolvedUrl.Url;
+                }
+                else
+                {
+                    searchUrl = string.Format(templateOfSearchUrl, keyWord);
+                }
 
 
-                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
 
                 var client = YihaodianHttpClient;
-                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://search.yhd.com/c0-0/k{0}/?tp=1.1.12.0.3.LpPV5SK-10-93L!6", keyWord));
+                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://search.yhd.com/c0-0/k{0}/", keyWord));
                 ////加载cookies
                 ////获取当前站点的Cookie
                 client.ChangeGlobleCookies(cks, YihaodianSiteUrl);
