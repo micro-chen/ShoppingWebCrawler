@@ -99,7 +99,7 @@
     <Compile Include="EntityPackage\Arguments\MeilishuoFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\Arguments\MogujieFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\Arguments\ETaoFetchWebPageArgument.cs" />
-    <Compile Include="EntityPackage\Arguments\Zhe800FetchWebPageArgument.cs" />
+    <Content Include="EntityPackage\Arguments\Zhe800FetchWebPageArgument.cs.txt" />
     <Compile Include="EntityPackage\Arguments\YhdFetchWebPageArgument.cs" />
     <Compile Include="EntityPackage\MamaQuanAuctioin.cs" />
     <Compile Include="EntityPackage\MamaQuanOrProductTuiGuangResult.cs" />
@@ -125,7 +125,7 @@
     <Compile Include="EntityPackage\Products\JingdongProduct.cs" />
     <Compile Include="EntityPackage\Products\PddProduct.cs" />
     <Compile Include="EntityPackage\Products\VipProduct.cs" />
-    <Compile Include="EntityPackage\Products\Zhe800Product.cs" />
+    <Content Include="EntityPackage\Products\Zhe800Product.cs.txt" />
     <Compile Include="EntityPackage\Products\YhdProduct.cs" />
     <Compile Include="EntityPackage\Products\SuningProduct.cs" />
     <Compile Include="EntityPackage\Products\MogujieProduct.cs" />

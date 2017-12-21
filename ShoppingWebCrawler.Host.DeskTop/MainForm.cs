@@ -490,10 +490,10 @@ namespace ShoppingWebCrawler.Host.DeskTop
             this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Mogujie);
         }
 
-        private void zhe800_ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Zhe800);
-        }
+        //private void zhe800_ToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Zhe800);
+        //}
 
         private void etao_ToolStripMenuItem_Click(object sender, EventArgs e)
         {

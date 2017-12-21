@@ -30,8 +30,8 @@ namespace NTCPMessage.EntityPackage
         Meilishuo = 9,
         [Description("蘑菇街")]
         Mogujie = 10,
-        [Description("折800")]
-        Zhe800 = 11,
+        //[Description("折800")]
+        //Zhe800 = 11,
         [Description("一淘")]
         ETao = 12,
         [Description("阿里妈妈")]

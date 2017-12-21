@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-
-
-using System.Collections.Specialized;
-using System.Net.Http;
-using ShoppingWebCrawler.Host.Common.Http;
-using System.Net;
-using ShoppingWebCrawler.Host.Headless;
 using NTCPMessage.EntityPackage;
+
+using ShoppingWebCrawler.Host.Common.Http;
+using ShoppingWebCrawler.Host.Headless;
 using ShoppingWebCrawler.Host.Common;
 
 /*
@@ -124,10 +123,21 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 var ckVisitor = new LazyCookieVistor();
                 var cks = ckVisitor.LoadCookies(MogujieSiteUrl);
 
-
-
                 string timeToken = JavascriptContext.getUnixTimestamp();
-                string searchUrl = string.Format(templateOfSearchUrl, timeToken,keyWord);
+
+                //优先使用格式化好的查询地址
+                string searchUrl = "";
+                if (null != queryParas.ResolvedUrl)
+                {
+                    searchUrl = queryParas.ResolvedUrl.Url;
+                }
+                else
+                {
+                    searchUrl = string.Format(templateOfSearchUrl, timeToken, keyWord);
+                }
+
+          
+
 
                 var client = MogujieHttpClient;
                 client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://list.mogujie.com/s?q={0}&ptp=1.eW5XD.0.0.qJUTT", keyWord));

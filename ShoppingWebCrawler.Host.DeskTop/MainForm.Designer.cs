@@ -217,13 +217,13 @@
             this.mogujie_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.mogujie_ToolStripMenuItem.Text = "蘑菇街";
             this.mogujie_ToolStripMenuItem.Click += new System.EventHandler(this.mogujie_ToolStripMenuItem_Click);
-            // 
-            // zhe800_ToolStripMenuItem
-            // 
-            this.zhe800_ToolStripMenuItem.Name = "zhe800_ToolStripMenuItem";
-            this.zhe800_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.zhe800_ToolStripMenuItem.Text = "折800";
-            this.zhe800_ToolStripMenuItem.Click += new System.EventHandler(this.zhe800_ToolStripMenuItem_Click);
+            //// 
+            //// zhe800_ToolStripMenuItem
+            //// 
+            //this.zhe800_ToolStripMenuItem.Name = "zhe800_ToolStripMenuItem";
+            //this.zhe800_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            //this.zhe800_ToolStripMenuItem.Text = "折800";
+            //this.zhe800_ToolStripMenuItem.Click += new System.EventHandler(this.zhe800_ToolStripMenuItem_Click);
             // 
             // etao_ToolStripMenuItem
             // 
