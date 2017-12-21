@@ -41,10 +41,11 @@ namespace NTCPMessage.EntityPackage.Arguments
         {
             List<OrderField> fields = new List<OrderField>() {
 
-                 new OrderField { DisplayName="综合", FieldValue="default" },
-                 new OrderField { DisplayName="销量", FieldValue="sales_desc" },
-                 new OrderField { DisplayName="价格", FieldValue="price_asc,price_desc" },
-                
+                 new OrderField { DisplayName="综合", FieldValue="default", Rule= OrderRule.Default },
+                 new OrderField { DisplayName="销量", FieldValue="sales_desc" , Rule= OrderRule.DESC},
+                 new OrderField { DisplayName="价格", FieldValue="price_asc", Rule= OrderRule.ASC },
+                 new OrderField { DisplayName="价格", FieldValue="price_desc"  ,Rule= OrderRule.DESC},
+
             };
 
             return fields;

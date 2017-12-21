@@ -149,8 +149,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 string etao_appkey = "12574478";
 
-                string paras = string.Concat("{\"s\":0,\"n\":40,\"q\":\"", keyWord, "\",\"needEncode\":false,\"sort\":\"sales_desc\",\"maxPrice\":10000000,\"minPrice\":0,\"serviceList\":\"\",\"navigator\":\"all\",\"urlType\":2}");
+                if (null== queryParas.OrderFiled)
+                {
+                    queryParas.OrderFiled = queryParas.GetCurrentPlatformSupportOrderFields().First();
+                }
+                int pageNum = queryParas.PageIndex * 40;
 
+                string paras = string.Concat("{\"s\":", pageNum, ",\"n\":40,\"q\":\"", keyWord, "\",\"needEncode\":false,\"sort\":\"",queryParas.OrderFiled.FieldValue,"\",\"maxPrice\":10000000,\"minPrice\":0,\"serviceList\":\"\",\"navigator\":\"all\",\"urlType\":2}");
+
+                //生成参数戳
                 string sign = JavascriptContext.getEtaoJSSDKSign(_m_h5_tk_valueString, timestamp, etao_appkey, paras);
 
                 string url = string.Format("https://apie.m.etao.com/h5/mtop.etao.fe.search/1.0/?type=jsonp&api=mtop.etao.fe.search&v=1.0&appKey=12574478&data={0}&t={1}&sign={2}&callback=jsonp28861232595120323", paras, timestamp, sign);
