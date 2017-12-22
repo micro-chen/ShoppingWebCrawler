@@ -10,13 +10,18 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// </summary>
     public  class BaseFetchWebPageArgument : IFetchWebPageArgument
     {
+
+        public BaseFetchWebPageArgument()
+        {
+            this.IsNeedResolveHeaderTags = true;
+        }
         /// <summary>
         /// 归属平台
         /// </summary>
         public virtual SupportPlatformEnum Platform { get;  set; }
 
         /// <summary>
-        /// 是否需要解析 品牌、类别、规格内容
+        /// 是否需要解析 品牌、类别、规格内容;默认为：true
         /// </summary>
         public bool IsNeedResolveHeaderTags { get; set; }
 

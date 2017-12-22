@@ -17,7 +17,7 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 规格编码
         /// </summary>
-        public long skuId { get; set; }
+        public string skuId { get; set; }
 
         /// <summary>
         /// 规格名称

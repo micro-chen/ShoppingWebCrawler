@@ -9,7 +9,10 @@ namespace NTCPMessage.EntityPackage
 {
    public abstract class ProductBase
     {
-
+        public ProductBase()
+        {
+            this.SkuList = new List<SkuItem>();
+        }
         /// <summary>
         /// 卖家id
         /// </summary>
@@ -73,8 +76,12 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 总业务成交/付款/评论 数量
         /// </summary>
-        public int TotalBizCount { get; set; }
+        public int TotalBizRemarkCount { get; set; }
 
+        /// <summary>
+        /// 评论地址
+        /// </summary>
+        public string RemarkUrl { get; set; }
         /// <summary>
         /// 商品推广链接
         /// </summary>
@@ -90,10 +97,10 @@ namespace NTCPMessage.EntityPackage
         /// 归属的平台
         /// </summary>
         public SupportPlatformEnum Platform { get; set; }
-        /// <summary>
-        /// 优惠券集合
-        /// </summary>
-        public List<Youhuiquan> QuanList { get; set; }
+        ///// <summary>
+        ///// 优惠券集合
+        ///// </summary>
+        //public List<Youhuiquan> QuanList { get; set; }
 
        
     }

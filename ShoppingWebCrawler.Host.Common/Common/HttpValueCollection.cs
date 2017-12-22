@@ -15,12 +15,12 @@ namespace ShoppingWebCrawler.Host.Common.Common
     [Serializable]
     public class HttpValueCollection : NameValueCollection
     {
-        internal HttpValueCollection()
+        public HttpValueCollection()
             : base(StringComparer.OrdinalIgnoreCase)
         {
         }
 
-        internal HttpValueCollection(int capacity)
+        public HttpValueCollection(int capacity)
             : base(capacity, (IEqualityComparer)StringComparer.OrdinalIgnoreCase)
         {
         }
@@ -30,7 +30,7 @@ namespace ShoppingWebCrawler.Host.Common.Common
         {
         }
 
-        internal HttpValueCollection(string str, bool readOnly, bool urlencoded, Encoding encoding)
+        public HttpValueCollection(string str, bool readOnly, bool urlencoded, Encoding encoding)
             : base(StringComparer.OrdinalIgnoreCase)
         {
             if (!string.IsNullOrEmpty(str))
@@ -40,7 +40,7 @@ namespace ShoppingWebCrawler.Host.Common.Common
             base.IsReadOnly = readOnly;
         }
 
-        internal void FillFromEncodedBytes(byte[] bytes, Encoding encoding)
+        public void FillFromEncodedBytes(byte[] bytes, Encoding encoding)
         {
             int num = (bytes != null) ? bytes.Length : 0;
             for (int i = 0; i < num; i++)
@@ -83,12 +83,12 @@ namespace ShoppingWebCrawler.Host.Common.Common
             }
         }
 
-        internal void FillFromString(string s)
+        public void FillFromString(string s)
         {
             this.FillFromString(s, false, null);
         }
 
-        internal void FillFromString(string s, bool urlencoded, Encoding encoding)
+        public void FillFromString(string s, bool urlencoded, Encoding encoding)
         {
             int num = (s != null) ? s.Length : 0;
             for (int i = 0; i < num; i++)
@@ -137,17 +137,17 @@ namespace ShoppingWebCrawler.Host.Common.Common
             }
         }
 
-        internal void MakeReadOnly()
+        public void MakeReadOnly()
         {
             base.IsReadOnly = true;
         }
 
-        internal void MakeReadWrite()
+        public void MakeReadWrite()
         {
             base.IsReadOnly = false;
         }
 
-        internal void Reset()
+        public void Reset()
         {
             base.Clear();
         }
@@ -162,7 +162,7 @@ namespace ShoppingWebCrawler.Host.Common.Common
             return this.ToString(urlencoded, null);
         }
 
-        internal virtual string ToString(bool urlencoded, IDictionary excludeKeys)
+        public virtual string ToString(bool urlencoded, IDictionary excludeKeys)
         {
             int count = this.Count;
             
