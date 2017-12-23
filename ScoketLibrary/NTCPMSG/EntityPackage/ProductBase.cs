@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NTCPMessage.EntityPackage
 {
-   public abstract class ProductBase
+    public abstract class ProductBase
     {
         public ProductBase()
         {
@@ -25,7 +25,7 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 卖家店铺名称
         /// </summary>
-        public string  ShopName { get; set; }
+        public string ShopName { get; set; }
 
         /// <summary>
         /// 商品id
@@ -41,15 +41,15 @@ namespace NTCPMessage.EntityPackage
         /// 商品主图地址
         /// : "//gaitaobao3.alicdn.com/tfscom/i2/38365748/TB28APYr5RnpuFjSZFCXXX2DXXa_!!38365748.png"
         /// </summary>
-        public string PicUrl  { get; set; }
+        public string PicUrl { get; set; }
 
 
         /// <summary>
         /// 商品标题
         /// : "8胖男孩9男童夏装套装12大童男装短袖10儿童夏季运动服15岁纯棉13"
         /// </summary>
-        public string Title  { get; set; }
-       
+        public string Title { get; set; }
+
         ///// <summary>
         ///// 推广者pid 
         ///// mm 三段式
@@ -97,11 +97,16 @@ namespace NTCPMessage.EntityPackage
         /// 归属的平台
         /// </summary>
         public SupportPlatformEnum Platform { get; set; }
+
+        /// <summary>
+        /// 是否自营
+        /// </summary>
+        public bool IsSelfSale { get; set; }
         ///// <summary>
         ///// 优惠券集合
         ///// </summary>
         //public List<Youhuiquan> QuanList { get; set; }
 
-       
+
     }
 }
