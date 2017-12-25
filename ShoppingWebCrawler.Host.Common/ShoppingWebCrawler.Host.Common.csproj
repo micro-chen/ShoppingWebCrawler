@@ -99,7 +99,6 @@
     <Compile Include="Common\HotWordsLoader.cs" />
     <Compile Include="Common\HttpRequestHelper.cs" />
     <Compile Include="Common\HttpServerProxy.cs" />
-    <Compile Include="Common\HttpValueCollection.cs" />
     <Compile Include="Common\InPutValidate.cs" />
     <Compile Include="Common\JavascriptContext.cs" />
     <Compile Include="Common\PushToRedisCookiesEventArgs.cs" />
