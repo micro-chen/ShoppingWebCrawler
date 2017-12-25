@@ -128,6 +128,7 @@ namespace NTCPMessage.EntityPackage.Arguments
             string conditonString = string.Concat
                 (
                 this.Platform.ToString(),
+                this.IsNeedResolveHeaderTags.ToString(),
                 this.KeyWord,
                 brandString,
                 tagString,
