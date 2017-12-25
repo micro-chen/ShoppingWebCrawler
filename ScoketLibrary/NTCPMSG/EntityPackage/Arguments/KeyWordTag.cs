@@ -11,6 +11,13 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// </summary>
     public class KeyWordTag
     {
+
+        /// <summary>
+        /// 所在的分组显示名称
+        /// 品牌、分类、产地.......
+        /// </summary>
+        public string GroupShowName { get; set; }
+
         /// <summary>
         /// 标签名称
         /// </summary>

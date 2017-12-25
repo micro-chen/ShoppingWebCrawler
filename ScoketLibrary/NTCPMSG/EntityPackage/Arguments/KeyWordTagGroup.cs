@@ -16,6 +16,11 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// </summary>
     public class KeyWordTagGroup
     {
+
+        public KeyWordTagGroup()
+        {
+            this.Tags = new List<KeyWordTag>();
+        }
         public string _GroupName;
         /// <summary>
         /// 组名称

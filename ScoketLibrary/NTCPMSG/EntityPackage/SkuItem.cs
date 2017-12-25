@@ -17,31 +17,32 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 规格编码
         /// </summary>
-        public string skuId { get; set; }
+        public string SkuId { get; set; }
 
         /// <summary>
         /// 规格名称
         /// </summary>
-        public string skuName { get; set; }
+        public string SkuName { get; set; }
 
 
         /// <summary>
         /// 指定的规格的地址
         ///点击进入指定的规格
         /// </summary>
-        public string skuUrl { get; set; }
+        public string SkuUrl { get; set; }
 
         /// <summary>
         /// 规格图片地址
         /// </summary>
-        public string skuImgUrl { get; set; }
+        public string SkuImgUrl { get; set; }
 
 
 
         /// <summary>
         ///包含的属性集合
+        ///颜色 尺寸  型号 ......
         /// </summary>
-        public List<SkuAttribute> attrList { get; set; }
+        public List<SkuAttribute> AttrList { get; set; }
 
 
         /// <summary>
@@ -52,12 +53,12 @@ namespace NTCPMessage.EntityPackage
             /// <summary>
             /// 属性Id
             /// </summary>
-            public long attrId { get; set; }
+            public long AttrId { get; set; }
      
             /// <summary>
             /// 属性名称
             /// </summary>
-            public string attrName { get; set; }
+            public string AttrName { get; set; }
         }
     }
 

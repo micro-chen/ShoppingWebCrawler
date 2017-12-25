@@ -1,13 +1,18 @@
-﻿using NTCPMessage.EntityPackage.Arguments;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NTCPMessage.EntityPackage.Arguments;
 
 namespace NTCPMessage.EntityPackage
 {
-    public abstract class ProductBase
+    /// <summary>
+    /// 商品的基类
+    /// 注意：商品类基类是各个平台的属性的抽象，但是需要支持实例化
+    /// 不允许平台个性化的显示各自的字段
+    /// </summary>
+    public  class ProductBase
     {
         public ProductBase()
         {
@@ -70,13 +75,15 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 30天业务成交/付款/评论 数量
         /// 成交后才能评论 所有 评论数量也是成交数量
+        /// 注意：这个字段是字符串类型，而不是具体的数字，方便显示为 x.x万的格式，而不是一长溜的数字！！！！
         /// </summary>
-        public int Biz30Day { get; set; }
+        public string Biz30Day { get; set; }
 
         /// <summary>
         /// 总业务成交/付款/评论 数量
+        /// 注意：这个字段是字符串类型，而不是具体的数字，方便显示为 x.x万的格式，而不是一长溜的数字！！！！
         /// </summary>
-        public int TotalBizRemarkCount { get; set; }
+        public string TotalBizRemarkCount { get; set; }
 
         /// <summary>
         /// 评论地址

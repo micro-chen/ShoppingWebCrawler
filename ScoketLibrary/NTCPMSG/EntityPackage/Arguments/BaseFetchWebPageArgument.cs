@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Text;
+using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using Newtonsoft.Json;
 
 namespace NTCPMessage.EntityPackage.Arguments
 {
@@ -8,17 +12,24 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// 抓取网页需要的基础参数模型
     /// TODO：第一阶段只是按照各个平台官网的排序进行排序，筛选勾选字段 暂时没有实现
     /// </summary>
-    public  class BaseFetchWebPageArgument : IFetchWebPageArgument
+    public class BaseFetchWebPageArgument : IFetchWebPageArgument
     {
 
         public BaseFetchWebPageArgument()
         {
             this.IsNeedResolveHeaderTags = true;
+            this.Brands = new List<BrandTag>();
+            this.TagGroup = new KeyWordTagGroup();
+            this.OrderFiled = this.GetCurrentPlatformSupportOrderFields().FirstOrDefault(x => x.Rule == OrderRule.Default);
+            if (null == this.OrderFiled)
+            {
+                this.OrderFiled = new OrderField();
+            }
         }
         /// <summary>
         /// 归属平台
         /// </summary>
-        public virtual SupportPlatformEnum Platform { get;  set; }
+        public virtual SupportPlatformEnum Platform { get; set; }
 
         /// <summary>
         /// 是否需要解析 品牌、类别、规格内容;默认为：true
@@ -84,8 +95,71 @@ namespace NTCPMessage.EntityPackage.Arguments
         /// <returns></returns>
         public virtual List<OrderField> GetCurrentPlatformSupportOrderFields()
         {
-            return null;
+            return new List<OrderField>();
         }
+
+
+        #region 实例的md5哈希值
+
+
+        private string _MD5Sign;
+        [JsonIgnore]
+        public string MD5Sign
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(this._MD5Sign) || this._MD5Sign.Length < 32)
+                {
+                    _MD5Sign = this.GetHashMD5SignString();
+                }
+                return _MD5Sign;
+            }
+        }
+
+        /// <summary>
+        /// 获取当前对象的特殊md5 哈希值;32 位长度小写
+        /// </summary>
+        /// <returns></returns>
+        private string GetHashMD5SignString()
+        {
+            //拼接筛选条件的核心属性到字符串
+            string brandString = string.Join("-", this.Brands.Select(x => x.BrandId ?? ""));
+            string tagString = string.Join("-", this.TagGroup.Tags.Select(x => string.Concat(x.FilterFiled ?? "", x.Value ?? "")));
+            string conditonString = string.Concat
+                (
+                this.Platform.ToString(),
+                this.KeyWord,
+                brandString,
+                tagString,
+                this.FromPrice,
+                this.ToPrice,
+                this.OrderFiled.FieldValue,
+                this.OrderFiledName,
+                this.PageIndex
+                );
+
+            MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+            var buffer = Encoding.UTF8.GetBytes(conditonString);
+            byte[] hash_byte = md5.ComputeHash(buffer);
+            string str = System.BitConverter.ToString(hash_byte);
+            string md5Sign = str.Replace("-", "").ToLower();
+            return md5Sign;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// 对应的缓存键-结果键
+        /// </summary>
+        [JsonIgnore]
+        public string CacheKey
+        {
+            get
+            {
+                return string.Concat("PageCach:", this.Platform.ToString(), ":", this.MD5Sign);
+            }
+        }
+
         /// <summary>
         /// 是否是合法的参数
         /// </summary>
