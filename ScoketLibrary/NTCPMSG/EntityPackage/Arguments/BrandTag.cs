@@ -21,8 +21,11 @@ namespace NTCPMessage.EntityPackage.Arguments
         /// 品牌名称
         /// </summary>
         public string BrandName { get; set; }
- 
 
+        /// <summary>
+        /// 过滤字段
+        /// </summary>
+        public string FilterField { get; set; }
         /// <summary>
         /// 来自的平台
         /// </summary>

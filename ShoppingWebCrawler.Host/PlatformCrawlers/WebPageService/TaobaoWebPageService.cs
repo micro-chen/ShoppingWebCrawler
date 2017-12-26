@@ -289,20 +289,20 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //初始化头信息
                 var requestHeaders = BaseRequest.GetCommonRequestHeaders();
                 requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
-                requestHeaders.Add("upgrade-insecure-requests", "1");
+               // requestHeaders.Add("upgrade-insecure-requests", "1");
                 requestHeaders.Add("Referer", TaobaoSiteUrl);
-                requestHeaders.Add("Host", "www.taobao.com");
+                requestHeaders.Add("Host", "s.taobao.com");
                 TaobaoHttpClient = new CookedHttpClient();
                 HttpServerProxy.FormatRequestHeader(TaobaoHttpClient.Client.DefaultRequestHeaders, requestHeaders);
 
-                //淘宝h5client
-                var requestHeadersH5 = BaseRequest.GetCommonRequestHeaders();
-                requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
-                requestHeaders.Add("upgrade-insecure-requests", "1");
-                requestHeaders.Add("Pragma", "no-cache");
-                requestHeaders.Add("Host", "api.m.taobao.com");
-                TaobaoH5ApiHttpClient = new CookedHttpClient();
-                HttpServerProxy.FormatRequestHeader(TaobaoH5ApiHttpClient.Client.DefaultRequestHeaders, requestHeadersH5);
+                ////淘宝h5client
+                //var requestHeadersH5 = BaseRequest.GetCommonRequestHeaders();
+                //requestHeaders.Add("Accept-Encoding", "gzip, deflate");//接受gzip流 减少通信body体积
+                //requestHeaders.Add("upgrade-insecure-requests", "1");
+                //requestHeaders.Add("Pragma", "no-cache");
+                //requestHeaders.Add("Host", "api.m.taobao.com");
+                //TaobaoH5ApiHttpClient = new CookedHttpClient();
+                //HttpServerProxy.FormatRequestHeader(TaobaoH5ApiHttpClient.Client.DefaultRequestHeaders, requestHeadersH5);
 
             }
 
@@ -331,9 +331,18 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
 
+                //优先使用格式化好的查询地址
+                string searchUrl = "";
+                if (null != queryParas.ResolvedUrl)
+                {
+                    searchUrl = queryParas.ResolvedUrl.Url;
+                }
+                else
+                {
+                    searchUrl = string.Format(templateOfSearchUrl, keyWord);
+                }
 
-                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
-
+ 
                 var client = TaobaoHttpClient;
 
                 ////加载cookies

@@ -73,7 +73,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                                                       //Locale = "en-US",
                     LogSeverity = CefLogSeverity.Disable,
                     //LogFile = "CefGlue.log",
-                     PersistSessionCookies=true,
+                    PersistSessionCookies = true,
                     UserAgent = GlobalContext.ChromeUserAgent,
                     UserDataPath = System.IO.Path.Combine(Environment.CurrentDirectory, "UserData"),
                     CachePath = System.IO.Path.Combine(Environment.CurrentDirectory, "LocalCache")
@@ -82,7 +82,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
                 // DevTools doesn't seem to be working when this is enabled
                 // http://magpcss.org/ceforum/viewtopic.php?f=6&t=14095
-                
+
 
                 // Disable GPU in WPF and Offscreen examples until #1634 has been resolved
                 //settings.CefCommandLineArgs.Add("disable-gpu", "1");
@@ -137,6 +137,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                 // --------------测试环境begin 不建议打开多个tabpage，影响测试加载-------------
                 var tmallService = new TmallWebPageService();
                 var loader = tmallService.RequestLoader;
+
+                var loader_taobao = new TaobaoWebPageService().RequestLoader;
                 //--------------测试环境end-------使用一个tabpage ,即可测试是否正确加载----------
             });
 
