@@ -29,11 +29,14 @@ namespace NTCPMessage.EntityPackage.Products
         /// 是否天猫商品
         /// </summary>
         public bool IsTmall { get; set; }
-
         /// <summary>
-        /// 卖家承诺N天包退换
+        /// 是否流行
         /// </summary>
-        public int DayReturn { get; set; }
+        public bool IsFashion { get; set; }
+        /// <summary>
+        /// 是否新品
+        /// </summary>
+        public bool IsXinPin { get; set; }
 
         /// <summary>
         /// 是否有运费险
