@@ -25,6 +25,8 @@ namespace NTCPMessage.EntityPackage.Arguments
             {
                 this.OrderFiled = new OrderField();
             }
+
+            this.SystemAttachParas = new Dictionary<string, object>();
         }
         /// <summary>
         /// 归属平台
@@ -99,7 +101,11 @@ namespace NTCPMessage.EntityPackage.Arguments
         }
 
 
+
+
         #region 实例的md5哈希值
+
+
 
 
         private string _MD5Sign;
@@ -160,6 +166,13 @@ namespace NTCPMessage.EntityPackage.Arguments
                 return string.Concat("PageCach:", this.Platform.ToString(), ":", this.MD5Sign);
             }
         }
+
+        /// <summary>
+        /// 系统运行附带参数
+        ///在穿插交互的时候 ，可以附带参数
+        /// </summary>
+        [JsonIgnore]
+        public Dictionary<string,object> SystemAttachParas { get; set; }
 
         /// <summary>
         /// 是否是合法的参数
