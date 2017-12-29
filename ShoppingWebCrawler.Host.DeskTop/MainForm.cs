@@ -62,7 +62,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
             _mainTitle = Text;
 
-           
+
         }
 
         /// <summary>
@@ -73,28 +73,22 @@ namespace ShoppingWebCrawler.Host.DeskTop
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             //1 将其他的同名进程杀死，基于多进程的CEF
-            Process mainProcess=null;
+            //Process mainProcess=null;
             try
             {
                 var appName = Assembly.GetExecutingAssembly().GetName().Name;
-                  mainProcess = Process.GetCurrentProcess();
                 var psArray = Process.GetProcessesByName(appName);
                 foreach (var ps in psArray)
                 {
-                    if (ps.Id!=mainProcess.Id)
-                    {
-                        ps.Kill();//终止同名的 非当前进程id
-                    }
+                    ps.Kill();//终止同名的 
+
                 }
 
             }
             catch { }
             finally
             {
-                if (null!=mainProcess)
-                {
-                    mainProcess.Close();
-                }
+
             }
         }
 
@@ -104,11 +98,11 @@ namespace ShoppingWebCrawler.Host.DeskTop
             this.tabControl.Padding = new System.Drawing.Point(CLOSE_WIDTH_SIZE, CLOSE_Height_SIZE);
             this.tabControl.DrawItem += TabControl_DrawItem;
             this.tabControl.MouseDown += TabControl_MouseDown;
-           
-           NewTab(MainPageUrl);
+
+            NewTab(MainPageUrl);
         }
 
-     
+
 
         private void TabControl_MouseDown(object sender, MouseEventArgs e)
         {
@@ -126,8 +120,8 @@ namespace ShoppingWebCrawler.Host.DeskTop
                 bool isClose = x > myTabRect.X && x < myTabRect.Right && y > myTabRect.Y && y < myTabRect.Bottom;
                 if (isClose == true)
                 {
-                  
-                   
+
+
                     var page = this.tabControl.TabPages[tabControl.SelectedIndex];
 
                     foreach (var ctl in page.Controls)
@@ -135,25 +129,26 @@ namespace ShoppingWebCrawler.Host.DeskTop
                         if (ctl is CefWebBrowser)
                         {
                             var browser = (CefWebBrowser)ctl;
-                             browser.Dispose();
+                            browser.Dispose();
                             break;
                         }
                     }
                     this.tabControl.TabPages.Remove(this.tabControl.SelectedTab);
                     //设定选中的索引为前一个窗口的
                     var toOpenTabIndex = 0;
-                    var rightTabIndex = this.tabControl.TabCount+1;
+                    var rightTabIndex = this.tabControl.TabCount + 1;
                     var leftTabIndex = this.tabControl.TabCount - 1;
-                    if (rightTabIndex<this.tabControl.TabCount-1)
+                    if (rightTabIndex < this.tabControl.TabCount - 1)
                     {
                         toOpenTabIndex = rightTabIndex;//打开右边的tab
-                    }else
+                    }
+                    else
                     {
                         toOpenTabIndex = leftTabIndex < 0 ? 0 : leftTabIndex;
                     }
                     //变更 tab 窗口
                     this.tabControl.SelectedIndex = toOpenTabIndex;
-                     
+
                 }
             }
         }
@@ -198,7 +193,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             { }
         }
 
-  
+
         /// <summary>
         ///异步加载配置
         /// </summary>
@@ -231,7 +226,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             return null;
         }
 
-       private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (tabControl.TabCount > 0)
             {
@@ -366,7 +361,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             };
 
 
-           // page.Tag = browser;//tabpage 绑定浏览器对象
+            // page.Tag = browser;//tabpage 绑定浏览器对象
             page.Controls.Add(browser);
 
             tabControl.TabPages.Add(page);
@@ -402,7 +397,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
             frm_show_cookie.Show();
         }
 
-     
+
 
         private void buyTicketToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -524,7 +519,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
             //System.Diagnostics.Debug.Write(src_code);
 
-            var frm = new Form_ShowHtmlSource() { Address=this.addressTextBox.Text.Trim()};
+            var frm = new Form_ShowHtmlSource() { Address = this.addressTextBox.Text.Trim() };
             frm.Show();
         }
 
@@ -574,6 +569,6 @@ namespace ShoppingWebCrawler.Host.DeskTop
             }
         }
 
-       
+
     }
 }

@@ -42,13 +42,13 @@
             this.tmall_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.jingdong_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pdd_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.vip_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.suning_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.guomei_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dangdang_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.yihaodian_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.meilishuo_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mogujie_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.zhe800_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.etao_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.browserCheckToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,7 +65,6 @@
             this.tabContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newTabContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeTabContextMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.vip_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.toolStrip.SuspendLayout();
@@ -135,7 +134,6 @@
             this.yihaodian_ToolStripMenuItem,
             this.meilishuo_ToolStripMenuItem,
             this.mogujie_ToolStripMenuItem,
-            this.zhe800_ToolStripMenuItem,
             this.etao_ToolStripMenuItem});
             this.shoppingPlatformsToolStripMenuItem.Name = "shoppingPlatformsToolStripMenuItem";
             this.shoppingPlatformsToolStripMenuItem.Size = new System.Drawing.Size(68, 21);
@@ -175,6 +173,13 @@
             this.pdd_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.pdd_ToolStripMenuItem.Text = "拼多多";
             this.pdd_ToolStripMenuItem.Click += new System.EventHandler(this.pdd_ToolStripMenuItem_Click);
+            // 
+            // vip_ToolStripMenuItem
+            // 
+            this.vip_ToolStripMenuItem.Name = "vip_ToolStripMenuItem";
+            this.vip_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.vip_ToolStripMenuItem.Text = "唯品会";
+            this.vip_ToolStripMenuItem.Click += new System.EventHandler(this.vip_ToolStripMenuItem_Click);
             // 
             // suning_ToolStripMenuItem
             // 
@@ -217,13 +222,6 @@
             this.mogujie_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.mogujie_ToolStripMenuItem.Text = "蘑菇街";
             this.mogujie_ToolStripMenuItem.Click += new System.EventHandler(this.mogujie_ToolStripMenuItem_Click);
-            //// 
-            //// zhe800_ToolStripMenuItem
-            //// 
-            //this.zhe800_ToolStripMenuItem.Name = "zhe800_ToolStripMenuItem";
-            //this.zhe800_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            //this.zhe800_ToolStripMenuItem.Text = "折800";
-            //this.zhe800_ToolStripMenuItem.Click += new System.EventHandler(this.zhe800_ToolStripMenuItem_Click);
             // 
             // etao_ToolStripMenuItem
             // 
@@ -359,13 +357,6 @@
             this.closeTabContextMenuItem.Text = "Close tab";
             this.closeTabContextMenuItem.Click += new System.EventHandler(this.closeTabAction);
             // 
-            // vip_ToolStripMenuItem
-            // 
-            this.vip_ToolStripMenuItem.Name = "vip_ToolStripMenuItem";
-            this.vip_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.vip_ToolStripMenuItem.Text = "唯品会";
-            this.vip_ToolStripMenuItem.Click += new System.EventHandler(this.vip_ToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -418,7 +409,6 @@
         private System.Windows.Forms.ToolStripMenuItem yihaodian_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem meilishuo_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mogujie_ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem zhe800_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem etao_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 工具ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem browserCheckToolStripMenuItem;
