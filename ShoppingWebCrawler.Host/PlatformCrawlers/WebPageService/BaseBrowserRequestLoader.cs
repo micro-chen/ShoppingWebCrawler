@@ -47,7 +47,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <summary>
         /// CEF组合浏览器
         /// </summary>
-        internal  CookiedCefBrowser mixdBrowser;
+        internal CookiedCefBrowser mixdBrowser;
 
         //线程队列锁
         private static AutoResetEvent waitHandler = new AutoResetEvent(false);
@@ -159,16 +159,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             {
                 lock (_readLock_mixdBrowser)
                 {
-                    
-                        if (null == mixdBrowser)
-                        {
-                            mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
-                               .ConfigureAwait(false)
-                               .GetAwaiter()
-                               .GetResult();
-                        }
-                   
-                  
+
+                    if (null == mixdBrowser)
+                    {
+                        mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
+                           .ConfigureAwait(false)
+                           .GetAwaiter()
+                           .GetResult();
+                    }
+
+
                 }
 
             }
@@ -304,7 +304,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //2 开始发送请求LoadString
             // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
 
-           
+
             handlerRequest = (s, e) =>
             {
 
@@ -312,8 +312,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
 
                 //刷新 cookie
-                var ckVisitor = new LazyCookieVistor();
-                ckVisitor.LoadCookiesAsyc(url,true);
+                if (!string.IsNullOrEmpty(url) && !url.Equals("about:blank"))
+                {
+                    var ckVisitor = new LazyCookieVistor();
+                    ckVisitor.LoadCookiesAsyc(url, true);
+
+                }
                 disposeHandler("loaded");
 
             };

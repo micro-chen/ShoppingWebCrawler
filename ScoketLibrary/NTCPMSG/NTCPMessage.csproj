@@ -83,9 +83,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\BaseSoapTcpClient.cs" />
+    <Compile Include="Client\ConnectionState.cs" />
     <Compile Include="Client\ProcessorCombine.cs" />
+    <Compile Include="Client\ShoppingWebCrawlerSection.cs" />
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
+    <Compile Include="Client\SoapTcpConnection.cs" />
+    <Compile Include="Client\SoapTcpPool.cs" />
     <Compile Include="CommandConstants.cs" />
     <Compile Include="EntityPackage\Arguments\BrandTag.cs" />
     <Compile Include="EntityPackage\Arguments\KeyWordTag.cs" />

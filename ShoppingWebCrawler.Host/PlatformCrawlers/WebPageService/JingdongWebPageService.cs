@@ -123,8 +123,18 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
 
+                //优先使用格式化好的查询地址
+                string searchUrl = "";
+                if (null != queryParas.ResolvedUrl)
+                {
+                    searchUrl = queryParas.ResolvedUrl.Url;
+                }
+                else
+                {
+                    searchUrl = string.Format(templateOfSearchUrl, keyWord);
+                }
 
-                string searchUrl = string.Format(templateOfSearchUrl, keyWord);
+             
 
                 var client = JingdongHttpClient;
 

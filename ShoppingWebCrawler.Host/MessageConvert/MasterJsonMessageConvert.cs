@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NTCPMessage;
+using NTCPMessage.Client;
 using NTCPMessage.EntityPackage;
 using NTCPMessage.EntityPackage.Arguments;
 using ShoppingWebCrawler.Host.Common.Logging;
@@ -29,7 +30,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// 使用字典 进行连接池的创建
         /// 加速，减少tcp  连接 握手时间
         /// </summary>
-        private Dictionary<string, SingleConnectionCable> _connectionPool = new Dictionary<string, SingleConnectionCable>();
+        //private Dictionary<string, SingleConnectionCable> _connectionPool = new Dictionary<string, SingleConnectionCable>();
 
         public MasterJsonMessageConvert()
         {
@@ -79,31 +80,23 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         private IDataContainer TransferMsgToSlave(int slavePort, SoapMessage soaMsg)
         {
             IDataContainer result = null;
-            SingleConnectionCable client = null;
-            string connName = string.Concat("127.0.0.1:", slavePort);
-
-            // 发送消息
-            if (_connectionPool.Count > 0)
-            {
-                _connectionPool.TryGetValue(connName, out client);
-            }
-            if (null==client)
-            {
-                client= new SingleConnectionCable(new IPEndPoint(IPAddress.Parse("127.0.0.1"), slavePort), 7);
-                _connectionPool.Add(connName, client);
-            }
             
-            ISerialize<SoapMessage> iSendMessageSerializer = new NTCPMessage.Serialize.JsonSerializer<SoapMessage>(); ;
+
 
             try
             {
-                int timeOut = 20 * 1000;
-                //可以使用重载 设置连接超时时间
-                client.Connect(timeOut);
+                string address = "127.0.0.1";
 
-                result = client.SyncSend((UInt32)MessageType.Json,
-                soaMsg, timeOut,
-               iSendMessageSerializer);
+                using (var conn = new SoapTcpConnection(address, slavePort))
+                {
+                    if (conn.State == ConnectionState.Closed)
+                    {
+                        conn.Open();
+                    }
+
+                    //发送soap
+                    result = conn.SendSoapMessage(soaMsg);
+                }
 
 
             }
@@ -111,11 +104,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             {
                 Logger.Error(ex);
             }
-            ////finally
-            ////{
-            ////    client.Close();
-            ////}
-
+ 
 
 
             return result;

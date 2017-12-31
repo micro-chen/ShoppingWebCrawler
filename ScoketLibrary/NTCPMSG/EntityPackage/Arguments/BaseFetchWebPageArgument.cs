@@ -163,7 +163,7 @@ namespace NTCPMessage.EntityPackage.Arguments
         {
             get
             {
-                return string.Concat("PageCach:", this.Platform.ToString(), ":", this.MD5Sign);
+                return string.Concat("PageCache:", this.Platform.ToString(), ":", this.MD5Sign);
             }
         }
 

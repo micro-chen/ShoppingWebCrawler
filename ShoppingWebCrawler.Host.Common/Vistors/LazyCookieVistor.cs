@@ -276,8 +276,9 @@ namespace ShoppingWebCrawler.Host.Common
         /// <returns></returns>
         public Task<IList<CefCookie>> LoadCookiesAsyc(string domainName,bool isForceNative=false)
         {
+           
 
-          
+
             if (string.IsNullOrEmpty(domainName))
             {
                 return Task.FromResult<IList<CefCookie>>(null);
@@ -287,10 +288,20 @@ namespace ShoppingWebCrawler.Host.Common
                 //如果是在从节点下运行，那么直接从redis 获取cookies
                 //从 redis  缓存 读取cookie，而不要再从原生的 cookie管理器读取，在render 进程，无权限读取cookie IO
                 var cookiesFromCache = GlobalContext.PullFromRedisCookies(domainName);
-                if (null != cookiesFromCache && cookiesFromCache.IsNotEmpty())
+
+                //如果是在从节点下工作，那么无论如何，都不允许进入原生的cookie获取，因为从节点在render 进程
+                if (GlobalContext.IsInSlaveMode)
                 {
                     return Task.FromResult<IList<CefCookie>>(cookiesFromCache);
                 }
+                else
+                {
+                    if (null != cookiesFromCache && cookiesFromCache.IsNotEmpty())
+                    {
+                        return Task.FromResult<IList<CefCookie>>(cookiesFromCache);
+                    }
+                }
+                
             }
 
 

@@ -105,7 +105,10 @@ namespace System
             try
             {
                 var hostName = uri.Host;
-                result = hostName.Substring(hostName.IndexOf('.'));
+                if (!string.IsNullOrEmpty(hostName))
+                {
+                    result = hostName.Substring(hostName.IndexOf('.'));
+                }
             }
             catch { }
             return result;
