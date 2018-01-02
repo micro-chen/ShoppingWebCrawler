@@ -18,6 +18,11 @@ namespace NTCPMessage.EntityPackage
         {
             this.SkuList = new List<SkuItem>();
         }
+
+        /// <summary>
+        /// 店铺地址
+        /// </summary>
+        public string ShopUrl { get; set; }
         /// <summary>
         /// 卖家id
         /// </summary>

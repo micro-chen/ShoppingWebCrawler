@@ -138,6 +138,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 var client = JingdongHttpClient;
 
+                //重新设定头部 Refer
+                client.Client.DefaultRequestHeaders.Referrer =new Uri( string.Format(templateOfSearchUrl, keyWord));
                 ////加载cookies
                 ////获取当前站点的Cookie
                 client.ChangeGlobleCookies(cks, JingdongSiteUrl);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace NTCPMessage.EntityPackage.Products
 {
@@ -16,5 +17,11 @@ namespace NTCPMessage.EntityPackage.Products
         {
             this.Platform = SupportPlatformEnum.Jingdong;
         }
+
+        /// <summary>
+        /// 商品的pid
+        /// </summary>
+        [JsonIgnore]
+        public string Pid { get; set; }
     }
 }
