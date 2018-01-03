@@ -64,10 +64,9 @@ namespace ShoppingWebCrawler.Host.Model
             //1 向此节点对应的端口 发送ping 
             //2 失败3次  定性为错误无效节点
 
-            Task.Factory.StartNew(() => {
                 while (true)
                 {
-                    RunningLocker.CreateNewLock().CancelAfter(1000);
+                    RunningLocker.CreateNewLock().CancelAfter(4000);
                     try
                     {
                         using (var conn = new SoapTcpConnection(this.IpAddress, this.Port,4))
@@ -103,9 +102,6 @@ namespace ShoppingWebCrawler.Host.Model
                 }
               
               
-
-
-            });
            
         }
 

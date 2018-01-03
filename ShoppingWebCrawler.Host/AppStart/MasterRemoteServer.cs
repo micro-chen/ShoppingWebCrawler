@@ -96,7 +96,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                         counuter++;
                     }
                     var node = new PeekerClusterNode(slaveIdentity) { IpAddress = "127.0.0.1", Port = port, AddDateTime = DateTime.Now };
-                    node.BeginSelfHelthCheck(OnHelthCheckFaildHandler);
+                     
                     _slaveNodes.Add(node);
 
                 }

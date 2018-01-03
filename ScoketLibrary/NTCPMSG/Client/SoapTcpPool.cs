@@ -124,10 +124,8 @@ namespace NTCPMessage.Client
                     var driver = CreatNewConnection(address, port);
                     if (null != driver)
                     {
-                        //尝试异步打开驱动连接
-                        Task.Run(
-                            () => { driver.Connect(_config.TimeOut * 1000); }
-                        );
+                        //尝试打开驱动连接
+                        driver.Connect(_config.TimeOut * 1000); 
                     }
                     _driverQueue.Enqueue(driver);
 
