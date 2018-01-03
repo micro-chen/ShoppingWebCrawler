@@ -183,7 +183,7 @@ namespace NTCPMessage.Client
                 {
 
                     repData = this.driver.SyncSend(
-                                  (UInt32)MessageType.Json,
+                               (UInt32)MessageType.Json,
                                data,
                                this.TimeOut,
                               iSendMessageSerializer);

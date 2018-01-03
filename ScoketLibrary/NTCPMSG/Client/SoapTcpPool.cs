@@ -186,7 +186,14 @@ namespace NTCPMessage.Client
                 while (timeOut > 0)
                 {
                     this._driverQueue.TryDequeue(out driver);
-                    if (driver != null) return driver;
+                    if (driver != null)
+                    {
+                        if (driver.CableId==0)
+                        {
+                            driver.Close();//如果不能获取有效的TCP滑动窗口 那么关闭连接
+                        }
+                        return driver;
+                    }
 
                     // We have no tickets right now, lets wait for one.
                     if (!autoEvent.WaitOne(timeOut, false)) break;
@@ -197,6 +204,8 @@ namespace NTCPMessage.Client
                 {
                     throw new Exception("连接池最大连接池数目已经被消耗完毕！未能正确获取连接对象！请及时关闭连接！");
                 }
+
+
             }
             catch (Exception ex)
             {
