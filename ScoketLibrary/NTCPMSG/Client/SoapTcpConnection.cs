@@ -118,6 +118,10 @@ namespace NTCPMessage.Client
         /// <returns></returns>
         public string SendString(string data)
         {
+            if (this.State != ConnectionState.Open)
+            {
+                this.Open();
+            }
             try
             {
                 var buffer = Encoding.UTF8.GetBytes(data);
@@ -138,6 +142,10 @@ namespace NTCPMessage.Client
         /// <returns></returns>
         public IDataContainer SendSoapMessage(SoapMessage data)
         {
+            if (this.State != ConnectionState.Open)
+            {
+                this.Open();
+            }
             IDataContainer repData = null;
             try
             {
@@ -163,7 +171,10 @@ namespace NTCPMessage.Client
         /// <returns></returns>
         public Task<IDataContainer> SendSoapMessageAsync(SoapMessage data)
         {
-
+            if (this.State != ConnectionState.Open)
+            {
+                this.Open();
+            }
             return Task.Factory.StartNew(() =>
             {
                 IDataContainer repData = null;
@@ -192,16 +203,13 @@ namespace NTCPMessage.Client
         public bool Ping()
         {
             var pingResult = false;
-            if (null == driver)
+            if (this.State != ConnectionState.Open)
             {
-                return pingResult;
+                this.Open();
             }
             try
             {
-                if (this.State != ConnectionState.Open)
-                {
-                    this.Open();
-                }
+               
                 //发送ping
                 var buffer = Encoding.UTF8.GetBytes("ping");
                 var resultBytes = driver.SyncSend((UInt32)MessageType.None, buffer);

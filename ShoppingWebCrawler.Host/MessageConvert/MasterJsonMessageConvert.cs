@@ -14,15 +14,14 @@ using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.AppStart;
 using ShoppingWebCrawler.Host.Common.Common;
-using NTCPMessage.Client;
 using NTCPMessage.Serialize;
 using System.Collections.Specialized;
+using ShoppingWebCrawler.Host.Model;
 
 namespace ShoppingWebCrawler.Host.MessageConvert
 {
     /// <summary>
     /// 主节点的SOAP消息处理器
-    /// TODO:未实现 从节点之间的健康监测，一旦ping 3次不通，那么需要移除 失效的从节点
     /// </summary>
     public class MasterJsonMessageConvert : JsonMessageConvert
     {
@@ -48,12 +47,12 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             try
             {
                 //如果不是集群，那么主节点处理消息
-                int slavePort = -1;
+                PeekerClusterNode slaveNode = null;
                 var cmdHead = objMsg.Head;
                 if (false == GlobalContext.IsClusteringMode//是否开启集群模式
                     || cmdHead.Equals(CommandConstants.CMD_RegisterSlavePort)//注册从节点端口
-                    || MasterRemoteServer.GetOneSlavePort(out slavePort) == false//是否注册从节点端口)//注册从节点端口
-                    || slavePort == GlobalContext.MasterSocketPort//分配到了主节点工作
+                    || MasterRemoteServer.GetOneSlavePort(out slaveNode) == false//是否注册从节点端口)//注册从节点端口
+                    || slaveNode.Port == GlobalContext.MasterSocketPort//分配到了主节点工作
                     )
                 {
                     result = base.ProcessMessage(SCBID, RemoteIPEndPoint, Flag, CableId, Channel, Event, objMsg);
@@ -61,7 +60,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                 else
                 {
                     //转发到从节点
-                    result = this.TransferMsgToSlave(slavePort, objMsg);
+                    result = this.TransferMsgToSlave(slaveNode, objMsg);
                 }
             }
             catch (Exception ex)
@@ -74,10 +73,10 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         /// <summary>
         /// 转发消息到从节点
         /// </summary>
-        /// <param name="slavePort"></param>
+        /// <param name="slaveNode"></param>
         /// <param name="soaMsg"></param>
         /// <returns></returns>
-        private IDataContainer TransferMsgToSlave(int slavePort, SoapMessage soaMsg)
+        private IDataContainer TransferMsgToSlave(PeekerClusterNode slaveNode, SoapMessage soaMsg)
         {
             IDataContainer result = null;
             
@@ -85,9 +84,9 @@ namespace ShoppingWebCrawler.Host.MessageConvert
 
             try
             {
-                string address = "127.0.0.1";
+                //string address = "127.0.0.1";
 
-                using (var conn = new SoapTcpConnection(address, slavePort))
+                using (var conn = new SoapTcpConnection(slaveNode.IpAddress, slaveNode.Port))
                 {
                     if (conn.State == ConnectionState.Closed)
                     {

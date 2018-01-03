@@ -145,6 +145,7 @@
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService3.0.txt" />
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.4.0.txt" />
     <Compile Include="MessageConvert\MasterJsonMessageConvert.cs" />
+    <Compile Include="Model\PeekerClusterNode.cs" />
     <Compile Include="Model\YouhuiquanExistsTaskBuffer.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\AlimamaWebPageService.cs" />
     <Compile Include="PlatformCrawlers\WebPageService\BaseBrowserRequestLoader.cs" />

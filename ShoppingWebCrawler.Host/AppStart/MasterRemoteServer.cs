@@ -19,7 +19,7 @@ using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.MessageConvert;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.Common.Common;
-
+using ShoppingWebCrawler.Host.Model;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -32,7 +32,7 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// <summary>
         /// 集群最大从节点数
         /// </summary>
-        public const int MaxSlaveNodeCount = 20;
+        public const int MaxSlaveNodeCount = 60;
 
         static NTCPMessage.Server.NTcpListener listener;
 
@@ -40,19 +40,21 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         static List<UInt32> _Channels = new List<uint>();
 
+        
         /// <summary>
         /// 从节点的端口集合
         /// 只有当注册完毕的端口 才会在这里接受注册端口集合
         /// </summary>
-        static Dictionary<string, int> _slavePorts = new Dictionary<string, int>();
+        static List<PeekerClusterNode> _slaveNodes = new List<PeekerClusterNode>();
 
         /// <summary>
         /// 静态构造函数
         /// </summary>
         static MasterRemoteServer()
         {
+           
             //主节点 也在服务端口内
-            _slavePorts.Add("master", GlobalContext.MasterSocketPort);
+            _slaveNodes.Add(new PeekerClusterNode("master") {IpAddress = "127.0.0.1", Port = GlobalContext.MasterSocketPort, AddDateTime = DateTime.Now });
         }
         /// <summary>
         /// 注册从节点端口，并返回可用的端口
@@ -66,12 +68,13 @@ namespace ShoppingWebCrawler.Host.AppStart
 
                 int port = -1;
                 ///不得超过最大从节点阈值
-                if (_slavePorts.Count < MaxSlaveNodeCount)
+                if (_slaveNodes.Count < MaxSlaveNodeCount)
                 {
 
-                    if (_slavePorts.Keys.Count > 0)
+                    if (_slaveNodes.Count > 0)
                     {
-                        port = _slavePorts.Values.Max() + 1;
+                        port = _slaveNodes
+                            .Max(x => x.Port) + 1;
                     }
                     else
                     {
@@ -92,31 +95,61 @@ namespace ShoppingWebCrawler.Host.AppStart
                         }
                         counuter++;
                     }
-                    _slavePorts.Add(slaveIdentity, port);
+                    var node = new PeekerClusterNode(slaveIdentity) { IpAddress = "127.0.0.1", Port = port, AddDateTime = DateTime.Now };
+                    node.BeginSelfHelthCheck(OnHelthCheckFaildHandler);
+                    _slaveNodes.Add(node);
 
                 }
                 return port;
             }
         }
 
+        #region 健康监测失败的回调
+        private static object _lock_helthCheck = new object();
+        private static void OnHelthCheckFaildHandler(string identity)
+        {
+            if (string.IsNullOrEmpty(identity))
+            {
+                return;
+            }
+
+            lock (_lock_helthCheck)
+            {
+                int counter = 0;
+                foreach (var item in _slaveNodes)
+                {
+               
+                    if (item.Identity==identity)
+                    {
+                        _slaveNodes.RemoveAt(counter);
+                        break;
+                    }
+                    counter++;
+                }
+            }
+
+
+        }
+        #endregion
+
+
         /// <summary>
         /// 获取一个可用的节点端口
         /// </summary>
-        public static bool GetOneSlavePort(out int resultPort)
+        public static bool GetOneSlavePort(out PeekerClusterNode slaveNode)
         {
             bool valid = false;
 
             //1 随机数;
             // 2轮询；（todo）
             // 3压力综合（todo）
-            resultPort = -1;
+            slaveNode = null;
             //随机数
-            if (_slavePorts.Count > 0)
-            {
-                int pos = new Random(DateTime.Now.Millisecond).Next(0, _slavePorts.Count - 1);
-                resultPort = _slavePorts.Values.ElementAt(pos);
-                valid = true;
-            }
+
+            int pos = new Random(DateTime.Now.Millisecond).Next(0, _slaveNodes.Count - 1);
+            slaveNode = _slaveNodes.ElementAt(pos);
+            valid = true;
+
 
             return valid;
 
