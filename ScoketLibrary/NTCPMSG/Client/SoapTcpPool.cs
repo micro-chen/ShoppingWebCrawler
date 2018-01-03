@@ -186,10 +186,6 @@ namespace NTCPMessage.Client
                     this._driverQueue.TryDequeue(out driver);
                     if (driver != null)
                     {
-                        if (driver.CableId==0)
-                        {
-                            driver.Close();//如果不能获取有效的TCP滑动窗口 那么关闭连接
-                        }
                         return driver;
                     }
 
