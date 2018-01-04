@@ -120,25 +120,25 @@ namespace ShoppingWebCrawler.Host.AppStart
                 //初始化平台网页进程
                 //1 通过反射 获取所有的webpage service --正式版
 
-                //var ass = Assembly.GetExecutingAssembly();
-                //var typeFinder = new AppDomainTypeFinder();
-                //var targetType = typeof(BaseWebPageService);
-                //var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
-                //if (webPageServiceTypes.IsNotEmpty())
-                //{
-                //    foreach (Type itemPageService in webPageServiceTypes)
-                //    {
-                //        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
-                //        静态属性访问一次 即可触发打开页面
-                //        var loader = servieInstance.RequestLoader;
-                //    }
-                //}
+                var ass = Assembly.GetExecutingAssembly();
+                var typeFinder = new AppDomainTypeFinder();
+                var targetType = typeof(BaseWebPageService);
+                var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
+                if (webPageServiceTypes.IsNotEmpty())
+                {
+                    foreach (Type itemPageService in webPageServiceTypes)
+                    {
+                        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
+                        //静态属性访问一次 即可触发打开页面
+                        var loader = servieInstance.RequestLoader;
+                    }
+                }
 
                 // --------------测试环境begin 不建议打开多个tabpage，影响测试加载-------------
-                var tmallService = new TmallWebPageService();
-                var loader = tmallService.RequestLoader;
+                //var tmallService = new TmallWebPageService();
+                //var loader = tmallService.RequestLoader;
 
-                var loader_taobao = new TaobaoWebPageService().RequestLoader;
+                //var loader_taobao = new TaobaoWebPageService().RequestLoader;
                 //--------------测试环境end-------使用一个tabpage ,即可测试是否正确加载----------
             });
 

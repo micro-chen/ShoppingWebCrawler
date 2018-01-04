@@ -115,7 +115,7 @@ namespace NTCPMessage.Client
         /// <param name="port"></param>
         private  void CreatOneConnectionToPool()
         {
-            if (_hasInitDriverCount < this._config.PoolingMaxSize)
+            if (_hasInitDriverCount <= this._config.PoolingMaxSize)
             {
                 string address = _config.Address;
                 int port = _config.Port;
@@ -125,7 +125,7 @@ namespace NTCPMessage.Client
                     if (null != driver)
                     {
                         //尝试打开驱动连接
-                        driver.Connect(_config.TimeOut * 1000); 
+                        driver.Connect(_config.TimeOut * 1000,true); 
                     }
                     _driverQueue.Enqueue(driver);
 
@@ -184,7 +184,8 @@ namespace NTCPMessage.Client
                 while (timeOut > 0)
                 {
                     this._driverQueue.TryDequeue(out driver);
-                    if (driver != null)
+                    //连接驱动窗口必须不为0  ，0 表示正在被占用
+                    if (driver != null&&driver.CableId>0)
                     {
                         return driver;
                     }

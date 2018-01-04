@@ -23,5 +23,14 @@ namespace NTCPMessage.EntityPackage.Products
         /// </summary>
         [JsonIgnore]
         public string Pid { get; set; }
+
+        /// <summary>
+        /// 上一页的起始位置
+        /// </summary>
+        public int Prev_start { get; set; }
+        /// <summary>
+        /// 下一页的起始位置
+        /// </summary>
+        public int Next_start { get; set; }
     }
 }

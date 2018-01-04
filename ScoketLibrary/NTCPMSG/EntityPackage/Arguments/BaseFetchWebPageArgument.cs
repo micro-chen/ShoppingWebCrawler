@@ -100,7 +100,10 @@ namespace NTCPMessage.EntityPackage.Arguments
             return new List<OrderField>();
         }
 
-
+        /// <summary>
+        /// 附加参数字典
+        /// </summary>
+        public Dictionary<string, object> AttachParas { get; set; }
 
 
         #region 实例的md5哈希值

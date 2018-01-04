@@ -58,5 +58,10 @@ namespace NTCPMessage.EntityPackage
         /// </summary>
         /// <returns></returns>
         List<OrderField> GetCurrentPlatformSupportOrderFields();
+
+        /// <summary>
+        /// 附加参数字典
+        /// </summary>
+        Dictionary<string,object> AttachParas { get; set; }
     }
 }
