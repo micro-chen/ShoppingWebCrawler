@@ -150,7 +150,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
                     var slaveIdentity = Guid.NewGuid().ToString().ToLower();
                     //开启监听前 ,发送注册当前从节点到主节点，如果可以登记注册成功，那么服务端分配端口
-                    port = MasterRemoteServer.RegisterSlaveToMasterAsync(slaveIdentity).Result;
+                    port = MasterRemoteServer.RegisterSlaveToMaster(slaveIdentity);
                     if (port <= 0)
                     {
                         return;//一旦服务端返回无效端口 那么禁止从节点启动监听

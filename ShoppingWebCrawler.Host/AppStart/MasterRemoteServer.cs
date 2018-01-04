@@ -40,7 +40,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         static List<UInt32> _Channels = new List<uint>();
 
-        
+
         /// <summary>
         /// 从节点的端口集合
         /// 只有当注册完毕的端口 才会在这里接受注册端口集合
@@ -52,9 +52,9 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// </summary>
         static MasterRemoteServer()
         {
-           
+
             //主节点 也在服务端口内
-            _slaveNodes.Add(new PeekerClusterNode("master") {IpAddress = "127.0.0.1", Port = GlobalContext.MasterSocketPort, AddDateTime = DateTime.Now });
+            _slaveNodes.Add(new PeekerClusterNode("master") { IpAddress = "127.0.0.1", Port = GlobalContext.MasterSocketPort, AddDateTime = DateTime.Now });
         }
         /// <summary>
         /// 注册从节点端口，并返回可用的端口
@@ -96,7 +96,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                         counuter++;
                     }
                     var node = new PeekerClusterNode(slaveIdentity) { IpAddress = "127.0.0.1", Port = port, AddDateTime = DateTime.Now };
-                     
+                    //node.BeginSelfHelthCheck(OnHelthCheckFaildHandler);
                     _slaveNodes.Add(node);
 
                 }
@@ -118,8 +118,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                 int counter = 0;
                 foreach (var item in _slaveNodes)
                 {
-               
-                    if (item.Identity==identity)
+
+                    if (item.Identity == identity)
                     {
                         _slaveNodes.RemoveAt(counter);
                         break;
@@ -247,55 +247,45 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="data"></param>
-        public static Task<int> RegisterSlaveToMasterAsync(string slaveIdentity)
+        public static int RegisterSlaveToMaster(string slaveIdentity)
         {
-            return Task.Factory.StartNew(() =>
+
+            var result = -1;
+
+
+
+            using (var conn = new SoapTcpConnection("127.0.0.1", GlobalContext.MasterSocketPort))
             {
-                var result = -1;
-                bool isBeUsed = SocketHelper.IsUsedIPEndPoint(GlobalContext.MasterSocketPort);
-                if (isBeUsed == true)
+                if (conn.State == ConnectionState.Closed)
                 {
-                    // 发送ping 接受pong 后算是启动完毕
-                    SingleConnectionCable client = new SingleConnectionCable(new IPEndPoint(IPAddress.Parse("127.0.0.1"), GlobalContext.MasterSocketPort), 7);
-                    ISerialize<SoapMessage> iSendMessageSerializer = new NTCPMessage.Serialize.JsonSerializer<SoapMessage>(); ;
-
-                    try
-                    {
-                        //可以使用重载 设置连接超时时间
-                        int timeOut = 20 * 1000;
-                        client.Connect(timeOut);
-                        var paras = new RegisterPortArgument { SlaveIdentity = slaveIdentity };
-                        string msg = JsonConvert.SerializeObject(paras);
-                        SoapMessage sopMsg = new SoapMessage()
-                        {
-                            Head = CommandConstants.CMD_RegisterSlavePort,
-                            Body = msg
-                        };
-
-                        var repResult = client.SyncSend((UInt32)MessageType.Json,
-                        sopMsg, timeOut,
-                       iSendMessageSerializer);
-                        if (repResult.Status == 1)
-                        {
-
-                            result = repResult.Result.ToInt();
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                    }
-                    finally
-                    {
-                        client.Close();
-                    }
-
+                    conn.Open();
+                }
+                if (conn.Ping()==false)
+                {
+                    return result;
                 }
 
-                return result;
+                //发送soap
 
-            });
+                var paras = new RegisterPortArgument { SlaveIdentity = slaveIdentity };
+                string msg = JsonConvert.SerializeObject(paras);
+                SoapMessage sopMsg = new SoapMessage()
+                {
+                    Head = CommandConstants.CMD_RegisterSlavePort,
+                    Body = msg
+                };
+
+                var repResult = conn.SendSoapMessage(sopMsg);
+                if (repResult.Status == 1)
+                {
+
+                    result = repResult.Result.ToInt();
+                }
+
+            }
+
+            return result;
+
 
 
         }
