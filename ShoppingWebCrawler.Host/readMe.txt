@@ -45,7 +45,25 @@
         }
 
 
+ //1 将其他的同名残留进程杀死，基于多进程的CEF
+          
+            //try
+            //{   
+            //    Process mainProcess = Process.GetCurrentProcess();
+            //    var appName = Assembly.GetExecutingAssembly().GetName().Name;
+            //    var psArray = Process.GetProcessesByName(appName);
+            //    foreach (var ps in psArray)
+            //    {
+            //        if (ps.Id != mainProcess.Id)
+            //        {
+            //            ps.Kill();//终止同名的 
+            //        }
 
+
+            //    }
+
+            //}
+            //catch { }
 ***********必须将 项目根目录下的libs 文件夹 拷贝对应的 libcef文件
 libs 文件目录：
 卷序列号为 00000235 4010:61AA

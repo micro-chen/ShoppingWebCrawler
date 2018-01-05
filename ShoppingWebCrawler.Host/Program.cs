@@ -7,6 +7,8 @@ using System.Collections.Specialized;
 using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
 using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.Common;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace ShoppingWebCrawler.Host
 {
@@ -18,6 +20,7 @@ namespace ShoppingWebCrawler.Host
         private static void Main(string[] args)
         {
 
+          
 
 
 

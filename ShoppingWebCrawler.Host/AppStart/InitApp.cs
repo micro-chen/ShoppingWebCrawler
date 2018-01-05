@@ -13,6 +13,7 @@ using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService;
 using ShoppingWebCrawler.Host.Common.TypeFinder;
+using System.Diagnostics;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -102,6 +103,8 @@ namespace ShoppingWebCrawler.Host.AppStart
             }
 
             #endregion
+
+           
             //3 开启总控TCP端口，用来接收站点的请求--开启后 会阻塞进程 防止结束
             // 总控端口 负责 1 收集请求 响应请求 2 收集分布的采集客户端 登记注册可用的端，用来做CDN 任务分发，做负载均衡
             MasterRemoteServer.Start();

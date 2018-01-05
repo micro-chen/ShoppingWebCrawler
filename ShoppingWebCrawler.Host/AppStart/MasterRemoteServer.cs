@@ -145,15 +145,15 @@ namespace ShoppingWebCrawler.Host.AppStart
             // 3压力综合 
             slaveNode = null;
             //随机数
-            var randomObj = new Random(DateTime.Now.Millisecond);
-            int pos1 = randomObj.Next(0, _slaveNodes.Count - 1);
-            int pos2 = randomObj.Next(0, _slaveNodes.Count - 1);
-            int pos_final = Math.Max(pos1, pos2);
-            slaveNode = _slaveNodes.ElementAt(pos_final);
+            //var randomObj = new Random(DateTime.Now.Millisecond);
+            //int pos1 = randomObj.Next(0, _slaveNodes.Count - 1);
+            //int pos2 = randomObj.Next(0, _slaveNodes.Count - 1);
+            //int pos_final = Math.Max(pos1, pos2);
+            //slaveNode = _slaveNodes.ElementAt(pos_final);
 
             //压力综合 
-            //slaveNode = _slaveNodes.OrderBy(x => x.ConnectedCount).First();
-            //slaveNode.ConnectedCount += 1;//设置连接增量
+            slaveNode = _slaveNodes.OrderBy(x => x.ConnectedCount).First();
+            slaveNode.ConnectedCount += 1;//设置连接增量
             valid = true;
 
 
