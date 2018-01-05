@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NTCPMessage.Client;
 using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.Common.Common;
 
 namespace ShoppingWebCrawler.Host.Model
 {
@@ -44,44 +45,96 @@ namespace ShoppingWebCrawler.Host.Model
 
         public bool IsActiveNode { get; private set; }
 
+        #region 节点使用的连接数
+
+      
+        private object _lock_ConnectedCount = new object();
+        private int _ConnectedCount;
+        /// <summary>
+        /// 节点使用的连接数
+        /// </summary>
+        public int ConnectedCount
+        {
+            get
+            {
+                if (this._ConnectedCount<0)
+                {
+                    this._ConnectedCount = 0;
+                }
+                return this._ConnectedCount;
+            }
+            set
+            {
+                lock (_lock_ConnectedCount)
+                {
+                    this._ConnectedCount = value;
+                }
+             
+            }
+        }
+
+        #endregion
 
 
         #region 自身健康监测
 
         private bool isRunningHelthCheck = false;
         private int failCounter = 0;
+        private int counterStatusCheck = 0;
         /// <summary>
         /// 自身健康监测
         /// </summary>
         /// <param name="callbackHandlerOnFailed">失败的时候 执行的委托回调</param>
         public void BeginSelfHelthCheck(Action<string> callbackHandlerOnFailed)
         {
-            if (isRunningHelthCheck==true)
+            if (isRunningHelthCheck == true)
             {
                 return;
             }
 
             //1 向此节点对应的端口 发送ping 
             //2 失败3次  定性为错误无效节点
-
+            Task.Factory.StartNew(() =>
+            {
                 while (true)
                 {
-                    RunningLocker.CreateNewLock().CancelAfter(4000);
+                    RunningLocker.CreateNewLock().CancelAfter(1000);
+
                     try
                     {
-                        using (var conn = new SoapTcpConnection(this.IpAddress, this.Port,4))
+                        bool isBeUsed = SocketHelper.IsUsedIPEndPoint(this.Port);
+                        if (isBeUsed == false)
+                        {
+                            if (counterStatusCheck >= 10)
+                            {
+                                this.IsActiveNode = false;
+                                if (null != callbackHandlerOnFailed)
+                                {
+                                    callbackHandlerOnFailed(this.Identity);
+                                }
+                                break;
+                            }
+                            else
+                            {
+                                counterStatusCheck += 1;
+                                continue;//端口暂未开启
+                            }
+
+                        }
+
+                        using (var conn = new SoapTcpConnection(this.IpAddress, this.Port, 4))
                         {
                             if (conn.State != ConnectionState.Open)
                             {
                                 conn.Open();
                             }
                             var result = conn.Ping();
-                            if (result!=true)
+                            if (result != true)
                             {
-                                if (this.failCounter>=2)
+                                if (this.failCounter >= 2)
                                 {
                                     this.IsActiveNode = false;
-                                    if (null!= callbackHandlerOnFailed)
+                                    if (null != callbackHandlerOnFailed)
                                     {
                                         callbackHandlerOnFailed(this.Identity);
                                     }
@@ -89,7 +142,7 @@ namespace ShoppingWebCrawler.Host.Model
                                 }
                                 this.failCounter += 1;
                             }
-                            
+
                         }
                     }
                     catch (Exception ex)
@@ -98,11 +151,11 @@ namespace ShoppingWebCrawler.Host.Model
                         Common.Logging.Logger.Error(ex);
                         break;
                     }
-                    
+
                 }
-              
-              
-           
+
+
+            });
         }
 
         #endregion

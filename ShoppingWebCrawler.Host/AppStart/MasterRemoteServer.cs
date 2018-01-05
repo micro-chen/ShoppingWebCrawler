@@ -96,7 +96,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                         counuter++;
                     }
                     var node = new PeekerClusterNode(slaveIdentity) { IpAddress = "127.0.0.1", Port = port, AddDateTime = DateTime.Now };
-                    //node.BeginSelfHelthCheck(OnHelthCheckFaildHandler);
+                    node.BeginSelfHelthCheck(OnHelthCheckFaildHandler);
                     _slaveNodes.Add(node);
 
                 }
@@ -142,12 +142,18 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             //1 随机数;
             // 2轮询；（todo）
-            // 3压力综合（todo）
+            // 3压力综合 
             slaveNode = null;
             //随机数
+            var randomObj = new Random(DateTime.Now.Millisecond);
+            int pos1 = randomObj.Next(0, _slaveNodes.Count - 1);
+            int pos2 = randomObj.Next(0, _slaveNodes.Count - 1);
+            int pos_final = Math.Max(pos1, pos2);
+            slaveNode = _slaveNodes.ElementAt(pos_final);
 
-            int pos = new Random(DateTime.Now.Millisecond).Next(0, _slaveNodes.Count - 1);
-            slaveNode = _slaveNodes.ElementAt(pos);
+            //压力综合 
+            //slaveNode = _slaveNodes.OrderBy(x => x.ConnectedCount).First();
+            //slaveNode.ConnectedCount += 1;//设置连接增量
             valid = true;
 
 
@@ -243,7 +249,8 @@ namespace ShoppingWebCrawler.Host.AppStart
         }
 
         /// <summary>
-        /// 异步向服务端发送消息
+        ///  向服务端发送消息，注册登记
+        ///  并分配端口
         /// </summary>
         /// <param name="cmd"></param>
         /// <param name="data"></param>
@@ -266,7 +273,6 @@ namespace ShoppingWebCrawler.Host.AppStart
                 }
 
                 //发送soap
-
                 var paras = new RegisterPortArgument { SlaveIdentity = slaveIdentity };
                 string msg = JsonConvert.SerializeObject(paras);
                 SoapMessage sopMsg = new SoapMessage()
@@ -278,7 +284,6 @@ namespace ShoppingWebCrawler.Host.AppStart
                 var repResult = conn.SendSoapMessage(sopMsg);
                 if (repResult.Status == 1)
                 {
-
                     result = repResult.Result.ToInt();
                 }
 
@@ -333,7 +338,7 @@ namespace ShoppingWebCrawler.Host.AppStart
             //}
 
             return isBeUsed;
-            //return result;
+           
         }
 
 
@@ -386,6 +391,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                 listener.Close();
                 listener = null;
             }
+
         }
 
 

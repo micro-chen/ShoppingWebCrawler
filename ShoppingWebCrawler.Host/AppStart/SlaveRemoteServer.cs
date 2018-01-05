@@ -122,6 +122,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         /// <summary>
         /// 开启套接字监听
+        /// 向主节点发送登记，登记成功，并返回可用的端口，然后开启指定端口的子节点server
         /// </summary>
 
         public static void StartAsync(HeadLessWebBrowerApp app)

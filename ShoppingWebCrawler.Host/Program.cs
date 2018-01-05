@@ -70,16 +70,14 @@ namespace ShoppingWebCrawler.Host
             //var headlessForm = new HeadLessMainForm();
             //headlessForm.NavigateToUrl("https://pub.alimama.com/myunion.htm?spm=a219t.7900221/1.1998910419.dbb742793.21214865YeCJuR#!/promo/self/items");
 
-        
+            
 
             Console.WriteLine("ShoppingWebCrawler.Host is started.....");
             var locker = RunningLocker.CreateNewLock();
             locker.Pause();
 
 
-            // Clean up CEF.
-            CefRuntime.Shutdown();
-            MasterRemoteServer.Stop();
+          
         }
 
     }

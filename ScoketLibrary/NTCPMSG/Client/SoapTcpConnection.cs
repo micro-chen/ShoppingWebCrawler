@@ -164,38 +164,38 @@ namespace NTCPMessage.Client
         }
 
 
-        /// <summary>
-        /// 异步发送SOAP消息
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public Task<IDataContainer> SendSoapMessageAsync(SoapMessage data)
-        {
-            if (this.State != ConnectionState.Open)
-            {
-                this.Open();
-            }
-            return Task.Factory.StartNew(() =>
-            {
-                IDataContainer repData = null;
+        ///// <summary>
+        ///// 异步发送SOAP消息
+        ///// </summary>
+        ///// <param name="data"></param>
+        ///// <returns></returns>
+        //public Task<IDataContainer> SendSoapMessageAsync(SoapMessage data)
+        //{
+        //    if (this.State != ConnectionState.Open)
+        //    {
+        //        this.Open();
+        //    }
+        //    return Task.Factory.StartNew(() =>
+        //    {
+        //        IDataContainer repData = null;
 
-                try
-                {
+        //        try
+        //        {
 
-                    repData = this.driver.SyncSend(
-                               (UInt32)MessageType.Json,
-                               data,
-                               this.TimeOut,
-                              iSendMessageSerializer);
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-                return repData;
+        //            repData = this.driver.SyncSend(
+        //                       (UInt32)MessageType.Json,
+        //                       data,
+        //                       this.TimeOut,
+        //                      iSendMessageSerializer);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            throw ex;
+        //        }
+        //        return repData;
 
-            });
-        }
+        //    });
+        //}
         /// <summary>
         /// Ping
         /// </summary>

@@ -184,9 +184,14 @@ namespace NTCPMessage.Client
                 while (timeOut > 0)
                 {
                     this._driverQueue.TryDequeue(out driver);
-                    //连接驱动窗口必须不为0  ，0 表示正在被占用
-                    if (driver != null&&driver.CableId>0)
+                    //连接驱动窗口必须不为0  ，0 表示无效的缆绳窗口,断开从新连接
+                    if (driver != null)
                     {
+                        if (driver.CableId==0)
+                        {
+                            driver.Close();
+                            driver.Connect(timeOut, true);
+                        }
                         return driver;
                     }
 

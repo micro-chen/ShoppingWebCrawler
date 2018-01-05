@@ -33,8 +33,6 @@ namespace ShoppingWebCrawler.Host.AppStart
                 //加载CEF 运行时  lib cef
                 CefRuntime.Load();
 
-
-
                 var mainArgs = new CefMainArgs(args);
                 var app = new HeadLessWebBrowerApp();
 
@@ -45,10 +43,15 @@ namespace ShoppingWebCrawler.Host.AppStart
                 它分析了命令行参数，提取”type”参数，如果为空，说明是Browser进程，返回-1，这样一路回溯到wWinMain方法里，然后开始创建Browser进程相关的内容。
 如果”type”参数不为空，做一些判断，最后调用了content::ContentMain方法，直到这个方法结束，子进程随之结束。
                  *  */
-
-                SlaveRemoteServer.StartAsync(app);
+                if (null!= args
+                    && string.Concat(args).Contains("type=renderer"))
+                {
+                    SlaveRemoteServer.StartAsync(app);
+                }
+                
                 var exitCode = CefRuntime.ExecuteProcess(mainArgs, app, IntPtr.Zero);
 
+            
                 if (exitCode != -1)
                 {
                     return exitCode;
@@ -84,6 +87,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                 // http://magpcss.org/ceforum/viewtopic.php?f=6&t=14095
 
 
+
                 // Disable GPU in WPF and Offscreen examples until #1634 has been resolved
                 //settings.CefCommandLineArgs.Add("disable-gpu", "1");
                 //初始化  CEF进程参数设置
@@ -104,7 +108,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             //4 定时清理器
             #region 定时清理控制台
-            ConsoleClean.Start();
+            //ConsoleClean.Start();
             #endregion
 
             //5 阿里妈妈等平台登录
@@ -120,31 +124,42 @@ namespace ShoppingWebCrawler.Host.AppStart
                 //初始化平台网页进程
                 //1 通过反射 获取所有的webpage service --正式版
 
-                var ass = Assembly.GetExecutingAssembly();
-                var typeFinder = new AppDomainTypeFinder();
-                var targetType = typeof(BaseWebPageService);
-                var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
-                if (webPageServiceTypes.IsNotEmpty())
-                {
-                    foreach (Type itemPageService in webPageServiceTypes)
-                    {
-                        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
-                        //静态属性访问一次 即可触发打开页面
-                        var loader = servieInstance.RequestLoader;
-                    }
-                }
+                ////var ass = Assembly.GetExecutingAssembly();
+                ////var typeFinder = new AppDomainTypeFinder();
+                ////var targetType = typeof(BaseWebPageService);
+                ////var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
+                ////if (webPageServiceTypes.IsNotEmpty())
+                ////{
+                ////    foreach (Type itemPageService in webPageServiceTypes)
+                ////    {
+                ////        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
+                ////        //静态属性访问一次 即可触发打开页面
+                ////        var loader = servieInstance.RequestLoader;
+                ////    }
+                ////}
 
                 // --------------测试环境begin 不建议打开多个tabpage，影响测试加载-------------
-                //var tmallService = new TmallWebPageService();
-                //var loader = tmallService.RequestLoader;
+                var tmallService = new TmallWebPageService();
+                var loader = tmallService.RequestLoader;
 
-                //var loader_taobao = new TaobaoWebPageService().RequestLoader;
+                var loader_taobao = new TaobaoWebPageService().RequestLoader;
+                var loader_jd = new JingdongWebPageService().RequestLoader;
                 //--------------测试环境end-------使用一个tabpage ,即可测试是否正确加载----------
             });
 
             #endregion
+
+            //6 主进程退出的事件
+            System.Diagnostics.Process.GetCurrentProcess().Exited += (object sender, EventArgs e) =>
+           {
+             
+              // Clean up CEF.
+               CefRuntime.Shutdown();
+               MasterRemoteServer.Stop();
+           };
             return 0;
         }
+
 
     }
 }

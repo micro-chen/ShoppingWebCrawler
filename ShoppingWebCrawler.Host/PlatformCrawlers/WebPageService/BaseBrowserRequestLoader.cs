@@ -182,8 +182,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //首先自动刷新下查询页面 会刷新Cookie
             AutoRefeshCookie(this.RefreshCookieUrl);
 
-            //每间隔5s检查一次
-            this._minitor_auto_refesh_cookies = new System.Timers.Timer(5000);
+            //每间隔2s检查一次
+            this._minitor_auto_refesh_cookies = new System.Timers.Timer(2000);
             this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
             {
 
@@ -213,7 +213,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
             //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
-            this.NextUpdateCookieTime = DateTime.Now.AddMinutes(new Random().Next(1, 4));
+            this.NextUpdateCookieTime = DateTime.Now.AddSeconds(new Random().Next(10, 60));
         }
 
         /// <summary>

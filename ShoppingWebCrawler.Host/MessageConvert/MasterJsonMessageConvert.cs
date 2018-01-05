@@ -61,7 +61,14 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                 {
                     //转发到从节点
                     result = this.TransferMsgToSlave(slaveNode, objMsg);
+                
                 }
+
+                if (null!= slaveNode)
+                {
+                    slaveNode.ConnectedCount -= 1;//设置连接 减量
+                }
+              
             }
             catch (Exception ex)
             {
