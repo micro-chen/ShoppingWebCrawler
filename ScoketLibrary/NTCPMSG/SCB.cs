@@ -49,7 +49,7 @@ namespace NTCPMessage
             Channel1,
             Channel2,
             Channel3,
-   
+
             Length0,
             Length1,
             Length2,
@@ -62,7 +62,7 @@ namespace NTCPMessage
 
         static int _SCB_ID;
         static object _SCBID_LOCK = new object();
-        
+
         #region Fields
 
         internal int Id { get; private set; }
@@ -118,7 +118,7 @@ namespace NTCPMessage
 
         internal Event.Delegates.DeleOnDisconnect OnDisconnect { get; set; }
 
-        internal Socket WorkSocket {get; set;}
+        internal Socket WorkSocket { get; set; }
 
         internal IPEndPoint RemoteIPEndPoint { get; private set; }
 
@@ -211,7 +211,7 @@ namespace NTCPMessage
                     _CurEvent = (UInt32)(b * ThreeBytes);
                     return State.Event1;
                 case State.Event1:
-                    _CurEvent +=  (UInt32)(b * 65536);
+                    _CurEvent += (UInt32)(b * 65536);
                     _CurLength = 0;
                     return State.Event2;
                 case State.Event2:
@@ -291,7 +291,7 @@ namespace NTCPMessage
                     return;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (!SocketConnected)
                 {
@@ -317,41 +317,44 @@ namespace NTCPMessage
 
             while (offset < read)
             {
-                if (_CurState == State.Data)
+                try
                 {
-                    int copyLen = Math.Min(read - offset, _CurLength - _CurDataOffset);
-                    Array.Copy(_Buffer, offset, _CurData, _CurDataOffset, copyLen);
-                    offset += copyLen;
-
-                    _CurDataOffset += copyLen;
-
-                    if (_CurDataOffset >= _CurData.Length)
+                    if (_CurState == State.Data)
                     {
-                        if (OnBatchReceive != null)
-                        {
-                            recvArgsList.Add(new NTCPMessage.Event.ReceiveEventArgs(
-                                this.Id, this.RemoteIPEndPoint, _CurFlag, _CurEvent, _CurCableId, _CurChannel, _CurData));
-                        }
+                        int copyLen = Math.Min(read - offset, _CurLength - _CurDataOffset);
+                        Array.Copy(_Buffer, offset, _CurData, _CurDataOffset, copyLen);
+                        offset += copyLen;
 
-                        if (OnReceive != null)
+                        _CurDataOffset += copyLen;
+
+                        if (_CurDataOffset >= _CurData.Length)
                         {
-                            try
+                            if (OnBatchReceive != null&&null!= recvArgsList)
                             {
+                                recvArgsList.Add(new NTCPMessage.Event.ReceiveEventArgs(
+                                    this.Id, this.RemoteIPEndPoint, _CurFlag, _CurEvent, _CurCableId, _CurChannel, _CurData));
+                            }
+
+                            if (OnReceive != null)
+                            {
+
                                 OnReceive(this, _CurFlag, _CurEvent, _CurCableId, _CurChannel, _CurData);
+
                             }
-                            catch (Exception e)
-                            {
-                                WriteError("OnReceive", e);
-                            }
+
+                            _CurState = State.Sync0;
                         }
 
-                        _CurState = State.Sync0;
+                        if (offset >= read)
+                        {
+                            break;
+                        }
                     }
 
-                    if (offset >= read)
-                    {
-                        break;
-                    }
+                }
+                catch (Exception e)
+                {
+                    WriteError("OnReceive", e);
                 }
 
                 _CurState = NextState(_Buffer[offset++]);
@@ -474,7 +477,7 @@ namespace NTCPMessage
             }
 
             Server.SendMessageTask task = _Listener.GetTask(this);
-            
+
             bool needSetEvent = false;
 
             lock (task.LockObj)
@@ -513,7 +516,7 @@ namespace NTCPMessage
                 try
                 {
                     Server.SendMessageTask task = _Listener.GetTask(this);
-                    
+
                     task.IncTotalQueueCount(0 - queueCount);
 
                     while (_Queue.Count > 0)
@@ -612,7 +615,7 @@ namespace NTCPMessage
 
                 return queueCount;
             }
-        
+
         }
 
 
@@ -699,7 +702,7 @@ namespace NTCPMessage
 
         #region constractor
         internal SCB(Socket workSocket)
-            :this(null, workSocket)
+            : this(null, workSocket)
         {
 
         }
@@ -719,7 +722,7 @@ namespace NTCPMessage
             _MSGHead[1] = 0xA5;
             RemoteIPEndPoint = (IPEndPoint)workSocket.RemoteEndPoint;
             //AddTCB(this);
-            
+
             _MStream = new System.IO.MemoryStream(MStreamCapacity);
 
             WorkSocket.BeginReceive(_Buffer, 0, _Buffer.Length, SocketFlags.None,

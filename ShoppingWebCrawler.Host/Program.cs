@@ -9,18 +9,46 @@ using ShoppingWebCrawler.Host.Common.Logging;
 using ShoppingWebCrawler.Host.Common;
 using System.Reflection;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace ShoppingWebCrawler.Host
 {
     internal static class Program
     {
 
+        public delegate bool ControlCtrlDelegate(int CtrlType);
+        [DllImport("kernel32.dll")]
+        private static extern bool SetConsoleCtrlHandler(ControlCtrlDelegate HandlerRoutine, bool Add);
+        private static ControlCtrlDelegate cancelHandler = new ControlCtrlDelegate(HandlerRoutine);
+
+        public static bool HandlerRoutine(int CtrlType)
+        {
+            switch (CtrlType)
+            {
+                case 0:
+                    Console.WriteLine("0工具被强制关闭"); //Ctrl+C关闭  
+                    break;
+                case 2:
+                    Console.WriteLine("2工具被强制关闭");//按控制台关闭按钮关闭  
+                    break;
+            }
+            //清理残留进程
+            // Clean up CEF.
+            CefRuntime.Shutdown();
+            MasterRemoteServer.Stop();
+            InitApp.ClearGarbageProcess();
+          
+          
+            //Console.ReadLine();
+            return false;
+        }
+
 
         [STAThread]
         private static void Main(string[] args)
         {
 
-          
+
 
 
 
@@ -43,7 +71,7 @@ namespace ShoppingWebCrawler.Host
             catch (Exception ex)
             {
 
-               // CefRuntime.PostTask(CefThreadId.IO, new MySomeTask());
+                // CefRuntime.PostTask(CefThreadId.IO, new MySomeTask());
 
                 // Clean up CEF.
                 CefRuntime.Shutdown();
@@ -73,14 +101,28 @@ namespace ShoppingWebCrawler.Host
             //var headlessForm = new HeadLessMainForm();
             //headlessForm.NavigateToUrl("https://pub.alimama.com/myunion.htm?spm=a219t.7900221/1.1998910419.dbb742793.21214865YeCJuR#!/promo/self/items");
 
-            
+
 
             Console.WriteLine("ShoppingWebCrawler.Host is started.....");
+
+            if (null != args
+               && string.Concat(args).Contains(GlobalContext.SlaveModelStartAgrs))
+            {
+                Console.WriteLine("SlaveRemoteServer is started.....");
+            }
+
+            //注册窗口关闭的时候 退出子进程
+            SetConsoleCtrlHandler(cancelHandler, true);
+
             var locker = RunningLocker.CreateNewLock();
             locker.Pause();
 
+            //6 主进程退出的事件
 
-          
+         
+
+
+
         }
 
     }

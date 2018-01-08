@@ -124,6 +124,17 @@ namespace ShoppingWebCrawler.Host.Common
         {
             get;set;
         }
+
+        /// <summary>
+        /// 集群模式进程启动参数标识
+        /// </summary>
+        public static string SlaveModelStartAgrs
+        {
+            get
+            {
+                return "type=slavemode";
+            }
+        }
         /// <summary>
         /// 在从节点进行运行的进程是在 cef  的rende 进程中；
         /// 在 render 进程创建browser 回调事件中，获取对应的绑定browser对象
@@ -135,7 +146,7 @@ namespace ShoppingWebCrawler.Host.Common
         /// <summary>
         /// 是否开启集群模式
         /// </summary>
-        public static bool IsClusteringMode
+        public static bool IsConfigClusteringMode
         {
             get
             {

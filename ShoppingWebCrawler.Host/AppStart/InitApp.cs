@@ -25,6 +25,15 @@ namespace ShoppingWebCrawler.Host.AppStart
             GlobalContext.SyncContext = SynchronizationContext.Current;
 
 
+            //1-1 集群节点的判定
+            if (null != args
+                && string.Concat(args).Contains(GlobalContext.SlaveModelStartAgrs))
+            {
+                GlobalContext.IsInSlaveMode = true;
+                SlaveRemoteServer.Start();
+                return 0;//子节点的进程启动完毕后，返回
+            }
+
 
             //2 初始化CEF运行时
             #region 初始化CEF运行时
@@ -44,15 +53,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                 它分析了命令行参数，提取”type”参数，如果为空，说明是Browser进程，返回-1，这样一路回溯到wWinMain方法里，然后开始创建Browser进程相关的内容。
 如果”type”参数不为空，做一些判断，最后调用了content::ContentMain方法，直到这个方法结束，子进程随之结束。
                  *  */
-                if (null!= args
-                    && string.Concat(args).Contains("type=renderer"))
-                {
-                    SlaveRemoteServer.StartAsync(app);
-                }
-                
-                var exitCode = CefRuntime.ExecuteProcess(mainArgs, app, IntPtr.Zero);
 
-            
+                var exitCode = CefRuntime.ExecuteProcess(mainArgs, app, IntPtr.Zero);
                 if (exitCode != -1)
                 {
                     return exitCode;
@@ -108,6 +110,43 @@ namespace ShoppingWebCrawler.Host.AppStart
             //3 开启总控TCP端口，用来接收站点的请求--开启后 会阻塞进程 防止结束
             // 总控端口 负责 1 收集请求 响应请求 2 收集分布的采集客户端 登记注册可用的端，用来做CDN 任务分发，做负载均衡
             MasterRemoteServer.Start();
+            #region 开启集群模式
+            if (GlobalContext.IsConfigClusteringMode)
+            {
+                var clusteriNodeCount = ConfigHelper.GetConfigInt("ClusteriNodeCount");
+                if (clusteriNodeCount <= 0)
+                {
+                    clusteriNodeCount = 1;
+                }
+
+                try
+                {
+                    //清理残留进程
+                    ClearGarbageProcess();
+
+                    string appName = Assembly.GetExecutingAssembly().GetName().Name;
+                    //开启子节点进程
+                    for (int i = 0; i < clusteriNodeCount; i++)
+                    {
+                        Process p = new Process();
+                        p.StartInfo.FileName = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, string.Format("{0}.exe", appName));
+                        p.StartInfo.Arguments = GlobalContext.SlaveModelStartAgrs;
+                        p.StartInfo.UseShellExecute = true;
+                        //p.StartInfo.CreateNoWindow = true;
+                        p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                        p.Start();
+
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    Logger.Error(ex);
+                }
+
+            }
+            #endregion
+
 
             //4 定时清理器
             #region 定时清理控制台
@@ -117,52 +156,61 @@ namespace ShoppingWebCrawler.Host.AppStart
             //5 阿里妈妈等平台登录
             #region  阿里妈妈等平台网页初始化操作
 
-            System.Threading.Tasks.Task.Factory.StartNew(() =>
+
+
+            //----------注意：由于开启了多进程模型，不同的网址在不同的tab,每个tab 在其独立的进程中-------
+            //每次打开一个程序进程，让进程开启一个端口server,向总控端口，发送注册登记，用来接受请求转发，做负载均衡---
+
+            //初始化平台网页进程
+            //1 通过反射 获取所有的webpage service --正式版
+
+            var ass = Assembly.GetExecutingAssembly();
+            var typeFinder = new AppDomainTypeFinder();
+            var targetType = typeof(BaseWebPageService);
+            var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
+            if (webPageServiceTypes.IsNotEmpty())
             {
+                foreach (Type itemPageService in webPageServiceTypes)
+                {
+                    BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
+                    //静态属性访问一次 即可触发打开页面
+                    var loader = servieInstance.RequestLoader;
 
+                    RunningLocker.CreateNewLock().CancelAfter(1000);//延迟打开多个窗口
+                }
+            }
 
-                //----------注意：由于开启了多进程模型，不同的网址在不同的tab,每个tab 在其独立的进程中-------
-                //每次打开一个程序进程，让进程开启一个端口server,向总控端口，发送注册登记，用来接受请求转发，做负载均衡---
+            // --------------测试环境begin 不建议打开多个tabpage，影响测试加载-------------
+            //var tmallService = new TmallWebPageService();
+            //var loader = tmallService.RequestLoader;
 
-                //初始化平台网页进程
-                //1 通过反射 获取所有的webpage service --正式版
+            //var loader_taobao = new TaobaoWebPageService().RequestLoader;
+            //var loader_jd = new JingdongWebPageService().RequestLoader;
+            //--------------测试环境end-------使用一个tabpage ,即可测试是否正确加载----------
 
-                ////var ass = Assembly.GetExecutingAssembly();
-                ////var typeFinder = new AppDomainTypeFinder();
-                ////var targetType = typeof(BaseWebPageService);
-                ////var webPageServiceTypes = typeFinder.FindClassesOfType(targetType, new Assembly[] { ass }, true);
-                ////if (webPageServiceTypes.IsNotEmpty())
-                ////{
-                ////    foreach (Type itemPageService in webPageServiceTypes)
-                ////    {
-                ////        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
-                ////        //静态属性访问一次 即可触发打开页面
-                ////        var loader = servieInstance.RequestLoader;
-                ////    }
-                ////}
-
-                // --------------测试环境begin 不建议打开多个tabpage，影响测试加载-------------
-                var tmallService = new TmallWebPageService();
-                var loader = tmallService.RequestLoader;
-
-                var loader_taobao = new TaobaoWebPageService().RequestLoader;
-                var loader_jd = new JingdongWebPageService().RequestLoader;
-                //--------------测试环境end-------使用一个tabpage ,即可测试是否正确加载----------
-            });
 
             #endregion
 
-            //6 主进程退出的事件
-            System.Diagnostics.Process.GetCurrentProcess().Exited += (object sender, EventArgs e) =>
-           {
-             
-              // Clean up CEF.
-               CefRuntime.Shutdown();
-               MasterRemoteServer.Stop();
-           };
+            
+
+         
             return 0;
         }
 
+        public static void ClearGarbageProcess()
+        {
+            Process mainProcess = Process.GetCurrentProcess();
+            var appName = Assembly.GetExecutingAssembly().GetName().Name;
+            var psArray = Process.GetProcessesByName(appName);
+            foreach (var ps in psArray)
+            {
+                if (ps.Id != mainProcess.Id)
+                {
+                    ps.Kill();//终止同名的其他进程
+                }
+            }
 
+           
+        }
     }
 }

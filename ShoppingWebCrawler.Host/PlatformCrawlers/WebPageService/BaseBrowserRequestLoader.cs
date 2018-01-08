@@ -171,29 +171,31 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 }
 
+
+
+
+
+                //首先自动刷新下查询页面 会刷新Cookie
+                AutoRefeshCookie(this.RefreshCookieUrl);
+
+                //每间隔2s检查一次
+                this._minitor_auto_refesh_cookies = new System.Timers.Timer(2000);
+                this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
+                {
+
+                    if (DateTime.Now > this.NextUpdateCookieTime)
+                    {
+                        AutoRefeshCookie(this.RefreshCookieUrl);
+                    }
+
+                };
+                this._minitor_auto_refesh_cookies.Start();
+
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
             }
-
-
-
-            //首先自动刷新下查询页面 会刷新Cookie
-            AutoRefeshCookie(this.RefreshCookieUrl);
-
-            //每间隔2s检查一次
-            this._minitor_auto_refesh_cookies = new System.Timers.Timer(2000);
-            this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
-            {
-
-                if (DateTime.Now > this.NextUpdateCookieTime)
-                {
-                    AutoRefeshCookie(this.RefreshCookieUrl);
-                }
-
-            };
-            this._minitor_auto_refesh_cookies.Start();
         }
 
 
@@ -213,7 +215,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
             //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
-            this.NextUpdateCookieTime = DateTime.Now.AddSeconds(new Random().Next(20, 90));
+            this.NextUpdateCookieTime = DateTime.Now.AddSeconds(new Random().Next(10, 90));
         }
 
         /// <summary>
@@ -239,42 +241,21 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 timeOut = 30000;
             }
 
-
-            //将事件消息模式转换为 task同步消息
-            var tcs = new TaskCompletionSource<string>();
-
-            //注册请求处理委托
-            EventHandler<LoadEndEventArgs> handlerRequest = null;
-            Action<string> disposeHandler = null;
-            //资源释放委托
-            disposeHandler = (state) =>
+            try
             {
-                try
+
+
+                //将事件消息模式转换为 task同步消息
+                var tcs = new TaskCompletionSource<string>();
+
+                //注册请求处理委托
+                EventHandler<LoadEndEventArgs> handlerRequest = null;
+                Action<string> disposeHandler = null;
+                //资源释放委托
+                disposeHandler = (state) =>
                 {
-                    #region 废弃代码
-
-                    //-------------------下面这段代码 先不移除了，这是基于事件监视的回调方式请求，会发送2次请求 接口不推荐----------------
-                    //if (e == null || string.IsNullOrEmpty(e.Url))
-                    //{
-                    //    throw new Exception("处理一淘监视url丢失！");
-                    //}
-                    //string url = HttpUtility.UrlDecode(e.Url);
-                    ////3 使用配对的httpclient  发送请求
-                    //var client = etaoBrowser.ETaoHttpClient;
-                    ////修改client 的refer 头
-                    //client.Client.DefaultRequestHeaders.Referrer = new Uri(searchUrl);
-
-
-                    ////加载cookies
-                    ////获取当前站点的Cookie
-
-                    //var cks = ckVisitor.LoadCookiesCollection(eTaoSiteUrl);
-                    //client.ChangeGlobleCookies(cks, eTaoSiteUrl);
-                    ////4 发送请求
-                    //var clientProxy = new HttpServerProxy() { Client = client.Client, KeepAlive = true };
-                    //string content = clientProxy.GetRequestTransfer(url, null);
-
-                    #endregion
+                    try
+                    {
 
 
                     //设置返回结果为固定的内容
@@ -283,64 +264,70 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     //处理完毕后 一定要记得将处理程序移除掉 防止多播
                     //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
                     if (null != handlerRequest)
-                    {
-                        mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
+                        {
+                            mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
+
+                        }
 
                     }
+                    catch (Exception ex)
+                    {
 
-                }
-                catch (Exception ex)
-                {
-
-                    Logger.Error(ex);
-                }
-                finally
-                {
+                        Logger.Error(ex);
+                    }
+                    finally
+                    {
                     //线程锁打开自动进行下一个
                     waitHandler.Set();
-                }
-            };
+                    }
+                };
 
-            //2 开始发送请求LoadString
-            // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
+                //2 开始发送请求LoadString
+                // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
 
 
-            handlerRequest = (s, e) =>
-            {
+                handlerRequest = (s, e) =>
+                {
 
-                string url = HttpUtility.UrlDecode(e.Frame.Url);
-                System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
+                    string url = HttpUtility.UrlDecode(e.Frame.Url);
+                    System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
 
                 //刷新 cookie
                 if (!string.IsNullOrEmpty(url) && !url.Equals("about:blank"))
+                    {
+                        var ckVisitor = new LazyCookieVistor();
+                        ckVisitor.LoadCookiesAsyc(url, true);
+
+                    }
+                    disposeHandler("loaded");
+
+                };
+                //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl += handlerRequest;
+
+                //必须等待页面加载完毕，否则过期的Cookie无法刷新到最新
+                mixdBrowser.CefLoader.LoadEnd += handlerRequest;
+                mixdBrowser.CefBrowser.GetMainFrame().LoadUrl(searchUrl);
+
+                //回调终结请求阻塞
+                TimerCallback resetHandler = (state) =>
                 {
-                    var ckVisitor = new LazyCookieVistor();
-                    ckVisitor.LoadCookiesAsyc(url, true);
+                    disposeHandler("timeout");
+                };
+                //超时监听
+                var timeBong = new System.Threading.Timer(resetHandler, null, timeOut, Timeout.Infinite);
+                //进入当前线程锁定模式
+                waitHandler.WaitOne();
 
-                }
-                disposeHandler("loaded");
-
-            };
-            //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl += handlerRequest;
-
-            //必须等待页面加载完毕，否则过期的Cookie无法刷新到最新
-            mixdBrowser.CefLoader.LoadEnd += handlerRequest;
-            mixdBrowser.CefBrowser.GetMainFrame().LoadUrl(searchUrl);
-
-            //回调终结请求阻塞
-            TimerCallback resetHandler = (state) =>
+                //线程后续执行后，表示任务完毕或者超时，释放定时器资源
+                timeBong.Dispose();
+                return tcs.Task;
+            }
+            catch (Exception ex)
             {
-                disposeHandler("timeout");
-            };
-            //超时监听
-            var timeBong = new System.Threading.Timer(resetHandler, null, timeOut, Timeout.Infinite);
-            //进入当前线程锁定模式
-            waitHandler.WaitOne();
 
-            //线程后续执行后，表示任务完毕或者超时，释放定时器资源
-            timeBong.Dispose();
-            return tcs.Task;
-
+                Logger.Error(ex);
+            }
+            return Task.FromResult<string>(string.Empty);
 
         }
 

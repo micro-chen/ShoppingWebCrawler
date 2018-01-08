@@ -125,21 +125,17 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// 向主节点发送登记，登记成功，并返回可用的端口，然后开启指定端口的子节点server
         /// </summary>
 
-        public static void StartAsync(HeadLessWebBrowerApp app)
+        public static void Start()
         {
-            Task.Run(() =>
-            {
+
 
                 try
                 {
-                    if (false == GlobalContext.IsClusteringMode)//是否开启集群模式
+                    if (false == GlobalContext.IsConfigClusteringMode)//是否开启集群模式
                     {
                         return;
                     }
-                    if (null == app)
-                    {
-                        return;
-                    }
+
                     //一旦主控节点开启并正确返回结果
                     if (!MasterRemoteServer.IsMasterStarted())
                     {
@@ -172,10 +168,6 @@ namespace ShoppingWebCrawler.Host.AppStart
                     Logger.Error(ex);
                 }
 
-
-
-
-            });
 
             //System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
 

@@ -49,7 +49,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                 //如果不是集群，那么主节点处理消息
                 PeekerClusterNode slaveNode = null;
                 var cmdHead = objMsg.Head;
-                if (false == GlobalContext.IsClusteringMode//是否开启集群模式
+                if (false == GlobalContext.IsConfigClusteringMode//是否开启集群模式
                     || cmdHead.Equals(CommandConstants.CMD_RegisterSlavePort)//注册从节点端口
                     || MasterRemoteServer.GetOneSlavePort(out slaveNode) == false//是否注册从节点端口)//注册从节点端口
                     || slaveNode.Port == GlobalContext.MasterSocketPort//分配到了主节点工作

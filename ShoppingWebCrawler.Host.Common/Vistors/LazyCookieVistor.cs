@@ -274,70 +274,73 @@ namespace ShoppingWebCrawler.Host.Common
         /// <param name="domainName">指定的网址</param>
         /// <param name="isForceNative">强行加载浏览器cookie 不从缓存中</param>
         /// <returns></returns>
-        public Task<IList<CefCookie>> LoadCookiesAsyc(string domainName,bool isForceNative=false)
+        public Task<IList<CefCookie>> LoadCookiesAsyc(string domainName, bool isForceNative = false)
         {
-           
 
-
-            if (string.IsNullOrEmpty(domainName))
+            try
             {
-                return Task.FromResult<IList<CefCookie>>(null);
-            }
-            if (!isForceNative|| GlobalContext.IsInSlaveMode)
-            {
-                //如果是在从节点下运行，那么直接从redis 获取cookies
-                //从 redis  缓存 读取cookie，而不要再从原生的 cookie管理器读取，在render 进程，无权限读取cookie IO
-                var cookiesFromCache = GlobalContext.PullFromRedisCookies(domainName);
 
-                //如果是在从节点下工作，那么无论如何，都不允许进入原生的cookie获取，因为从节点在render 进程
-                if (GlobalContext.IsInSlaveMode)
+
+
+                if (string.IsNullOrEmpty(domainName))
                 {
-                    return Task.FromResult<IList<CefCookie>>(cookiesFromCache);
+                    return Task.FromResult<IList<CefCookie>>(null);
                 }
-                else
+                if (!isForceNative || GlobalContext.IsInSlaveMode)
                 {
-                    if (null != cookiesFromCache && cookiesFromCache.IsNotEmpty())
+                    //如果是在从节点下运行，那么直接从redis 获取cookies
+                    //从 redis  缓存 读取cookie，而不要再从原生的 cookie管理器读取，在render 进程，无权限读取cookie IO
+                    var cookiesFromCache = GlobalContext.PullFromRedisCookies(domainName);
+
+                    //如果是在从节点下工作，那么无论如何，都不允许进入原生的cookie获取，因为从节点在render 进程
+                    if (GlobalContext.IsInSlaveMode)
                     {
                         return Task.FromResult<IList<CefCookie>>(cookiesFromCache);
                     }
+                    else
+                    {
+                        if (null != cookiesFromCache && cookiesFromCache.IsNotEmpty())
+                        {
+                            return Task.FromResult<IList<CefCookie>>(cookiesFromCache);
+                        }
+                    }
+
                 }
-                
-            }
 
 
-            //下面的是 ---------------在 browser 进程----------------------
+                //下面的是 ---------------在 browser 进程----------------------
 
-            this._tcs = new TaskCompletionSource<IList<CefCookie>>();
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));//注册一个超时等待的任务
-            cts.Token.Register(() => this._tcs.TrySetCanceled(), useSynchronizationContext: false);
-            //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
-            //事件回调
-            EventHandler<CookieVistCompletedEventAgrs> handler = null;
-            handler = (object s, CookieVistCompletedEventAgrs e) =>
-            {
-                if (null != this._tcs && null != e )
+                this._tcs = new TaskCompletionSource<IList<CefCookie>>();
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));//注册一个超时等待的任务
+                cts.Token.Register(() => this._tcs.TrySetCanceled(), useSynchronizationContext: false);
+                //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
+                //事件回调
+                EventHandler<CookieVistCompletedEventAgrs> handler = null;
+                handler = (object s, CookieVistCompletedEventAgrs e) =>
                 {
-                    this._tcs.TrySetResult(e.Results);
-                    GlobalContext.PushToRedisCookies(domainName, e.Results);//异步推送cookie到redis
+                    if (null != this._tcs && null != e)
+                    {
+                        this._tcs.TrySetResult(e.Results);
+                        GlobalContext.PushToRedisCookies(domainName, e.Results);//异步推送cookie到redis
                 }
-                else
-                {
+                    else
+                    {
                     //如果没有值  那么设置空值，阻塞结束
                     this._tcs.TrySetResult(null);
-                }
+                    }
                 //完毕后 移除事件
                 if (!GlobalContext.IsInSlaveMode)
-                {
+                    {
                     //主节点 注销委托
                     this.VistCookiesCompleted -= handler;
-                }
-               
-            };
+                    }
 
-     
+                };
 
-            //为了安全获取 首先插入一个临时无效的cookie,否则在没有访问页面cookie的时候会不能正确出发 visit 委托
-            var tempCookie = new List<CefCookie> {
+
+
+                //为了安全获取 首先插入一个临时无效的cookie,否则在没有访问页面cookie的时候会不能正确出发 visit 委托
+                var tempCookie = new List<CefCookie> {
                 new CefCookie {
                     Domain =domainName.GetUrlCookieDomain(),
                     Name =__temp_cookie_key_securityGetCookies,
@@ -352,37 +355,35 @@ namespace ShoppingWebCrawler.Host.Common
             };
 
 
-            this.SetCookieToCookieManager(domainName, tempCookie);
+                this.SetCookieToCookieManager(domainName, tempCookie);
 
-            //this._tcs = new TaskCompletionSource<IList<CefCookie>>();
-            //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
-            //事件回调
-            this.VistCookiesCompleted += handler;
+                //this._tcs = new TaskCompletionSource<IList<CefCookie>>();
+                //var oldListeners=this.VistCookiesCompleted.GetInvocationList();
+                //事件回调
+                this.VistCookiesCompleted += handler;
 
-            var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
+                var ckManager = GlobalContext.DefaultCEFGlobalCookieManager;
 
-            var canAccess = ckManager.VisitUrlCookies(domainName, true, this);
-            if (canAccess == false)
+                var canAccess = ckManager.VisitUrlCookies(domainName, true, this);
+                if (canAccess == false)
+                {
+                    //如果未能获取有效的cookie 从指定的域  那么立即返回空结果
+                    return Task.FromResult<IList<CefCookie>>(null);
+                }
+
+
+                return this._tcs.Task;
+
+            }
+            catch (Exception ex)
             {
-                //如果未能获取有效的cookie 从指定的域  那么立即返回空结果
-                return Task.FromResult<IList<CefCookie>>(null);
+
+                Logging.Logger.Error(ex);
+
             }
 
-
-            return this._tcs.Task;
+            return Task.FromResult<IList<CefCookie>>(null);
         }
-        ///// <summary>
-        ///// 内部委托接受读取cookies 事件完毕
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void HandlerVistCookiesCompleted(object sender, CookieVistCompletedEventAgrs e)
-        //{
-        //    if (null != this._tcs)
-        //    {
-        //        this._tcs.TrySetResult(e.Results);
-        //    }
-        //}
 
 
         protected override bool Visit(CefCookie cookie, int count, int total, out bool delete)
@@ -402,7 +403,7 @@ namespace ShoppingWebCrawler.Host.Common
             if ((count + 1) == total)
             {
                 //遍历完毕最后的Cookie后，通知订阅事件
-                var agrs = new CookieVistCompletedEventAgrs() {  Results = this.Results };
+                var agrs = new CookieVistCompletedEventAgrs() { Results = this.Results };
                 this.OnVistCookiesCompleted(agrs);
             }
 
