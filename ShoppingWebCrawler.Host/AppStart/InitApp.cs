@@ -113,10 +113,10 @@ namespace ShoppingWebCrawler.Host.AppStart
             #region 开启集群模式
             if (GlobalContext.IsConfigClusteringMode)
             {
-                var clusteriNodeCount = ConfigHelper.GetConfigInt("ClusteriNodeCount");
-                if (clusteriNodeCount <= 0)
+                var clusterNodeCount = ConfigHelper.GetConfigInt("ClusterNodeCount");
+                if (clusterNodeCount <= 0)
                 {
-                    clusteriNodeCount = 1;
+                    clusterNodeCount = 1;
                 }
 
                 try
@@ -126,7 +126,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
                     string appName = Assembly.GetExecutingAssembly().GetName().Name;
                     //开启子节点进程
-                    for (int i = 0; i < clusteriNodeCount; i++)
+                    for (int i = 0; i < clusterNodeCount; i++)
                     {
                         Process p = new Process();
                         p.StartInfo.FileName = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, string.Format("{0}.exe", appName));

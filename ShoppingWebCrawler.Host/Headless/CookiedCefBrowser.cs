@@ -8,6 +8,7 @@ using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Handlers;
 using ShoppingWebCrawler.Host.Common.Http;
 using ShoppingWebCrawler.Host.PlatformCrawlers;
+using ShoppingWebCrawler.Host.Common;
 
 namespace ShoppingWebCrawler.Host.Headless
 {
@@ -62,6 +63,54 @@ namespace ShoppingWebCrawler.Host.Headless
 
         }
 
+
+
+
+        /// <summary>
+        /// 创建cef,并 打开制定的网址
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static Task<CookiedCefBrowser> CreateNewWebBrowser(string url)
+        {
+            //验证是否是合法的URL
+            var isUrl = InPutValidate.IsUrl(url);
+            if (!isUrl)
+            {
+                return Task.FromResult<CookiedCefBrowser>(null);
+            }
+            //使用任务 锁保证事件变为同步
+            var tcs = new TaskCompletionSource<CookiedCefBrowser>();
+
+            // Instruct CEF to not render to a window at all.
+            CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
+            cefWindowInfo.SetAsWindowless(IntPtr.Zero, true);
+
+            // Settings for the browser window itself (e.g. should JavaScript be enabled?).
+            var cefBrowserSettings = new CefBrowserSettings();
+
+            // Initialize some the cust interactions with the browser process.
+            // The browser window will be 1280 x 720 (pixels).
+            var cefClient = new HeadLessCefClient(1, 1);
+            var loader = cefClient.GetCurrentLoadHandler();
+            loader.BrowserCreated += (s, e) =>
+            {
+
+                //事件通知 当cef  browser 创建完毕
+                //创建完毕后 保存 browser 对象的实例
+                var brw = e.Browser;
+                var etaoBrowser = new CookiedCefBrowser { CefBrowser = brw, CefLoader = loader, CefClient = cefClient };
+
+                tcs.TrySetResult(etaoBrowser);
+            };
+            ////注册  加载完毕事件handler
+            //loader.LoadEnd += this.OnWebBrowserLoadEnd;
+            // Start up the browser instance.
+           // string url = "about:blank";
+            CefBrowserHost.CreateBrowser(cefWindowInfo, cefClient, cefBrowserSettings, url);
+
+            return tcs.Task;
+        }
 
 
 

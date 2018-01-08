@@ -157,19 +157,17 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             try
             {
-                lock (_readLock_mixdBrowser)
-                {
+                //lock (_readLock_mixdBrowser)
+                //{
 
-                    if (null == mixdBrowser)
-                    {
-                        mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
-                           .ConfigureAwait(false)
-                           .GetAwaiter()
-                           .GetResult();
-                    }
-
-
-                }
+                //    if (null == mixdBrowser)
+                //    {
+                //        mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
+                //           .ConfigureAwait(false)
+                //           .GetAwaiter()
+                //           .GetResult();
+                //    }
+                //}
 
 
 
@@ -214,7 +212,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
             //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
-            int randNumber = NumbericExtension.GetRandomNumber(30, 200);
+            int randNumber = NumbericExtension.GetRandomNumber(15, 150);
             this.NextUpdateCookieTime = DateTime.Now.AddSeconds(randNumber);
         }
 
@@ -248,6 +246,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //将事件消息模式转换为 task同步消息
                 var tcs = new TaskCompletionSource<string>();
 
+                if (null == mixdBrowser)
+                {
+                    mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser(searchUrl)
+                       .ConfigureAwait(false)
+                       .GetAwaiter()
+                       .GetResult();
+                }
+
                 //注册请求处理委托
                 EventHandler<LoadEndEventArgs> handlerRequest = null;
                 Action<string> disposeHandler = null;
@@ -258,16 +264,37 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     {
 
 
-                    //设置返回结果为固定的内容
-                    tcs.SetResult(state);
-
-                    //处理完毕后 一定要记得将处理程序移除掉 防止多播
-                    //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
-                    if (null != handlerRequest)
+                        if (null!=mixdBrowser)
                         {
-                            mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
+                            //处理完毕后 一定要记得将处理程序移除掉 防止多播
+                            //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
+                            if (null != handlerRequest)
+                            {
+                                mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
 
+                            }
+
+                            //将tab 页面卸载
+                            var browser = mixdBrowser.CefBrowser;
+                            var host = browser.GetHost();//--注意 ：
+                            if (host != null)
+                            {
+                                host.CloseBrowser(true);
+                                host.Dispose();
+                            }
+                            browser.Dispose();
+                            mixdBrowser = null;
                         }
+
+
+                        if (tcs.Task.IsCompleted != true)
+                        {
+                            //设置返回结果为固定的内容
+                            tcs.SetResult(state);
+                        }
+
+                      
+
 
                     }
                     catch (Exception ex)
@@ -277,8 +304,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     }
                     finally
                     {
-                    //线程锁打开自动进行下一个
-                    waitHandler.Set();
+                        //线程锁打开自动进行下一个
+                        waitHandler.Set();
                     }
                 };
 
@@ -292,8 +319,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     string url = HttpUtility.UrlDecode(e.Frame.Url);
                     System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
 
-                //刷新 cookie
-                if (!string.IsNullOrEmpty(url) && !url.Equals("about:blank"))
+                    //刷新 cookie
+                    if (!string.IsNullOrEmpty(url) && !url.Equals("about:blank"))
                     {
                         var ckVisitor = new LazyCookieVistor();
                         ckVisitor.LoadCookiesAsyc(url, true);
