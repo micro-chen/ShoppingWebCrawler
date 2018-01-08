@@ -214,7 +214,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
             //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
-            this.NextUpdateCookieTime = DateTime.Now.AddSeconds(new Random().Next(15, 120));
+            int randNumber = NumbericExtension.GetRandomNumber(15, 100);
+            this.NextUpdateCookieTime = DateTime.Now.AddSeconds(randNumber);
         }
 
         /// <summary>

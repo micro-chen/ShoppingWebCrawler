@@ -7,6 +7,56 @@ namespace System
 {
     public static class NumbericExtension
     {
+
+        /// <summary>
+        /// 生成一个随机数
+        /// based  eaglet
+        /// http://www.cnblogs.com/eaglet/archive/2011/01/17/1937083.html
+        /// </summary>
+        /// <param name="total"></param>
+        /// <returns></returns>
+        public static int GetRandomNumber(int minValue=0,int maxValue=10)
+        {
+
+            if (minValue >= maxValue)
+            {
+                maxValue = minValue + 1;
+            }
+
+            int total = maxValue - minValue;
+            int[] sequence = new int[total];
+            int[] output = new int[total];
+
+            for (int i = 0; i < total; i++)
+            {
+                sequence[i] = minValue + i;
+            }
+            int temp = -1;
+            Random rand = new Random(((int)DateTime.Now.Ticks));
+            for (int i = 0; i < total; i++)
+            {
+                if (temp != -1)
+                {
+                    rand = new Random(temp * i * ((int)DateTime.Now.Ticks));
+                }
+
+                int t = rand.Next(sequence.Length - 1);
+
+                while (temp == t)
+                {
+                    t = rand.Next(sequence.Length - 1);
+                }
+
+                temp = t;
+                output[i] = sequence[t];
+
+            }
+
+
+
+            return output[temp];
+        }
+
         /// <summary>
         /// 四舍五入法
         /// </summary>
