@@ -206,7 +206,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         protected void AutoRefeshCookie(string refreshCookieUrl)
         {
 
-
             if (string.IsNullOrEmpty(refreshCookieUrl))
             {
                 throw new Exception("自动刷新Cookie的刷新地址不能为空！");
