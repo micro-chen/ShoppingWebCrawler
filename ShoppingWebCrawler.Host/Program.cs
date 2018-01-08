@@ -16,32 +16,32 @@ namespace ShoppingWebCrawler.Host
     internal static class Program
     {
 
-        public delegate bool ControlCtrlDelegate(int CtrlType);
-        [DllImport("kernel32.dll")]
-        private static extern bool SetConsoleCtrlHandler(ControlCtrlDelegate HandlerRoutine, bool Add);
-        private static ControlCtrlDelegate cancelHandler = new ControlCtrlDelegate(HandlerRoutine);
+        //public delegate bool ControlCtrlDelegate(int CtrlType);
+        //[DllImport("kernel32.dll")]
+        //private static extern bool SetConsoleCtrlHandler(ControlCtrlDelegate HandlerRoutine, bool Add);
+        ////private static ControlCtrlDelegate cancelHandler = new ControlCtrlDelegate(HandlerRoutine);
 
-        public static bool HandlerRoutine(int CtrlType)
-        {
-            switch (CtrlType)
-            {
-                case 0:
-                    Console.WriteLine("0工具被强制关闭"); //Ctrl+C关闭  
-                    break;
-                case 2:
-                    Console.WriteLine("2工具被强制关闭");//按控制台关闭按钮关闭  
-                    break;
-            }
-            //清理残留进程
-            // Clean up CEF.
-            CefRuntime.Shutdown();
-            MasterRemoteServer.Stop();
-            InitApp.ClearGarbageProcess();
+        //public static bool HandlerRoutine(int CtrlType)
+        //{
+        //    switch (CtrlType)
+        //    {
+        //        case 0:
+        //            Console.WriteLine("0工具被强制关闭"); //Ctrl+C关闭  
+        //            break;
+        //        case 2:
+        //            Console.WriteLine("2工具被强制关闭");//按控制台关闭按钮关闭  
+        //            break;
+        //    }
+        //    //清理残留进程
+        //    // Clean up CEF.
+        //    CefRuntime.Shutdown();
+        //    MasterRemoteServer.Stop();
+        //    InitApp.ClearGarbageProcess();
           
           
-            //Console.ReadLine();
-            return false;
-        }
+        //    //Console.ReadLine();
+        //    return false;
+        //}
 
 
         [STAThread]
@@ -112,7 +112,7 @@ namespace ShoppingWebCrawler.Host
             }
 
             //注册窗口关闭的时候 退出子进程
-            SetConsoleCtrlHandler(cancelHandler, true);
+           // SetConsoleCtrlHandler(cancelHandler, true);
 
             var locker = RunningLocker.CreateNewLock();
             locker.Pause();

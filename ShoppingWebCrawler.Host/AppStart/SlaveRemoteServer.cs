@@ -194,6 +194,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                         bool isBeUsed = MasterRemoteServer.IsMasterStarted();
                         if (isBeUsed == false)
                         {
+                            InitApp.ClearGarbageProcess();
+
                             Process mainProcess = Process.GetCurrentProcess();
                             mainProcess.Kill();
                         }
