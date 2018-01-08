@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 using System.Reflection;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Headless;
@@ -25,7 +24,8 @@ namespace ShoppingWebCrawler.Host.AppStart
             GlobalContext.SyncContext = SynchronizationContext.Current;
 
 
-            //1-1 集群节点的判定
+            //1-1 集群节点的判定 一旦进程启动参数有此标识，那么表示是子节点进程需要启动
+            //子节点仅仅用来做负载均衡的分流，不承载cef 运行时
             if (null != args
                 && string.Concat(args).Contains(GlobalContext.SlaveModelStartAgrs))
             {
@@ -130,9 +130,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                     {
                         Process p = new Process();
                         p.StartInfo.FileName = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, string.Format("{0}.exe", appName));
-                        p.StartInfo.Arguments = GlobalContext.SlaveModelStartAgrs;
+                        p.StartInfo.Arguments = GlobalContext.SlaveModelStartAgrs;//集群节点的启动参数标识
                         p.StartInfo.UseShellExecute = true;
-                        //p.StartInfo.CreateNoWindow = true;
                         p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                         p.Start();
 
@@ -197,6 +196,9 @@ namespace ShoppingWebCrawler.Host.AppStart
             return 0;
         }
 
+        /// <summary>
+        /// 清理同名的当前程序的其它残留进程
+        /// </summary>
         public static void ClearGarbageProcess()
         {
             Process mainProcess = Process.GetCurrentProcess();
