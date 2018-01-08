@@ -128,9 +128,10 @@ namespace ShoppingWebCrawler.Host.Model
                             {
                                 conn.Open();
                             }
-                            var result = conn.Ping();
+                            var result = conn.Ping();//发送Ping 命令，是否可以ping 通子节点端口
                             if (result != true)
                             {
+                                //一旦超过3此ping 不通，表示这是一个坏节点，中集群中心移除此节点--进行回调通知
                                 if (this.failCounter >= 2)
                                 {
                                     this.IsActiveNode = false;
