@@ -16,6 +16,7 @@ using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Host.Common.Common;
 using ShoppingWebCrawler.Cef.Core;
 using ShoppingWebCrawler.Host.Headless;
+using System.Diagnostics;
 
 namespace ShoppingWebCrawler.Host.AppStart
 {
@@ -129,44 +130,44 @@ namespace ShoppingWebCrawler.Host.AppStart
         {
 
 
-                try
+            try
+            {
+                if (false == GlobalContext.IsConfigClusteringMode)//是否开启集群模式
                 {
-                    if (false == GlobalContext.IsConfigClusteringMode)//是否开启集群模式
-                    {
-                        return;
-                    }
-
-                    //一旦主控节点开启并正确返回结果
-                    if (!MasterRemoteServer.IsMasterStarted())
-                    {
-                        return;
-                    }
-
-
-                    int port = 0;
-
-                    var slaveIdentity = Guid.NewGuid().ToString().ToLower();
-                    //开启监听前 ,发送注册当前从节点到主节点，如果可以登记注册成功，那么服务端分配端口
-                    port = MasterRemoteServer.RegisterSlaveToMaster(slaveIdentity);
-                    if (port <= 0)
-                    {
-                        return;//一旦服务端返回无效端口 那么禁止从节点启动监听
-                    }
-                    listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
-                    listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
-                    listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
-                    listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
-
-                    GlobalContext.IsInSlaveMode = true;//标识正在从节点下工作
-
-                    //开启从节点的监听
-                    listener.Listen();
+                    return;
                 }
 
-                catch (Exception ex)
+                //一旦主控节点开启并正确返回结果
+                if (!MasterRemoteServer.IsMasterStarted())
                 {
-                    Logger.Error(ex);
+                    return;
                 }
+                MonitorIsMasterCenterAlive();
+
+                int port = 0;
+
+                var slaveIdentity = Guid.NewGuid().ToString().ToLower();
+                //开启监听前 ,发送注册当前从节点到主节点，如果可以登记注册成功，那么服务端分配端口
+                port = MasterRemoteServer.RegisterSlaveToMaster(slaveIdentity);
+                if (port <= 0)
+                {
+                    return;//一旦服务端返回无效端口 那么禁止从节点启动监听
+                }
+                listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
+                listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
+                listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
+                listener.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
+
+                GlobalContext.IsInSlaveMode = true;//标识正在从节点下工作
+               
+                //开启从节点的监听
+                listener.Listen();
+            }
+
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
 
 
             //System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
@@ -176,6 +177,40 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         }
 
+        /// <summary>
+        /// 监视主节点是否存活
+        /// 主节点退出  从节点全部结束进程
+        /// </summary>
+        private static void MonitorIsMasterCenterAlive()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    RunningLocker.CreateNewLock().CancelAfter(1000);
+
+                    try
+                    {
+                        bool isBeUsed = MasterRemoteServer.IsMasterStarted();
+                        if (isBeUsed == false)
+                        {
+                            Process mainProcess = Process.GetCurrentProcess();
+                            mainProcess.Kill();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        Common.Logging.Logger.Error(ex);
+                        break;
+                    }
+
+                }
+
+
+            });
+
+        }
         /// <summary>
         /// 终止tcp 服务端的监听
         /// </summary>

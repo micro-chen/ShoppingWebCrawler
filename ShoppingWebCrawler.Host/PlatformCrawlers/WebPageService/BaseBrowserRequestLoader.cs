@@ -61,7 +61,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <summary>
         /// 下次自动更新Cookie的时间
         /// </summary>
-        private DateTime NextUpdateCookieTime = DateTime.Now.AddMinutes(5);
+        private DateTime NextUpdateCookieTime = DateTime.Now;
 
 
 
@@ -157,26 +157,12 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
             try
             {
-                //lock (_readLock_mixdBrowser)
-                //{
-
-                //    if (null == mixdBrowser)
-                //    {
-                //        mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser()
-                //           .ConfigureAwait(false)
-                //           .GetAwaiter()
-                //           .GetResult();
-                //    }
-                //}
-
-
 
 
 
                 //首先自动刷新下查询页面 会刷新Cookie
                 AutoRefeshCookie(this.RefreshCookieUrl);
-
-                //每间隔2s检查一次
+                //每间隔 检查一次
                 this._minitor_auto_refesh_cookies = new System.Timers.Timer(2000);
                 this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
                 {
@@ -229,14 +215,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// 比如：在初始化的时候 刷新Cookie用 或者刷新 Cookie 获取其他
         /// </summary>
         /// <param name="searchUrl">请求指定的地址</param>
-        /// <param name="timeOut">超时时间，不小于30秒，超时将返回加载超时</param>
+        /// <param name="timeOut">超时时间，不小于10秒，超时将返回加载超时</param>
         /// <returns></returns>
-        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 60000)
+        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 10000)
         {
 
-            if (timeOut <= 30000)
+            if (timeOut <= 10000)
             {
-                timeOut = 30000;
+                timeOut = 10000;
             }
 
             try
@@ -246,13 +232,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //将事件消息模式转换为 task同步消息
                 var tcs = new TaskCompletionSource<string>();
 
-                if (null == mixdBrowser)
-                {
-                    mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser(searchUrl)
-                       .ConfigureAwait(false)
-                       .GetAwaiter()
-                       .GetResult();
-                }
+               
 
                 //注册请求处理委托
                 EventHandler<LoadEndEventArgs> handlerRequest = null;
@@ -264,7 +244,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                     {
 
 
-                        if (null!=mixdBrowser)
+                        if (null != mixdBrowser)
                         {
                             //处理完毕后 一定要记得将处理程序移除掉 防止多播
                             //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
@@ -293,8 +273,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                             tcs.SetResult(state);
                         }
 
-                      
-
 
                     }
                     catch (Exception ex)
@@ -310,9 +288,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 };
 
                 //2 开始发送请求LoadString
-                // EventHandler<FilterSpecialUrlEventArgs> handlerRequest = null;
-
-
                 handlerRequest = (s, e) =>
                 {
 
@@ -326,14 +301,26 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         ckVisitor.LoadCookiesAsyc(url, true);
 
                     }
+
+                    //mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
                     disposeHandler("loaded");
 
                 };
                 //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl += handlerRequest;
+                if (null == mixdBrowser)
+                {
+                    mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser(searchUrl, handlerRequest)
+                       .ConfigureAwait(false)
+                       .GetAwaiter()
+                       .GetResult();
+                }
+                else
+                {
+                    //必须等待页面加载完毕，否则过期的Cookie无法刷新到最新
+                    mixdBrowser.CefLoader.LoadEnd += handlerRequest;
+                    mixdBrowser.CefBrowser.GetMainFrame().LoadUrl(searchUrl);
+                }
 
-                //必须等待页面加载完毕，否则过期的Cookie无法刷新到最新
-                mixdBrowser.CefLoader.LoadEnd += handlerRequest;
-                mixdBrowser.CefBrowser.GetMainFrame().LoadUrl(searchUrl);
 
                 //回调终结请求阻塞
                 TimerCallback resetHandler = (state) =>

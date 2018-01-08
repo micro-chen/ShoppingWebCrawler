@@ -9,6 +9,7 @@ using ShoppingWebCrawler.Host.Handlers;
 using ShoppingWebCrawler.Host.Common.Http;
 using ShoppingWebCrawler.Host.PlatformCrawlers;
 using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Cef.Framework;
 
 namespace ShoppingWebCrawler.Host.Headless
 {
@@ -71,7 +72,7 @@ namespace ShoppingWebCrawler.Host.Headless
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static Task<CookiedCefBrowser> CreateNewWebBrowser(string url)
+        public static Task<CookiedCefBrowser> CreateNewWebBrowser(string url, EventHandler<LoadEndEventArgs> handlerRequest)
         {
             //验证是否是合法的URL
             var isUrl = InPutValidate.IsUrl(url);
@@ -103,6 +104,10 @@ namespace ShoppingWebCrawler.Host.Headless
 
                 tcs.TrySetResult(etaoBrowser);
             };
+            if (null!=handlerRequest)
+            {
+                loader.LoadEnd += handlerRequest;
+            }
             ////注册  加载完毕事件handler
             //loader.LoadEnd += this.OnWebBrowserLoadEnd;
             // Start up the browser instance.
