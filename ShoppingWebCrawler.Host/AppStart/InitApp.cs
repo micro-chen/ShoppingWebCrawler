@@ -23,6 +23,7 @@ namespace ShoppingWebCrawler.Host.AppStart
             //1 设定当前程序运行的主上下文
             GlobalContext.SyncContext = SynchronizationContext.Current;
 
+         
 
             //1-1 集群节点的判定 一旦进程启动参数有此标识，那么表示是子节点进程需要启动
             //子节点仅仅用来做负载均衡的分流，不承载cef 运行时
@@ -33,7 +34,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                 SlaveRemoteServer.Start();
                 return 0;//子节点的进程启动完毕后，返回
             }
-
+            
 
             //2 初始化CEF运行时
             #region 初始化CEF运行时
@@ -106,7 +107,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             #endregion
 
-           
+        
             //3 开启总控TCP端口，用来接收站点的请求--开启后 会阻塞进程 防止结束
             // 总控端口 负责 1 收集请求 响应请求 2 收集分布的采集客户端 登记注册可用的端，用来做CDN 任务分发，做负载均衡
             MasterRemoteServer.Start();
@@ -174,8 +175,6 @@ namespace ShoppingWebCrawler.Host.AppStart
                     BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
                     //静态属性访问一次 即可触发打开页面
                     var loader = servieInstance.RequestLoader;
-
-                    RunningLocker.CreateNewLock().CancelAfter(1000);//延迟打开多个窗口
                 }
             }
 
@@ -190,9 +189,9 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             #endregion
 
-            
 
-         
+
+
             return 0;
         }
 
@@ -214,5 +213,27 @@ namespace ShoppingWebCrawler.Host.AppStart
 
            
         }
+
+        /// <summary>
+        /// 终止当前程序的进程
+        /// </summary>
+        public static void TerminalApplicationProcess()
+        {
+            Process mainProcess = Process.GetCurrentProcess();
+            var appName = Assembly.GetExecutingAssembly().GetName().Name;
+            var psArray = Process.GetProcessesByName(appName);
+            foreach (var ps in psArray)
+            {
+                if (ps.Id != mainProcess.Id)
+                {
+                    ps.Kill();//终止同名的其他进程
+                }
+            }
+            mainProcess.Kill();
+
+
+        }
+
+
     }
 }
