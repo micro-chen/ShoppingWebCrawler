@@ -232,7 +232,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //将事件消息模式转换为 task同步消息
                 var tcs = new TaskCompletionSource<string>();
 
-               
+
 
                 //注册请求处理委托
                 EventHandler<LoadEndEventArgs> handlerRequest = null;
@@ -242,29 +242,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
                     try
                     {
-
-
-                        if (null != mixdBrowser)
-                        {
-                            //处理完毕后 一定要记得将处理程序移除掉 防止多播
-                            if (null != handlerRequest)
-                            {
-                                mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
-
-                            }
-
-                            //将tab 页面卸载
-                            var browser = mixdBrowser.CefBrowser;
-                            var host = browser.GetHost();//--注意 ：
-                            if (host != null)
-                            {
-                                host.CloseBrowser(true);
-                                host.Dispose();
-                            }
-                            browser.Dispose();
-                            mixdBrowser = null;
-                        }
-
 
                         if (tcs.Task.IsCompleted != true)
                         {
@@ -331,6 +308,27 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //进入当前线程锁定模式
                 waitHandler.WaitOne();
 
+                //等待信号完毕后，直接杀死tab
+                if (null != mixdBrowser)
+                {
+                    //处理完毕后 一定要记得将处理程序移除掉 防止多播
+                    if (null != handlerRequest)
+                    {
+                        mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
+
+                    }
+
+                    //将tab 页面卸载
+                    var browser = mixdBrowser.CefBrowser;
+                    var host = browser.GetHost();//--注意 ：
+                    if (host != null)
+                    {
+                        host.CloseBrowser(true);
+                        host.Dispose();
+                    }
+                    browser.Dispose();
+                    mixdBrowser = null;
+                }
                 //线程后续执行后，表示任务完毕或者超时，释放定时器资源
                 timeBong.Dispose();
                 return tcs.Task;
