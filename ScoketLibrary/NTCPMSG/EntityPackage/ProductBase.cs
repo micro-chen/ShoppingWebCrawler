@@ -22,20 +22,20 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 店铺地址
         /// </summary>
-        public string ShopUrl { get; set; }
+        public virtual string ShopUrl { get; set; }
         /// <summary>
         /// 卖家id
         /// </summary>
-        public long SellerId { get; set; }
+        public virtual long SellerId { get; set; }
 
         /// <summary>
         /// 卖家店铺id
         /// </summary>
-        public long ShopId { get; set; }
+        public virtual long ShopId { get; set; }
         /// <summary>
         /// 卖家店铺名称
         /// </summary>
-        public string ShopName { get; set; }
+        public virtual string ShopName { get; set; }
 
         /// <summary>
         /// 商品id
@@ -69,7 +69,7 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 标题价格--就是标题上面的删除线中的价格
         /// </summary>
-        public decimal ReservePrice { get; set; }
+        public virtual decimal ReservePrice { get; set; }
 
 
         /// <summary>
@@ -88,22 +88,22 @@ namespace NTCPMessage.EntityPackage
         /// 总业务成交/付款/评论 数量
         /// 注意：这个字段是字符串类型，而不是具体的数字，方便显示为 x.x万的格式，而不是一长溜的数字！！！！
         /// </summary>
-        public string TotalBizRemarkCount { get; set; }
+        public virtual string TotalBizRemarkCount { get; set; }
 
         /// <summary>
         /// 评论地址
         /// </summary>
-        public string RemarkUrl { get; set; }
+        public virtual string RemarkUrl { get; set; }
         /// <summary>
         /// 商品推广链接
         /// </summary>
-        public string ClickUrl { get; set; }
+        public virtual string ClickUrl { get; set; }
 
 
         /// <summary>
         /// 商品规格集合
         /// </summary>
-        public List<SkuItem> SkuList { get; set; }
+        public virtual List<SkuItem> SkuList { get; set; }
 
         /// <summary>
         /// 归属的平台
@@ -113,7 +113,7 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 是否自营
         /// </summary>
-        public bool IsSelfSale { get; set; }
+        public virtual bool IsSelfSale { get; set; }
         ///// <summary>
         ///// 优惠券集合
         ///// </summary>

@@ -247,7 +247,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         if (null != mixdBrowser)
                         {
                             //处理完毕后 一定要记得将处理程序移除掉 防止多播
-                            //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl -= handlerRequest;
                             if (null != handlerRequest)
                             {
                                 mixdBrowser.CefLoader.LoadEnd -= handlerRequest;

@@ -144,7 +144,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 var client = PddHttpClient;
                 //设置跳转头 Referrer
-                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://mobile.yangkeduo.com/search_result.html?search_key={0}&search_src=new&refer_page_name=search&refer_page_id=search_1500439537429_yr7sonlWB0", keyWord));
+                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format("http://mobile.yangkeduo.com/search_result.html?search_key={0}&search_src=new&search_met_track=manual&refer_page_name=search&refer_page_id=search_1515546776782_Zeq7a7qvHN&refer_page_sn=10031&page_id=search_result_1515546785426_9C9j8sIOep&sort_type=2", keyWord));
                 ////加载cookies
                 ////获取当前站点的Cookie
                 client.ChangeGlobleCookies(cks, PddSiteUrl);
