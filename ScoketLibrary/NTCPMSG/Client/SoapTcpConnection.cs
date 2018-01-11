@@ -244,6 +244,7 @@ namespace NTCPMessage.Client
 
                 var currentSettings = new ShoppingWebCrawlerSection.ConnectionStringConfig { Address = this.IPAddress, Port = this.Port, TimeOut= this.TimeOut };
                 SoapTcpPool pool = SoapTcpPool.GetPool(currentSettings);
+              
                 if (null != pool)
                 {
                     driver = pool.GetConnection();

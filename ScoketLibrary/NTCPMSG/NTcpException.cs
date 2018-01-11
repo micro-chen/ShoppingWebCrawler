@@ -39,6 +39,7 @@ namespace NTCPMessage
         TryToConenct = 1002,
         AutoConnect  = 1003,
         Closing      = 1004,
+        OverPoolingSize=1005,//超过最大连接池设置的数目
     }
 
     public class NTcpException : Exception

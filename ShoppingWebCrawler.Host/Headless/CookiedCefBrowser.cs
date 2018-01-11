@@ -16,7 +16,7 @@ namespace ShoppingWebCrawler.Host.Headless
     /// <summary>
     /// 带有cef浏览器+HttpClient的组合实例组件的包装
     /// </summary>
-    internal class CookiedCefBrowser
+    internal class CookiedCefBrowser:IDisposable
     {
         public HeadLessCefClient CefClient { get; set; }
 
@@ -158,6 +158,53 @@ namespace ShoppingWebCrawler.Host.Headless
         }
 
 
+        #region Dispose
+
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool disposed;
+        /// <summary>
+        /// 非密封类修饰用protected virtual
+        /// 密封类修饰用private
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // 清理托管资源
+                    //等待信号完毕后，直接杀死tab
+                    if (null != this.CefBrowser)
+                    {
+                        //将tab 页面卸载
+                        var browser = this.CefBrowser;
+                        var host = browser.GetHost();//--注意 ：
+                        if (host != null)
+                        {
+                            host.CloseBrowser(true);
+                            host.Dispose();
+                        }
+                        browser.Dispose();
+                        this.CefBrowser = null;
+                        this.CefClient = null;
+                        this.CefLoader = null;
+                    }
+                }
+                // 清理非托管资源
+
+                //让类型知道自己已经被释放
+                disposed = true;
+            }
+        }
+
+        #endregion
 
     }
 }

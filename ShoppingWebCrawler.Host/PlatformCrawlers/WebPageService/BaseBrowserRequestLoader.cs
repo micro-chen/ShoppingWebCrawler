@@ -45,14 +45,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// <summary>
         /// 初始化浏览器的时候锁
         /// </summary>
-        private static object _readLock_mixdBrowser = new object();
+        private  object _readLock_mixdBrowser = new object();
         /// <summary>
         /// CEF组合浏览器
         /// </summary>
         internal CookiedCefBrowser mixdBrowser;
 
         //线程队列锁
-        private static AutoResetEvent waitHandler = new AutoResetEvent(false);
+        private  AutoResetEvent waitHandler = new AutoResetEvent(false);
 
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
 
 
-        private static ReaderWriterLockSlim _readLock = new ReaderWriterLockSlim();
+        private static object _readLock = new object();
 
         private static T _current;
 
@@ -79,23 +79,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         {
             get
             {
-                if (null == _current)
+                lock (_readLock)
                 {
-                    try
+                    if (null == _current)
                     {
-                        _readLock.EnterReadLock();
                         _current = new T();
                     }
-                    catch { }
-                    finally
-                    {
-                        if (_readLock.IsReadLockHeld)
-                        {
-                            _readLock.ExitReadLock();
-                        }
-
-                    }
                 }
+               
                 return _current;
             }
         }
@@ -167,13 +158,19 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //每间隔 检查一次
                 if (null==this._minitor_auto_refesh_cookies)
                 {
-                    this._minitor_auto_refesh_cookies = new System.Timers.Timer(2000);
+                    this._minitor_auto_refesh_cookies = new System.Timers.Timer(5000);
                     this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
                     {
 
                         if (DateTime.Now > this.NextUpdateCookieTime)
                         {
+                            //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
+                            int randNumber = NumbericExtension.GetRandomNumber(15, 150);
+                            this.NextUpdateCookieTime = DateTime.Now.AddSeconds(randNumber);
+
                             AutoRefeshCookie(this.RefreshCookieUrl);
+
+                           
                         }
 
                     };
@@ -203,9 +200,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
             //然后从新加载下链接 即可刷新Cookie
             this.SyncCookieFromRedisToLocal(refreshCookieUrl);
             this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
-            //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
-            int randNumber = NumbericExtension.GetRandomNumber(15, 150);
-            this.NextUpdateCookieTime = DateTime.Now.AddSeconds(randNumber);
+           
         }
 
         /// <summary>
@@ -341,27 +336,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //进入当前线程锁定模式
                 waitHandler.WaitOne();
 
-                //等待信号完毕后，直接杀死tab
-                if (null != mixdBrowser.CefBrowser)
-                {
-                    //将tab 页面卸载
-                    var browser = mixdBrowser.CefBrowser;
-                    var host = browser.GetHost();//--注意 ：
-                    if (host != null)
-                    {
-                        host.CloseBrowser(true);
-                        host.Dispose();
-                    }
-                    browser.Dispose();
-                    mixdBrowser.CefBrowser = null;
-                    mixdBrowser.CefClient = null;
-                    if (null != mixdBrowser.CefLoader)
-                    {
-                        mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
-                    }
-                  
-                    mixdBrowser.CefLoader = null;
-                }
+                mixdBrowser.Dispose();
                 //线程后续执行后，表示任务完毕或者超时，释放定时器资源
                 timeBong.Dispose();
                 return tcs.Task;

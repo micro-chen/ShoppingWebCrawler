@@ -113,15 +113,16 @@ namespace NTCPMessage.Client
         /// </summary>
         /// <param name="address"></param>
         /// <param name="port"></param>
-        private  void CreatOneConnectionToPool()
+        private  SingleConnectionCable CreatOneConnectionToPool()
         {
+            SingleConnectionCable driver = null;
             if (_hasInitDriverCount <= this._config.PoolingMaxSize)
             {
                 string address = _config.Address;
                 int port = _config.Port;
                 lock (_locker)
                 {
-                    var driver = CreatNewConnection(address, port);
+                     driver = CreatNewConnection(address, port);
                     if (null != driver)
                     {
                         //尝试打开驱动连接
@@ -131,8 +132,14 @@ namespace NTCPMessage.Client
 
                     _hasInitDriverCount += 1;
                 }
-              
+
             }
+            else
+            {
+                throw new NTcpException("超过最大连接池设置的数目!", ErrorCode.OverPoolingSize);
+            }
+
+            return driver;
         }
         /// <summary>
         /// 创建新的连接对象
@@ -187,7 +194,7 @@ namespace NTCPMessage.Client
                     //连接驱动窗口必须不为0  ，0 表示无效的缆绳窗口,断开从新连接
                     if (driver != null)
                     {
-                        if (driver.CableId==0)
+                        if (driver.CableId==0||driver.Connected==false)
                         {
                             driver.Close();
                             driver.Connect(timeOut, true);
@@ -206,6 +213,17 @@ namespace NTCPMessage.Client
                 }
 
 
+            }
+            catch(NTcpException tcpEx)
+            {
+                //一旦内部故障 失败 ，捕获异常
+                if (tcpEx.Code== ErrorCode.Disconnected&&null!= driver)
+                {
+                    
+                    this._hasInitDriverCount -= 1;//打开阈值开关 将当前驱动的引用 置为最新的连接实例
+                    driver = CreatOneConnectionToPool();
+                  
+                }
             }
             catch (Exception ex)
             {
