@@ -132,6 +132,9 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             try
             {
+              
+
+
                 if (false == GlobalContext.IsConfigClusteringMode)//是否开启集群模式
                 {
                     return;
@@ -142,7 +145,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                 {
                     return;
                 }
-                MonitorIsMasterCenterAlive();
+
+               
 
                 int port = 0;
 
@@ -168,7 +172,10 @@ namespace ShoppingWebCrawler.Host.AppStart
             {
                 Logger.Error(ex);
             }
-
+            finally
+            {
+                AppBroker.MonitorIsMasterCenterAlive();
+            }
 
             //System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
 
@@ -177,42 +184,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
         }
 
-        /// <summary>
-        /// 监视主节点是否存活
-        /// 主节点退出  从节点全部结束进程
-        /// </summary>
-        private static void MonitorIsMasterCenterAlive()
-        {
-            Task.Factory.StartNew(() =>
-            {
-                while (true)
-                {
-                    RunningLocker.CreateNewLock().CancelAfter(1000);
-
-                    try
-                    {
-                        bool isBeUsed = MasterRemoteServer.IsMasterStarted();
-                        if (isBeUsed == false)
-                        {
-                            InitApp.ClearGarbageProcess();
-
-                            Process mainProcess = Process.GetCurrentProcess();
-                            mainProcess.Kill();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-
-                        Common.Logging.Logger.Error(ex);
-                        break;
-                    }
-
-                }
-
-
-            });
-
-        }
+     
         /// <summary>
         /// 终止tcp 服务端的监听
         /// </summary>
@@ -228,38 +200,38 @@ namespace ShoppingWebCrawler.Host.AppStart
 
     }
 
-    public class CookiesSetTask : CefTask
-    {
-        private readonly IList<Cookie> _cookies;
+    //public class CookiesSetTask : CefTask
+    //{
+    //    private readonly IList<Cookie> _cookies;
 
-        internal CookiesSetTask(IList<Cookie> cookies)
-        {
-            _cookies = cookies;
-        }
+    //    internal CookiesSetTask(IList<Cookie> cookies)
+    //    {
+    //        _cookies = cookies;
+    //    }
 
-        protected override void Execute()
-        {
+    //    protected override void Execute()
+    //    {
 
-            foreach (var cookie in _cookies)
-            {
-                CefCookieManager.GetGlobal(null).SetCookie(cookie.Domain, new CefCookie()
-                {
-                    Creation = cookie.TimeStamp,
-                    Domain = cookie.Domain,
-                    Expires = cookie.Expires,
-                    HttpOnly = cookie.HttpOnly,
-                    LastAccess = cookie.TimeStamp,
-                    Name = cookie.Name,
-                    Path = cookie.Path,
-                    Secure = cookie.Secure,
-                    Value = cookie.Value
-                }, null
+    //        foreach (var cookie in _cookies)
+    //        {
+    //            CefCookieManager.GetGlobal(null).SetCookie(cookie.Domain, new CefCookie()
+    //            {
+    //                Creation = cookie.TimeStamp,
+    //                Domain = cookie.Domain,
+    //                Expires = cookie.Expires,
+    //                HttpOnly = cookie.HttpOnly,
+    //                LastAccess = cookie.TimeStamp,
+    //                Name = cookie.Name,
+    //                Path = cookie.Path,
+    //                Secure = cookie.Secure,
+    //                Value = cookie.Value
+    //            }, null
 
 
-                );
-            }
-        }
-    }
+    //            );
+    //        }
+    //    }
+    //}
 
     //public class MyCefTask : CefTask
     //{

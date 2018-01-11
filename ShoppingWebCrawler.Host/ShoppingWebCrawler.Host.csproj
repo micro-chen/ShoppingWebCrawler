@@ -118,6 +118,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppStart\AppBroker.cs" />
     <Compile Include="AppStart\ConsoleClean.cs" />
     <Compile Include="AppStart\InitApp.cs" />
     <Compile Include="AppStart\SlaveRemoteServer.cs" />

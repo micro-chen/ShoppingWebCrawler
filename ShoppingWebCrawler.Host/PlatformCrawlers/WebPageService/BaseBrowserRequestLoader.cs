@@ -1,10 +1,6 @@
-﻿using NTCPMessage.EntityPackage;
-using ShoppingWebCrawler.Cef.Core;
-using ShoppingWebCrawler.Cef.Framework;
-using ShoppingWebCrawler.Host.Common;
-using ShoppingWebCrawler.Host.Common.Logging;
-using ShoppingWebCrawler.Host.Headless;
+﻿
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +8,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
+using NTCPMessage.EntityPackage;
+using ShoppingWebCrawler.Cef.Core;
+using ShoppingWebCrawler.Cef.Framework;
+using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.Common.Logging;
+using ShoppingWebCrawler.Host.Headless;
 namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 {
     /// <summary>
@@ -163,17 +165,21 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //首先自动刷新下查询页面 会刷新Cookie
                 AutoRefeshCookie(this.RefreshCookieUrl);
                 //每间隔 检查一次
-                this._minitor_auto_refesh_cookies = new System.Timers.Timer(2000);
-                this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
+                if (null==this._minitor_auto_refesh_cookies)
                 {
-
-                    if (DateTime.Now > this.NextUpdateCookieTime)
+                    this._minitor_auto_refesh_cookies = new System.Timers.Timer(2000);
+                    this._minitor_auto_refesh_cookies.Elapsed += (s, e) =>
                     {
-                        AutoRefeshCookie(this.RefreshCookieUrl);
-                    }
 
-                };
-                this._minitor_auto_refesh_cookies.Start();
+                        if (DateTime.Now > this.NextUpdateCookieTime)
+                        {
+                            AutoRefeshCookie(this.RefreshCookieUrl);
+                        }
+
+                    };
+                    this._minitor_auto_refesh_cookies.Start();
+                }
+                
 
             }
             catch (Exception ex)
@@ -195,13 +201,35 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 throw new Exception("自动刷新Cookie的刷新地址不能为空！");
             }
             //然后从新加载下链接 即可刷新Cookie
-
+            this.SyncCookieFromRedisToLocal(refreshCookieUrl);
             this.LoadUrlGetContentByCefBrowser(refreshCookieUrl);
             //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
             int randNumber = NumbericExtension.GetRandomNumber(15, 150);
             this.NextUpdateCookieTime = DateTime.Now.AddSeconds(randNumber);
         }
 
+        /// <summary>
+        /// 将redis 中的cookie 同步到cef 运行时中
+        /// </summary>
+        /// <param name=""></param>
+        private void SyncCookieFromRedisToLocal(string url)
+        {
+            try
+            {
+                var cookiesInRedis = GlobalContext.PullFromRedisCookies(url);
+                if (cookiesInRedis.IsNotEmpty())
+                {
+                    new LazyCookieVistor().SetCookieToCookieManager(url, cookiesInRedis);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Logger.Error(ex);
+            }
+          
+
+        }
         /// <summary>
         /// 虚方法  要使用的话 子类必须实重写此方法
         /// </summary>
@@ -215,14 +243,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// 比如：在初始化的时候 刷新Cookie用 或者刷新 Cookie 获取其他
         /// </summary>
         /// <param name="searchUrl">请求指定的地址</param>
-        /// <param name="timeOut">超时时间，不小于10秒，超时将返回加载超时</param>
+        /// <param name="timeOut">超时时间，不小于15秒，超时将返回加载超时</param>
         /// <returns></returns>
-        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 10000)
+        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 15000)
         {
 
-            if (timeOut <= 10000)
+            if (timeOut <= 15000)
             {
-                timeOut = 10000;
+                timeOut = 15000;
             }
 
             try
@@ -242,18 +270,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
                     try
                     {
-
                         if (tcs.Task.IsCompleted != true)
                         {
                             //设置返回结果为固定的内容
                             tcs.SetResult(state);
                         }
 
-
                     }
                     catch (Exception ex)
                     {
-
                         Logger.Error(ex);
                     }
                     finally
@@ -267,23 +292,30 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 handlerRequest = (s, e) =>
                 {
 
-                    string url = HttpUtility.UrlDecode(e.Frame.Url);
-                    System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
 
-                    //刷新 cookie
-                    if (!string.IsNullOrEmpty(url) && !url.Equals("about:blank"))
+
+                    try
                     {
-                        var ckVisitor = new LazyCookieVistor();
-                        ckVisitor.LoadCookiesAsyc(url, true);
+                        string url = HttpUtility.UrlDecode(e.Frame.Url);
+                        System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
+                        //刷新 cookie
+                        if (!string.IsNullOrEmpty(url) && !url.Equals("about:blank"))
+                        {
+                            var ckVisitor = new LazyCookieVistor();
+                            ckVisitor.LoadCookiesAsyc(url, true);
 
+                        }
                     }
+                    catch
+                    { }
+
 
                     //mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
                     disposeHandler("loaded");
 
                 };
                 //etaoBrowser.ERequestHandler.OnRequestTheMoniterdUrl += handlerRequest;
-                if (null == mixdBrowser)
+                if (null == mixdBrowser || null == mixdBrowser.CefBrowser)
                 {
                     mixdBrowser = CookiedCefBrowser.CreateNewWebBrowser(searchUrl, handlerRequest)
                        .ConfigureAwait(false)
@@ -303,21 +335,15 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
                     disposeHandler("timeout");
                 };
+
                 //超时监听
                 var timeBong = new System.Threading.Timer(resetHandler, null, timeOut, Timeout.Infinite);
                 //进入当前线程锁定模式
                 waitHandler.WaitOne();
 
                 //等待信号完毕后，直接杀死tab
-                if (null != mixdBrowser)
+                if (null != mixdBrowser.CefBrowser)
                 {
-                    //处理完毕后 一定要记得将处理程序移除掉 防止多播
-                    if (null != handlerRequest)
-                    {
-                        mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
-
-                    }
-
                     //将tab 页面卸载
                     var browser = mixdBrowser.CefBrowser;
                     var host = browser.GetHost();//--注意 ：
@@ -327,7 +353,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         host.Dispose();
                     }
                     browser.Dispose();
-                    mixdBrowser = null;
+                    mixdBrowser.CefBrowser = null;
+                    mixdBrowser.CefClient = null;
+                    if (null != mixdBrowser.CefLoader)
+                    {
+                        mixdBrowser.CefLoader.LoadEnd -= handlerRequest;
+                    }
+                  
+                    mixdBrowser.CefLoader = null;
                 }
                 //线程后续执行后，表示任务完毕或者超时，释放定时器资源
                 timeBong.Dispose();

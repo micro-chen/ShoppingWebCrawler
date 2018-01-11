@@ -123,7 +123,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                 try
                 {
                     //清理残留进程
-                    ClearGarbageProcess();
+                    AppBroker.ClearGarbageProcess();
 
                     string appName = Assembly.GetExecutingAssembly().GetName().Name;
                     //开启子节点进程
@@ -190,49 +190,11 @@ namespace ShoppingWebCrawler.Host.AppStart
             #endregion
 
 
-
-
+          
             return 0;
         }
 
-        /// <summary>
-        /// 清理同名的当前程序的其它残留进程
-        /// </summary>
-        public static void ClearGarbageProcess()
-        {
-            Process mainProcess = Process.GetCurrentProcess();
-            var appName = Assembly.GetExecutingAssembly().GetName().Name;
-            var psArray = Process.GetProcessesByName(appName);
-            foreach (var ps in psArray)
-            {
-                if (ps.Id != mainProcess.Id)
-                {
-                    ps.Kill();//终止同名的其他进程
-                }
-            }
-
-           
-        }
-
-        /// <summary>
-        /// 终止当前程序的进程
-        /// </summary>
-        public static void TerminalApplicationProcess()
-        {
-            Process mainProcess = Process.GetCurrentProcess();
-            var appName = Assembly.GetExecutingAssembly().GetName().Name;
-            var psArray = Process.GetProcessesByName(appName);
-            foreach (var ps in psArray)
-            {
-                if (ps.Id != mainProcess.Id)
-                {
-                    ps.Kill();//终止同名的其他进程
-                }
-            }
-            mainProcess.Kill();
-
-
-        }
+     
 
 
     }

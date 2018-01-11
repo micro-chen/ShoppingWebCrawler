@@ -31,10 +31,18 @@ namespace System.Collections
 
         public static bool IsEmpty<T>(this IEnumerable<T> source)
         {
+            if (source==null)
+            {
+                return true;
+            }
             return !source.Any();
         }
         public static bool IsNotEmpty<T>(this IEnumerable<T> source)
         {
+            if (source == null)
+            {
+                return false;
+            }
             return source.Any();
         }
 

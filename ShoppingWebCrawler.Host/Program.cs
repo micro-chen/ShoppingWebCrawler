@@ -36,7 +36,7 @@ namespace ShoppingWebCrawler.Host
             // Clean up CEF.
             //CefRuntime.Shutdown();
             //MasterRemoteServer.Stop();
-            InitApp.TerminalApplicationProcess();
+            AppBroker.TerminalApplicationProcess();
 
 
             //Console.ReadLine();
@@ -116,7 +116,7 @@ namespace ShoppingWebCrawler.Host
             // because the garbage collector will destroy it after any CTRL event
             GC.KeepAlive(cancelHandler);
             SetConsoleCtrlHandler(cancelHandler, true);
-
+           
             var locker = RunningLocker.CreateNewLock();
             locker.Pause();
 
