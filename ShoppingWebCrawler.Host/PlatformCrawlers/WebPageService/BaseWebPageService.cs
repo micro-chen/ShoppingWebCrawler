@@ -100,9 +100,9 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 case SupportPlatformEnum.Yhd:
                     webPageService = new YhdWebPageService();
                     break;
-                case SupportPlatformEnum.Meilishuo:
-                    webPageService = new MeilishuoWebPageService();
-                    break;
+                //case SupportPlatformEnum.Meilishuo:
+                //    webPageService = new MeilishuoWebPageService();
+                //    break;
                 case SupportPlatformEnum.Mogujie:
                     webPageService = new MogujieWebPageService();
                     break;

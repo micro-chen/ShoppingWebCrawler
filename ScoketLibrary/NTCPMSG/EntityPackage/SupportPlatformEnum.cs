@@ -26,8 +26,8 @@ namespace NTCPMessage.EntityPackage
         Dangdang = 7,
         [Description("一号店")]
         Yhd = 8,
-        [Description("美丽说")]
-        Meilishuo = 9,
+        //[Description("美丽说")]
+        //Meilishuo = 9,
         [Description("蘑菇街")]
         Mogujie = 10,
         //[Description("折800")]

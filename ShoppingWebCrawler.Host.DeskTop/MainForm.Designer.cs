@@ -47,7 +47,7 @@
             this.guomei_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dangdang_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.yihaodian_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.meilishuo_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+           // this.meilishuo_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mogujie_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.etao_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.工具ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -132,7 +132,7 @@
             this.guomei_ToolStripMenuItem,
             this.dangdang_ToolStripMenuItem,
             this.yihaodian_ToolStripMenuItem,
-            this.meilishuo_ToolStripMenuItem,
+            //this.meilishuo_ToolStripMenuItem,
             this.mogujie_ToolStripMenuItem,
             this.etao_ToolStripMenuItem});
             this.shoppingPlatformsToolStripMenuItem.Name = "shoppingPlatformsToolStripMenuItem";
@@ -211,10 +211,10 @@
             // 
             // meilishuo_ToolStripMenuItem
             // 
-            this.meilishuo_ToolStripMenuItem.Name = "meilishuo_ToolStripMenuItem";
-            this.meilishuo_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.meilishuo_ToolStripMenuItem.Text = "美丽说";
-            this.meilishuo_ToolStripMenuItem.Click += new System.EventHandler(this.meilishuo_ToolStripMenuItem_Click);
+            //this.meilishuo_ToolStripMenuItem.Name = "meilishuo_ToolStripMenuItem";
+            //this.meilishuo_ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            //this.meilishuo_ToolStripMenuItem.Text = "美丽说";
+            //this.meilishuo_ToolStripMenuItem.Click += new System.EventHandler(this.meilishuo_ToolStripMenuItem_Click);
             // 
             // mogujie_ToolStripMenuItem
             // 
@@ -407,7 +407,7 @@
         private System.Windows.Forms.ToolStripMenuItem guomei_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem dangdang_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem yihaodian_ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem meilishuo_ToolStripMenuItem;
+        //private System.Windows.Forms.ToolStripMenuItem meilishuo_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mogujie_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem etao_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 工具ToolStripMenuItem;

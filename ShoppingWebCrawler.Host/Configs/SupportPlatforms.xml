@@ -9,7 +9,7 @@
   <Platform id="6"  name="suning" siteUrl="https://www.suning.com/" description="苏宁"/>
   <Platform id="7"  name="dangdang" siteUrl="http://www.dangdang.com/" description="当当"/>
   <Platform id="8"  name="yhd" siteUrl="http://www.yhd.com/" description="一号店"/>
-  <Platform id="9"  name="meilishuo" siteUrl="http://www.meilishuo.com/" description="美丽说"/>
+  <!--<Platform id="9"  name="meilishuo" siteUrl="http://www.meilishuo.com/" description="美丽说"/>-->
   <Platform id="10"  name="mogujie" siteUrl="http://www.mogujie.com/" description="蘑菇街"/>
   <!--<Platform id="11"  name="zhe800" siteUrl="https://www.zhe800.com/" description="折800"/>-->
   <Platform id="12" name="etao" siteUrl="https://www.etao.com/" description="一淘"/>

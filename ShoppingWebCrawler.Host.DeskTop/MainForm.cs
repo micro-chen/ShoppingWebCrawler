@@ -475,10 +475,10 @@ namespace ShoppingWebCrawler.Host.DeskTop
             this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Yhd);
         }
 
-        private void meilishuo_ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Meilishuo);
-        }
+        //private void meilishuo_ToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    this.OpenTabPlatformMenuToolStrip(SupportPlatformEnum.Meilishuo);
+        //}
 
         private void mogujie_ToolStripMenuItem_Click(object sender, EventArgs e)
         {
