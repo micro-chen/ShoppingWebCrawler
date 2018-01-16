@@ -20,12 +20,12 @@ namespace NTCPMessage.Client
         /// </summary>
         public static bool IsHasInitPoolManager = false;
         private static ConcurrentDictionary<string, SoapTcpPool> _poolManager = new ConcurrentDictionary<string, SoapTcpPool>();
-        private  ConcurrentQueue<SingleConnectionCable> _driverQueue;
+        private ConcurrentQueue<SingleConnectionCable> _driverQueue;
         private ShoppingWebCrawlerSection.ConnectionStringConfig _config;
-        private  int _hasInitDriverCount = 0;
-      
-        private   AutoResetEvent autoEvent;
-         private  object _locker = new object();
+        private int _hasInitDriverCount = 0;
+
+        private AutoResetEvent autoEvent;
+        private object _locker = new object();
         #endregion
 
 
@@ -44,7 +44,7 @@ namespace NTCPMessage.Client
         /// <param name="lstConfigs"></param>
         public static void InitPoolManager(List<ShoppingWebCrawlerSection.ConnectionStringConfig> lstConfigs)
         {
-            if (IsHasInitPoolManager==true)
+            if (IsHasInitPoolManager == true)
             {
                 return;
             }
@@ -69,7 +69,7 @@ namespace NTCPMessage.Client
             }
 
             //如果字典没有池 那么创建池对象
-             _pool = new SoapTcpPool();
+            _pool = new SoapTcpPool();
             _pool.ConfigPool(config);
             if (!_poolManager.ContainsKey(key))
             {
@@ -88,11 +88,11 @@ namespace NTCPMessage.Client
             }
 
             _config = config;
-            if (_config.PoolingMinSize<=0)
+            if (_config.PoolingMinSize <= 0)
             {
                 _config.PoolingMinSize = 1;//必须大于0
             }
-            if (_config.PoolingMaxSize<=0)
+            if (_config.PoolingMaxSize <= 0)
             {
                 _config.PoolingMaxSize = 1;//必须大于0
             }
@@ -113,31 +113,34 @@ namespace NTCPMessage.Client
         /// </summary>
         /// <param name="address"></param>
         /// <param name="port"></param>
-        private  SingleConnectionCable CreatOneConnectionToPool()
+        private SingleConnectionCable CreatOneConnectionToPool(bool isForceCreate = false)
         {
             SingleConnectionCable driver = null;
-            if (_hasInitDriverCount <= this._config.PoolingMaxSize)
+            if (isForceCreate == false && _hasInitDriverCount > this._config.PoolingMaxSize)
             {
-                string address = _config.Address;
-                int port = _config.Port;
-                lock (_locker)
-                {
-                     driver = CreatNewConnection(address, port);
-                    if (null != driver)
-                    {
-                        //尝试打开驱动连接
-                        driver.Connect(_config.TimeOut * 1000,true); 
-                    }
-                    _driverQueue.Enqueue(driver);
+                return driver;
+                //throw new NTcpException("超过最大连接池设置的数目!", ErrorCode.OverPoolingSize);
+            }
 
+            string address = _config.Address;
+            int port = _config.Port;
+            lock (_locker)
+            {
+                driver = CreatNewConnection(address, port);
+                if (null != driver)
+                {
+                    //尝试打开驱动连接
+                    driver.Connect(_config.TimeOut * 1000, true);
+                }
+                _driverQueue.Enqueue(driver);
+
+                if (isForceCreate == false)
+                {
                     _hasInitDriverCount += 1;
                 }
 
             }
-            else
-            {
-                throw new NTcpException("超过最大连接池设置的数目!", ErrorCode.OverPoolingSize);
-            }
+
 
             return driver;
         }
@@ -147,7 +150,7 @@ namespace NTCPMessage.Client
         /// <param name="address"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public static SingleConnectionCable CreatNewConnection(string address,int port)
+        public static SingleConnectionCable CreatNewConnection(string address, int port)
         {
             var endPoint = new IPEndPoint(IPAddress.Parse(address), port);
             SingleConnectionCable driver = new SingleConnectionCable(endPoint, 7);
@@ -160,11 +163,15 @@ namespace NTCPMessage.Client
         /// <param name="driver"></param>
         public void ReleaseToPool(SingleConnectionCable driver)
         {
-            if (null!=driver)
+            if (null != driver)
             {
                 this._driverQueue.Enqueue(driver);
+
+                autoEvent.Set();
             }
         }
+
+
         /// <summary>
         /// 从连接池 获取一个连接对象
         /// </summary>
@@ -191,38 +198,47 @@ namespace NTCPMessage.Client
                 while (timeOut > 0)
                 {
                     this._driverQueue.TryDequeue(out driver);
-                    //连接驱动窗口必须不为0  ，0 表示无效的缆绳窗口,断开从新连接
                     if (driver != null)
                     {
-                        if (driver.CableId==0||driver.Connected==false)
+
+                        if (driver.CableId!=0 &&driver.Connected == true)
                         {
-                            driver.Close();
-                            driver.Connect(timeOut, true);
+                            autoEvent.Set();
+                            break;
                         }
-                        return driver;
+                         
                     }
 
                     // We have no tickets right now, lets wait for one.
                     if (!autoEvent.WaitOne(timeOut, false)) break;
                     timeOut = fullTimeOut - (int)DateTime.Now.Subtract(start).TotalMilliseconds;
                 }
-                
-                if (null==driver)
+
+                //如果未能从池中检索出可用的连接，那么尝试创建新的连接
+                if (null == driver)
                 {
-                    throw new Exception("连接池最大连接池数目已经被消耗完毕！未能正确获取连接对象！请及时关闭连接！");
+                    var driverTryNew = CreatOneConnectionToPool();
+                    if (null == driverTryNew)
+                    {
+                        throw new Exception("连接池最大连接池数目已经被消耗完毕！未能正确获取连接对象！请及时关闭连接！");
+                    }
+
+                    return driverTryNew;
+
+
                 }
 
 
             }
-            catch(NTcpException tcpEx)
+            catch (NTcpException tcpEx)
             {
                 //一旦内部故障 失败 ，捕获异常
-                if (tcpEx.Code== ErrorCode.Disconnected&&null!= driver)
+                if (tcpEx.Code == ErrorCode.Disconnected && null != driver)
                 {
-                    
+
                     this._hasInitDriverCount -= 1;//打开阈值开关 将当前驱动的引用 置为最新的连接实例
                     driver = CreatOneConnectionToPool();
-                  
+
                 }
             }
             catch (Exception ex)

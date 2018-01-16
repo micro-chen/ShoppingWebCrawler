@@ -11,7 +11,7 @@ namespace NTCPMessage.EntityPackage.Arguments
     /// </summary>
     public class BrandTag
     {
-       
+
 
         /// <summary>
         /// 品牌Id
@@ -21,6 +21,24 @@ namespace NTCPMessage.EntityPackage.Arguments
         /// 品牌名称
         /// </summary>
         public string BrandName { get; set; }
+
+        private string _CharIndex;
+
+        /// <summary>
+        /// 对应的字母索引
+        /// </summary>
+        public string CharIndex
+        {
+            get
+            {
+                return this._CharIndex;
+            }
+            set
+            {
+                this._CharIndex = value;
+            }
+        }
+
 
         /// <summary>
         /// 过滤字段

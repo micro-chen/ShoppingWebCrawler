@@ -11,6 +11,11 @@ namespace NTCPMessage.EntityPackage
     /// </summary>
     public class ResolvedSearchUrlWithParas
     {
+
+        public ResolvedSearchUrlWithParas()
+        {
+            this.IsNeedPreRequest = true;
+        }
         /// <summary>
         /// 已经解析完毕的搜索页面地址
         /// 有的平台搜索url 参数需要频繁变更，所以，需要在插件中解析地址
@@ -24,6 +29,10 @@ namespace NTCPMessage.EntityPackage
         /// </summary>
         public Dictionary<string,object> ParasPost { get; set; }
 
-        
+        /// <summary>
+        /// 是否需要预请求
+        /// true 将进行请求url ,false 将进行内容解析的时候，解析地址参数
+        /// </summary>
+        public bool IsNeedPreRequest { get; set; }
     }
 }

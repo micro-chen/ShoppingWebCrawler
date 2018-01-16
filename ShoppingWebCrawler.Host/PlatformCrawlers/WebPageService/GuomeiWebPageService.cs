@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
+using System.Web;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -28,7 +29,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
     public class GuomeiWebPageService : BaseWebPageService
     {
 
-    
+
 
         public GuomeiWebPageService()
         {
@@ -128,10 +129,16 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 {
                     searchUrl = string.Format(templateOfSearchUrl, keyWord);
                 }
-             
+
 
                 var client = GuomeiHttpClient;
+                //设置Host
 
+                client.Client.DefaultRequestHeaders.Host = new Uri(searchUrl).Host;
+
+                //设置跳转头 Referrer
+                string enCodeKeyword = HttpUtility.UrlEncode(keyWord);
+                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format(templateOfSearchUrl, keyWord));
                 ////加载cookies
                 ////获取当前站点的Cookie
                 client.ChangeGlobleCookies(cks, GuomeiSiteUrl);
@@ -142,7 +149,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //注意：对于响应的内容 不要使用内置的文本 工具打开，这个工具有bug.看到的文本不全面
                 //使用json格式打开即可看到里面所有的字符串
 
-               string content = clientProxy.GetRequestTransfer(searchUrl, null);
+                string content = clientProxy.GetRequestTransfer(searchUrl, null);
 
 
 
