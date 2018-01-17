@@ -22,6 +22,12 @@ namespace NTCPMessage.EntityPackage.Arguments
         /// </summary>
         public string BrandName { get; set; }
 
+        /// <summary>
+        /// 图标地址
+        /// </summary>
+        public string IconUrl { get; set; }
+
+
         private string _CharIndex;
 
         /// <summary>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using System.Net;
 using ShoppingWebCrawler.Host.Headless;
 using Newtonsoft.Json;
@@ -132,6 +133,19 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 var client = SuningHttpClient;
 
+                //设置Host
+                client.Client.DefaultRequestHeaders.Host = new Uri(searchUrl).Host;
+
+                //设置跳转头 Referrer
+                string enCodeKeyword = HttpUtility.UrlEncode(keyWord);
+                client.Client.DefaultRequestHeaders.Referrer = new Uri(string.Format(templateOfSearchUrl, keyWord));
+
+                //如果是ajax 请求 那么附带这两个头信息
+                if (searchUrl.Contains("searchProductList.do"))
+                {
+                    client.Client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+                    client.Client.DefaultRequestHeaders.Add("X-Tingyun-Id:", "p35OnrDoP8k;r=57681924");
+                }
                 ////加载cookies
                 ////获取当前站点的Cookie
                 client.ChangeGlobleCookies(cks, SuningSiteUrl);

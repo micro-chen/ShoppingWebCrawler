@@ -133,7 +133,6 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 var client = GuomeiHttpClient;
                 //设置Host
-
                 client.Client.DefaultRequestHeaders.Host = new Uri(searchUrl).Host;
 
                 //设置跳转头 Referrer
