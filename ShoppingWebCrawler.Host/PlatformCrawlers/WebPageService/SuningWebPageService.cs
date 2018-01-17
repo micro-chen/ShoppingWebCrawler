@@ -144,7 +144,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 if (searchUrl.Contains("searchProductList.do"))
                 {
                     client.Client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
-                    client.Client.DefaultRequestHeaders.Add("X-Tingyun-Id:", "p35OnrDoP8k;r=57681924");
+                    client.Client.DefaultRequestHeaders.Add("X-Tingyun-Id", "p35OnrDoP8k;r=57681924");
                 }
                 ////加载cookies
                 ////获取当前站点的Cookie
