@@ -40,7 +40,7 @@ namespace NTCPMessage.EntityPackage
         /// <summary>
         /// 商品id
         /// </summary>
-        public long ItemId { get; set; }
+        public virtual long ItemId { get; set; }
 
         /// <summary>
         /// 商品地址
