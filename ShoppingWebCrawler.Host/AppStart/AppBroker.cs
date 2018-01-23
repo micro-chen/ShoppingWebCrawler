@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Timers;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Reflection;
@@ -12,42 +13,52 @@ namespace ShoppingWebCrawler.Host.AppStart
     public class AppBroker
     {
 
-
-
+        private static Timer _timer_supervisor = new Timer(1000);
+        private static bool _isInit = false;
+        private static object _locker = new object();
         /// <summary>
         /// 监视主节点是否存活
         /// 主节点退出  从节点全部结束进程。进程监视 broker
         /// </summary>
         public static void MonitorIsMasterCenterAlive()
         {
-            Task.Factory.StartNew(() =>
-            {
-                while (true)
-                {
-                    RunningLocker.CreateNewLock().CancelAfter(1000);
 
+            //RunningLocker.CreateNewLock().CancelAfter(1000);
+            lock (_locker)
+            {
+                if (_isInit == true)
+                {
+                    return;
+                }
+
+                _timer_supervisor.Elapsed += (s, e) =>
+                {
                     try
                     {
-                        bool isBeUsed = MasterRemoteServer.IsMasterStarted();
-                        if (isBeUsed == false)
+                        var mainProcess = System.Diagnostics.Process.GetProcessById(GlobalContext.MainProcessId);
+                        if (mainProcess == null)
                         {
-                            //主进程都已经退出，那么残留的进程都没有意义
-                            AppBroker.TerminalApplicationProcess();
+                        //主进程都已经退出，那么残留的进程都没有意义
+                        AppBroker.TerminalApplicationProcess();
 
                         }
                     }
                     catch (Exception ex)
                     {
+                        AppBroker.TerminalApplicationProcess();
 
                         Common.Logging.Logger.Error(ex);
-                        break;
+
                     }
 
-                }
+                };
+                _timer_supervisor.Start();
 
 
-            });
+                _isInit = true;
 
+
+            }
         }
 
         /// <summary>
@@ -81,7 +92,12 @@ namespace ShoppingWebCrawler.Host.AppStart
             {
                 if (ps.Id != mainProcess.Id)
                 {
-                    ps.Kill();//终止同名的其他进程
+                    try
+                    {
+                        ps.Kill();//终止同名的其他进程
+                    }
+                    catch { }
+                    
                 }
             }
             mainProcess.Kill();

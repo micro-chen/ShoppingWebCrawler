@@ -23,15 +23,23 @@ namespace ShoppingWebCrawler.Host.AppStart
             //1 设定当前程序运行的主上下文
             GlobalContext.SyncContext = SynchronizationContext.Current;
 
-         
+
 
             //1-1 集群节点的判定 一旦进程启动参数有此标识，那么表示是子节点进程需要启动
             //子节点仅仅用来做负载均衡的分流，不承载cef 运行时
+            //"type=slavemode mainProcessId={0}";
             if (null != args
-                && string.Concat(args).Contains(GlobalContext.SlaveModelStartAgrs))
+                && string.Concat(args).Contains("slavemode"))
             {
                 GlobalContext.IsInSlaveMode = true;
-                SlaveRemoteServer.Start();
+                //从启动参数 获取主进程的id
+                var paramProcess = args.FirstOrDefault(x => x.Contains("mainProcessId"));
+                if (null!= paramProcess)
+                {
+                    GlobalContext.MainProcessId = int.Parse(paramProcess.Split('=')[1]);
+                    SlaveRemoteServer.Start();
+                }
+             
                 return 0;//子节点的进程启动完毕后，返回
             }
             
@@ -125,13 +133,14 @@ namespace ShoppingWebCrawler.Host.AppStart
                     //清理残留进程
                     AppBroker.ClearGarbageProcess();
 
+                    var mainProcess = Process.GetCurrentProcess();
                     string appName = Assembly.GetExecutingAssembly().GetName().Name;
                     //开启子节点进程
                     for (int i = 0; i < clusterNodeCount; i++)
                     {
                         Process p = new Process();
                         p.StartInfo.FileName = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, string.Format("{0}.exe", appName));
-                        p.StartInfo.Arguments = GlobalContext.SlaveModelStartAgrs;//集群节点的启动参数标识
+                        p.StartInfo.Arguments = string.Format(GlobalContext.SlaveModelStartAgrs, mainProcess.Id);//集群节点的启动参数标识
                         p.StartInfo.UseShellExecute = true;
                         p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                         p.Start();
@@ -184,6 +193,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             //var loader_taobao = new TaobaoWebPageService().RequestLoader;
             //var loader_jd = new JingdongWebPageService().RequestLoader;
+            //var loader_dangdang = new DangdangWebPageService().RequestLoader;
             //--------------测试环境end-------使用一个tabpage ,即可测试是否正确加载----------
 
 

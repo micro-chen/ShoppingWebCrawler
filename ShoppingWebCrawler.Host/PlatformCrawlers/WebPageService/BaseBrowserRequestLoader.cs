@@ -165,7 +165,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         if (DateTime.Now > this.NextUpdateCookieTime)
                         {
                             //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
-                            int randNumber = NumbericExtension.GetRandomNumber(15, 150);
+                            int randNumber = NumbericExtension.GetRandomNumber(15, 100);
                             this.NextUpdateCookieTime = DateTime.Now.AddSeconds(randNumber);
 
                             AutoRefeshCookie(this.RefreshCookieUrl);
@@ -291,7 +291,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                     try
                     {
-                        string url = HttpUtility.UrlDecode(e.Frame.Url);
+                        string url = HttpUtility.UrlDecode(searchUrl);//e.Frame.Url
                         System.Diagnostics.Debug.WriteLine(string.Format("cef core loaded by :{0} ", url));
                         //刷新 cookie
                         if (!string.IsNullOrEmpty(url) && !url.Equals("about:blank"))

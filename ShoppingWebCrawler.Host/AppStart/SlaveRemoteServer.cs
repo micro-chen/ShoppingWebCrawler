@@ -146,7 +146,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                     return;
                 }
 
-               
+                //进入监控进程broker
+                AppBroker.MonitorIsMasterCenterAlive();
 
                 int port = 0;
 
@@ -157,6 +158,10 @@ namespace ShoppingWebCrawler.Host.AppStart
                 {
                     return;//一旦服务端返回无效端口 那么禁止从节点启动监听
                 }
+
+              
+
+
                 listener = new NTCPMessage.Server.NTcpListener(new IPEndPoint(IPAddress.Any, port));
                 listener.DataReceived += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
                 listener.ErrorReceived += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
@@ -172,12 +177,9 @@ namespace ShoppingWebCrawler.Host.AppStart
             {
                 Logger.Error(ex);
             }
-            finally
-            {
-                AppBroker.MonitorIsMasterCenterAlive();
-            }
+           
 
-            //System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+            System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
 
 
 

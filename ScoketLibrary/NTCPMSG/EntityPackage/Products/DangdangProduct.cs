@@ -15,5 +15,7 @@ namespace NTCPMessage.EntityPackage.Products
         {
             this.Platform = SupportPlatformEnum.Dangdang;
         }
+
+ 
     }
 }

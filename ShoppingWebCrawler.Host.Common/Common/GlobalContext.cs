@@ -126,13 +126,22 @@ namespace ShoppingWebCrawler.Host.Common
         }
 
         /// <summary>
+        /// 主进程id
+        /// </summary>
+        public static int MainProcessId
+        {
+            get; set;
+        }
+
+
+        /// <summary>
         /// 集群模式进程启动参数标识
         /// </summary>
         public static string SlaveModelStartAgrs
         {
             get
             {
-                return "type=slavemode";
+                return "type=slavemode mainProcessId={0}";
             }
         }
         /// <summary>

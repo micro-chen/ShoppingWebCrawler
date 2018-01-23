@@ -106,7 +106,7 @@ namespace ShoppingWebCrawler.Host
             Console.WriteLine("ShoppingWebCrawler.Host is started.....");
 
             if (null != args
-               && string.Concat(args).Contains(GlobalContext.SlaveModelStartAgrs))
+               && string.Concat(args).Contains("slavemode"))
             {
                 Console.WriteLine("SlaveRemoteServer is started.....");
             }
