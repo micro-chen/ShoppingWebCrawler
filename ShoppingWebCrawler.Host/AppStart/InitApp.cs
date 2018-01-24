@@ -181,6 +181,24 @@ namespace ShoppingWebCrawler.Host.AppStart
             {
                 foreach (Type itemPageService in webPageServiceTypes)
                 {
+                    #region 没用的服务 先不启用
+
+                 
+                    if (typeof(VipWebPageService).Equals(itemPageService))
+                    {
+                        continue;
+                    }
+                    if (typeof(MogujieWebPageService).Equals(itemPageService))
+                    {
+                        continue;
+                    }
+                    if (typeof(YhdWebPageService).Equals(itemPageService))
+                    {
+                        continue;
+                    }
+
+                    #endregion
+
                     BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
                     //静态属性访问一次 即可触发打开页面
                     var loader = servieInstance.RequestLoader;
