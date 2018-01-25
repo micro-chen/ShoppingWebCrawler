@@ -144,6 +144,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                         p.StartInfo.UseShellExecute = true;
                         p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                         p.Start();
+                        //延迟启动下一个从节点进程，防止并发分配端口资源导致失败
+                        RunningLocker.CreateNewLock().CancelAfter(1000);
 
                     }
                 }
