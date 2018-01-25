@@ -10,13 +10,14 @@ using ShoppingWebCrawler.Host.Common.Http;
 using ShoppingWebCrawler.Host.PlatformCrawlers;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Cef.Framework;
+using ShoppingWebCrawler.Host.Common.Logging;
 
 namespace ShoppingWebCrawler.Host.Headless
 {
     /// <summary>
     /// 带有cef浏览器+HttpClient的组合实例组件的包装
     /// </summary>
-    internal class CookiedCefBrowser:IDisposable
+    internal class CookiedCefBrowser : IDisposable
     {
         public HeadLessCefClient CefClient { get; set; }
 
@@ -60,7 +61,7 @@ namespace ShoppingWebCrawler.Host.Headless
         /// </summary>
         public CookiedCefBrowser()
         {
-          
+
 
         }
 
@@ -104,14 +105,14 @@ namespace ShoppingWebCrawler.Host.Headless
 
                 tcs.TrySetResult(etaoBrowser);
             };
-            if (null!=handlerRequest)
+            if (null != handlerRequest)
             {
                 loader.LoadEnd += handlerRequest;
             }
             ////注册  加载完毕事件handler
             //loader.LoadEnd += this.OnWebBrowserLoadEnd;
             // Start up the browser instance.
-           // string url = "about:blank";
+            // string url = "about:blank";
             CefBrowserHost.CreateBrowser(cefWindowInfo, cefClient, cefBrowserSettings, url);
 
             return tcs.Task;
@@ -153,7 +154,7 @@ namespace ShoppingWebCrawler.Host.Headless
             // Start up the browser instance.
             string url = "about:blank";
             CefBrowserHost.CreateBrowser(cefWindowInfo, cefClient, cefBrowserSettings, url);
-             
+
             return tcs.Task;
         }
 
@@ -184,17 +185,27 @@ namespace ShoppingWebCrawler.Host.Headless
                     if (null != this.CefBrowser)
                     {
                         //将tab 页面卸载
-                        var browser = this.CefBrowser;
-                        var host = browser.GetHost();//--注意 ：
-                        if (host != null)
+                        try
                         {
-                            host.CloseBrowser(true);
-                            host.Dispose();
+
+
+                            var browser = this.CefBrowser;
+                            var host = browser.GetHost();
+                            if (host != null)
+                            {
+                                host.CloseBrowser(true);
+                                host.Dispose();
+                            }
+                            browser.Dispose();
+                            this.CefBrowser = null;
+                            this.CefClient = null;
+                            this.CefLoader = null;
                         }
-                        browser.Dispose();
-                        this.CefBrowser = null;
-                        this.CefClient = null;
-                        this.CefLoader = null;
+                        catch (Exception ex)
+                        {
+
+                            Logger.Error(ex);
+                        }
                     }
                 }
                 // 清理非托管资源

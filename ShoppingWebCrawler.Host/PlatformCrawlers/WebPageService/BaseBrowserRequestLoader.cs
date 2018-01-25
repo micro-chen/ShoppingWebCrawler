@@ -254,7 +254,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
 
                 //将事件消息模式转换为 task同步消息
                 var tcs = new TaskCompletionSource<string>();
-
+                bool isProcessRequestEnd = false;
 
 
                 //注册请求处理委托
@@ -287,7 +287,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 handlerRequest = (s, e) =>
                 {
 
-
+                    isProcessRequestEnd = true;//标识正在接受请求
 
                     try
                     {
@@ -328,11 +328,17 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                 //回调终结请求阻塞
                 TimerCallback resetHandler = (state) =>
                 {
+                    //对于超时的 直接杀死render 进程
+                    if (isProcessRequestEnd==true)
+                    {
+                        return;
+                    }
                     disposeHandler("timeout");
                 };
 
                 //超时监听
                 var timeBong = new System.Threading.Timer(resetHandler, null, timeOut, Timeout.Infinite);
+                
                 //进入当前线程锁定模式
                 waitHandler.WaitOne();
 
