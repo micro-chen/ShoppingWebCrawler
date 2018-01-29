@@ -186,7 +186,10 @@ namespace ShoppingWebCrawler.Host.AppStart
                     #region 没用的服务 先不启用
 
 
-
+                    if (typeof(VipWebPageService).Equals(itemPageService))
+                    {
+                        continue;
+                    }
                     if (typeof(MogujieWebPageService).Equals(itemPageService))
                     {
                         continue;
