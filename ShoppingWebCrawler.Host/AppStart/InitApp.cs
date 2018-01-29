@@ -34,15 +34,15 @@ namespace ShoppingWebCrawler.Host.AppStart
                 GlobalContext.IsInSlaveMode = true;
                 //从启动参数 获取主进程的id
                 var paramProcess = args.FirstOrDefault(x => x.Contains("mainProcessId"));
-                if (null!= paramProcess)
+                if (null != paramProcess)
                 {
                     GlobalContext.MainProcessId = int.Parse(paramProcess.Split('=')[1]);
                     SlaveRemoteServer.Start();
                 }
-             
+
                 return 0;//子节点的进程启动完毕后，返回
             }
-            
+
 
             //2 初始化CEF运行时
             #region 初始化CEF运行时
@@ -115,7 +115,7 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             #endregion
 
-        
+
             //3 开启总控TCP端口，用来接收站点的请求--开启后 会阻塞进程 防止结束
             // 总控端口 负责 1 收集请求 响应请求 2 收集分布的采集客户端 登记注册可用的端，用来做CDN 任务分发，做负载均衡
             MasterRemoteServer.Start();
@@ -185,11 +185,8 @@ namespace ShoppingWebCrawler.Host.AppStart
                 {
                     #region 没用的服务 先不启用
 
-                 
-                    if (typeof(VipWebPageService).Equals(itemPageService))
-                    {
-                        continue;
-                    }
+
+
                     if (typeof(MogujieWebPageService).Equals(itemPageService))
                     {
                         continue;
@@ -201,9 +198,20 @@ namespace ShoppingWebCrawler.Host.AppStart
 
                     #endregion
 
-                    BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
-                    //静态属性访问一次 即可触发打开页面
-                    var loader = servieInstance.RequestLoader;
+                    try
+                    {
+
+
+                        BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
+                        //静态属性访问一次 即可触发打开页面
+                        var loader = servieInstance.RequestLoader;
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        Logger.Error(ex);
+                    }
                 }
             }
 
@@ -224,7 +232,7 @@ namespace ShoppingWebCrawler.Host.AppStart
             return 0;
         }
 
-     
+
 
 
     }
