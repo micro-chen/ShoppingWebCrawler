@@ -132,8 +132,17 @@ namespace NTCPMessage.EntityPackage.Arguments
         private string GetHashMD5SignString()
         {
             //拼接筛选条件的核心属性到字符串
-            string brandString = string.Join("-", this.Brands.Select(x => x.BrandId ?? ""));
-            string tagString = string.Join("-", this.TagGroup.Tags.Select(x => string.Concat(x.FilterFiled ?? "", x.Value ?? "")));
+            string brandString = string.Empty;
+            if (null!=this.Brands)
+            {
+                brandString = string.Join("-", this.Brands.Select(x => x.BrandId ?? ""));
+            }
+
+            string tagString = string.Empty;
+            if (null!=this.TagGroup&&this.TagGroup.Tags!=null)
+            {
+                tagString = string.Join("-", this.TagGroup.Tags.Select(x => string.Concat(x.FilterFiled ?? "", x.Value ?? "")));
+            }
             string conditonString = string.Concat
                 (
                 this.Platform.ToString(),
@@ -143,7 +152,7 @@ namespace NTCPMessage.EntityPackage.Arguments
                 tagString,
                 this.FromPrice,
                 this.ToPrice,
-                this.OrderFiled.FieldValue,
+                this.OrderFiled==null?"":this.OrderFiled.FieldValue,
                 this.OrderFiledName,
                 this.PageIndex
                 );

@@ -21,7 +21,8 @@ namespace NTCPMessage.EntityPackage.Arguments
         {
             this.Tags = new List<KeyWordTag>();
         }
-        public string _GroupName;
+
+        private string _GroupName;
         /// <summary>
         /// 组名称
         /// </summary>
