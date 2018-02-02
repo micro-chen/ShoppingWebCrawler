@@ -165,7 +165,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         if (DateTime.Now > this.NextUpdateCookieTime)
                         {
                             //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
-                            int randNumber = NumbericExtension.GetRandomNumber(15, 100);
+                            int randNumber = NumbericExtension.GetRandomNumber(30, 180);
                             this.NextUpdateCookieTime = DateTime.Now.AddSeconds(randNumber);
 
                             AutoRefeshCookie(this.RefreshCookieUrl);
