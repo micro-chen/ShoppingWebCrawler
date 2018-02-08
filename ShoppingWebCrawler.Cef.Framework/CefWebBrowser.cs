@@ -63,11 +63,23 @@ namespace ShoppingWebCrawler.Cef.Framework
         /// </summary>
         public bool IsCanShowContextMenu { get; set; }
 
+
+        private bool _IsCanShowPopWindow = true;
         /// <summary>
         /// 是否弹出窗口
-        /// 设置false  会在新的选项卡打开
+        /// 默认为true; 设置false  会在当前的选项卡打开
         /// </summary>
-        public bool IsCanShowPopWindow { get; set; }
+        public bool IsCanShowPopWindow
+        {
+            get
+            {
+                return _IsCanShowPopWindow;
+            }
+            set
+            {
+                _IsCanShowPopWindow = value;
+            }
+        }
 
 
         [Browsable(false)]
@@ -301,11 +313,19 @@ namespace ShoppingWebCrawler.Cef.Framework
             {
                 if (BeforePopup != null)
                 {
-                    e.Handled = false;
+                    e.Handled = true;//标记为事件已经接受处理完毕
+
                     //CefWebBrowser clone = new CefWebBrowser();
                     //e.WindowInfo.SetAsChild(clone.Handle, new CefRectangle { X = 0, Y = 0, Width = Width, Height = Height });
 
+                    //BeforePopup(this, e);
+                    ///e.Frame.Browser.GetHost()
+
+                    //直接在当前页面进行跳转 
+                    e.Frame.Browser.GetMainFrame().LoadUrl(e.TargetUrl);
+
                     BeforePopup(this, e);
+
                 }
                 else
                     e.Handled = false;

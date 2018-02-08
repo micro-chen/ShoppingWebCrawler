@@ -300,7 +300,7 @@ namespace ShoppingWebCrawler.Host.DeskTop
 
             var browser = new CefWebBrowser();
             browser.IsCanShowContextMenu = true;//是否显示右键菜单
-            browser.IsCanShowPopWindow = false;//是否弹窗
+            //browser.IsCanShowPopWindow = false;//是否弹窗
 
             //设定其存储Cookie的路径
             //var ckManager = CefCookieManager.GetGlobal(null); ;
@@ -355,8 +355,6 @@ namespace ShoppingWebCrawler.Host.DeskTop
                 {
                     return;
                 }
-
-                NewTab(targetUrl);//自打开新的tab
 
             };
 

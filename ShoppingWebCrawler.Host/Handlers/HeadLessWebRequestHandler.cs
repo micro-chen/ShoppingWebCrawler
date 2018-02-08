@@ -44,68 +44,68 @@ namespace ShoppingWebCrawler.Host.Handlers
             //    return true;
             //}
 
-            //监视一淘的请求数据的接口地址
-            string url = request.Url;
-            if (url.Contains("apie.m.etao.com/h5/mtop.etao.fe.search"))
-            {
-                if (null != this.OnRequestTheMoniterdUrl)
-                {
-                    //注意：必须开启在独立的线程任务上 去执行事件  ，如果在执行线程中，会导致线程死锁....
-                    Task.Factory.StartNew(() =>
-                    {
-                        this.OnRequestTheMoniterdUrl(this, new FilterSpecialUrlEventArgs { Browser = browser, Url = url });
-                        //不要返回取消 取消会出现在httpclient 异常
-                       // return CefReturnValue.Cancel;
-                    });
-                }
+            ////监视一淘的请求数据的接口地址
+            //string url = request.Url;
+            //if (url.Contains("apie.m.etao.com/h5/mtop.etao.fe.search"))
+            //{
+            //    if (null != this.OnRequestTheMoniterdUrl)
+            //    {
+            //        //注意：必须开启在独立的线程任务上 去执行事件  ，如果在执行线程中，会导致线程死锁....
+            //        Task.Factory.StartNew(() =>
+            //        {
+            //            this.OnRequestTheMoniterdUrl(this, new FilterSpecialUrlEventArgs { Browser = browser, Url = url });
+            //            //不要返回取消 取消会出现在httpclient 异常
+            //           // return CefReturnValue.Cancel;
+            //        });
+            //    }
 
-            }
+            //}
 
-            var reg = new System.Text.RegularExpressions.Regex(@"(http:|https:).*\.(woff|css|jpg|jpeg|png|ttf|svg|ico)\?{0,}.*", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            //var reg = new System.Text.RegularExpressions.Regex(@"(http:|https:).*\.(woff|css|jpg|jpeg|png|ttf|svg|ico)\?{0,}.*", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-            if (reg.IsMatch(url))
-            {
-                return CefReturnValue.Cancel;
-            }
+            //if (reg.IsMatch(url))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
 
-            if (url.Contains("log.mmstat.com/v.gif"))
-            {
-                return CefReturnValue.Cancel;
-            }
+            //if (url.Contains("log.mmstat.com/v.gif"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
 
-            if (url.Contains("mo.m.taobao.com/etao/pc_search_hotwords"))
-            {
-                return CefReturnValue.Cancel;
-            }
-            if (url.Contains("/h5/mtop.etao.fe.hotwords/"))
-            {
-                return CefReturnValue.Cancel;
-            }
+            //if (url.Contains("mo.m.taobao.com/etao/pc_search_hotwords"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
+            //if (url.Contains("/h5/mtop.etao.fe.hotwords/"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
 
-            if (url.Contains("img.alicdn.com"))
-            {
-                return CefReturnValue.Cancel;
-            }
-            if (url.Contains("qrlogin.taobao.com"))
-            {
-                return CefReturnValue.Cancel;
-            }
-            if (url.Contains("tanx.com"))
-            {
-                return CefReturnValue.Cancel;
-            }
-            if (url.Contains("wwc.alicdn.com"))
-            {
-                return CefReturnValue.Cancel;
-            }
-            if (url.Contains("wwc.alicdn.com"))
-            {
-                return CefReturnValue.Cancel;
-            }
-            if (url.Contains(".mogucdn.com"))
-            {
-                return CefReturnValue.Cancel;
-            }
+            //if (url.Contains("img.alicdn.com"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
+            //if (url.Contains("qrlogin.taobao.com"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
+            //if (url.Contains("tanx.com"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
+            //if (url.Contains("wwc.alicdn.com"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
+            //if (url.Contains("wwc.alicdn.com"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
+            //if (url.Contains(".mogucdn.com"))
+            //{
+            //    return CefReturnValue.Cancel;
+            //}
             return base.OnBeforeResourceLoad(browser, frame, request, callback);
         }
 
