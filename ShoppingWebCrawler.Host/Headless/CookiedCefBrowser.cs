@@ -11,6 +11,7 @@ using ShoppingWebCrawler.Host.PlatformCrawlers;
 using ShoppingWebCrawler.Host.Common;
 using ShoppingWebCrawler.Cef.Framework;
 using ShoppingWebCrawler.Host.Common.Logging;
+using System.Threading;
 
 namespace ShoppingWebCrawler.Host.Headless
 {
@@ -72,8 +73,10 @@ namespace ShoppingWebCrawler.Host.Headless
         /// 创建cef,并 打开制定的网址
         /// </summary>
         /// <param name="url"></param>
+        /// <param name="handlerRequest"></param>
+        /// <param name="timeOut"></param>
         /// <returns></returns>
-        public static Task<CookiedCefBrowser> CreateNewWebBrowser(string url, EventHandler<LoadEndEventArgs> handlerRequest)
+        public static Task<CookiedCefBrowser> CreateNewWebBrowser(string url, EventHandler<LoadEndEventArgs> handlerRequest,int timeOut=5000)
         {
             //验证是否是合法的URL
             var isUrl = InPutValidate.IsUrl(url);
@@ -83,6 +86,7 @@ namespace ShoppingWebCrawler.Host.Headless
             }
             //使用任务 锁保证事件变为同步
             var tcs = new TaskCompletionSource<CookiedCefBrowser>();
+
 
             // Instruct CEF to not render to a window at all.
             CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
@@ -114,6 +118,22 @@ namespace ShoppingWebCrawler.Host.Headless
             // Start up the browser instance.
             // string url = "about:blank";
             CefBrowserHost.CreateBrowser(cefWindowInfo, cefClient, cefBrowserSettings, url);
+
+            //设定超时
+            //超时监听
+  
+            int timeoutMs = timeOut;
+            var ctoken = new CancellationTokenSource(timeoutMs);
+            ctoken.Token.Register(() =>
+            {
+                var brw = loader.Browser;
+                var etaoBrowser = new CookiedCefBrowser { CefBrowser = brw, CefLoader = loader, CefClient = cefClient };
+
+                //超时结果返回空
+                tcs.TrySetResult(etaoBrowser);
+
+                //tcs.TrySetCanceled();
+            }, useSynchronizationContext: false);
 
             return tcs.Task;
         }
@@ -187,7 +207,6 @@ namespace ShoppingWebCrawler.Host.Headless
                         //将tab 页面卸载
                         try
                         {
-
 
                             var browser = this.CefBrowser;
                             var host = browser.GetHost();

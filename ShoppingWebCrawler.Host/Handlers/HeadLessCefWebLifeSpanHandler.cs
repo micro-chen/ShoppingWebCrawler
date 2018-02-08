@@ -55,19 +55,22 @@ namespace ShoppingWebCrawler.Host.Handlers
         /// <returns></returns>
         protected override bool OnBeforePopup(CefBrowser browser, CefFrame frame, string targetUrl, string targetFrameName, CefWindowOpenDisposition targetDisposition, bool userGesture, CefPopupFeatures popupFeatures, CefWindowInfo windowInfo, ref CefClient client, CefBrowserSettings settings, ref bool noJavascriptAccess)
         {
-            var e = new BeforePopupEventArgs(frame, targetUrl, targetFrameName, popupFeatures, windowInfo, client, settings,
-                                 noJavascriptAccess);
 
-            ///*_core.InvokeIfRequired(() => _core.OnBeforePopup(e));*/
-
-            //client = e.Client;
-            //noJavascriptAccess = e.NoJavascriptAccess;
             //无窗口模式 禁止打开弹窗
-            //直接在当前页面进行跳转 
-            e.Frame.Browser.GetMainFrame().LoadUrl(e.TargetUrl);
+            return true;
+            //var e = new BeforePopupEventArgs(frame, targetUrl, targetFrameName, popupFeatures, windowInfo, client, settings,
+            //                     noJavascriptAccess);
 
-            e.Handled = true;
-            return e.Handled;
+            /////*_core.InvokeIfRequired(() => _core.OnBeforePopup(e));*/
+
+            ////client = e.Client;
+            ////noJavascriptAccess = e.NoJavascriptAccess;
+            ////无窗口模式 禁止打开弹窗
+            ////直接在当前页面进行跳转 
+            //e.Frame.Browser.GetMainFrame().LoadUrl(e.TargetUrl);
+
+            //e.Handled = true;
+            //return e.Handled;
         }
 
 

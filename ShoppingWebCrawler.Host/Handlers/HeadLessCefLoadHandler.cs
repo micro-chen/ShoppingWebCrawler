@@ -38,19 +38,27 @@ namespace ShoppingWebCrawler.Host.Handlers
         protected override void OnLoadStart(CefBrowser browser, CefFrame frame)
         {
             this.Browser = browser;
-
-
-            //通知事件创建完毕 cef  browser 对象
-            if (null != this.BrowserCreated)
+            try
             {
-                this.BrowserCreated.Invoke(this, new BrowserCreatedEventArgs { Browser = browser });
+
+
+
+                //通知事件创建完毕 cef  browser 对象
+                if (null != this.BrowserCreated)
+                {
+                    this.BrowserCreated.Invoke(this, new BrowserCreatedEventArgs { Browser = browser });
+                }
+
+                // A single CefBrowser instance can handle multiple requests
+                //   for a single URL if there are frames (i.e. <FRAME>, <IFRAME>).
+                if (frame.IsMain)
+                {
+                    Console.WriteLine("START: {0}", browser.GetMainFrame().Url);
+                }
             }
-
-            // A single CefBrowser instance can handle multiple requests
-            //   for a single URL if there are frames (i.e. <FRAME>, <IFRAME>).
-            if (frame.IsMain)
+            catch (Exception ex)
             {
-                Console.WriteLine("START: {0}", browser.GetMainFrame().Url);
+                throw ex;
             }
         }
 
@@ -60,7 +68,8 @@ namespace ShoppingWebCrawler.Host.Handlers
             {
                 Console.WriteLine("END: {0}, {1}", browser.GetMainFrame().Url, httpStatusCode);
             }
-            if (this.LoadEnd != null) {
+            if (this.LoadEnd != null)
+            {
                 this.LoadEnd.Invoke(this, new LoadEndEventArgs(frame, httpStatusCode));
 
             }

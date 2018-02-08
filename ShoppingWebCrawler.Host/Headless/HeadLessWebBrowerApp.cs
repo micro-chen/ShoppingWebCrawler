@@ -38,7 +38,7 @@ namespace ShoppingWebCrawler.Host.Headless
             //禁止使用gpu 加速 在headless 模式下  gpu 有问题
             //参考 http://www.cnblogs.com/koangel/p/5396975.html 
             //https://bitbucket.org/xilium/xilium.cefglue/commits/4146c2b46923593f55d28c7435f017631f86dca0
-            //commandLine.AppendSwitch("renderer-process-limit", "1");//限制render process 的数目
+            commandLine.AppendSwitch("renderer-process-limit", "1");//限制render process 的数目
             //commandLine.AppendSwitch("process-per-tab");
             commandLine.AppendSwitch("disable-gpu");
             commandLine.AppendSwitch("disable-gpu-compositing");

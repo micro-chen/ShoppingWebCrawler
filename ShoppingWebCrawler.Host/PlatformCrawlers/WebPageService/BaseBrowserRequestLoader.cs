@@ -165,7 +165,7 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
                         if (DateTime.Now > this.NextUpdateCookieTime)
                         {
                             //不定时刷新--时间段在redis cookie  过期之间，redis 过期为5 min
-                            int randNumber = NumbericExtension.GetRandomNumber(30, 180);
+                            int randNumber = NumbericExtension.GetRandomNumber(15, 180);
                             this.NextUpdateCookieTime = DateTime.Now.AddSeconds(randNumber);
 
                             AutoRefeshCookie(this.RefreshCookieUrl);
@@ -238,14 +238,14 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// 比如：在初始化的时候 刷新Cookie用 或者刷新 Cookie 获取其他
         /// </summary>
         /// <param name="searchUrl">请求指定的地址</param>
-        /// <param name="timeOut">超时时间，不小于15秒，超时将返回加载超时</param>
+        /// <param name="timeOut">超时时间，不小于10秒，超时将返回加载超时</param>
         /// <returns></returns>
-        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 15000)
+        protected Task<string> LoadUrlGetContentByCefBrowser(string searchUrl, int timeOut = 10000)
         {
 
-            if (timeOut <= 15000)
+            if (timeOut <= 10000)
             {
-                timeOut = 15000;
+                timeOut = 10000;
             }
 
             try
