@@ -30,8 +30,17 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
 
 
 
-        static string _IPAddress = "127.0.0.1";//本机
-        static int _Port = 0;//
+        private static string _IPAddress = "127.0.0.1";//本机
+
+        public static string IPAddress
+        {
+            get
+            {
+                return _IPAddress;
+            }
+        }
+
+        private static int _Port = 10086;
         /// <summary>
         /// tcp 远程客户端的端口
         /// </summary>
@@ -47,10 +56,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
                     {
                         _Port = int.Parse(_DefaultSocketPort);
                     }
-                    else
-                    {
-                        _Port = 10086;
-                    }
+
                 }
 
                 return _Port;
@@ -69,41 +75,29 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
         public static bool TestPingSendMessage()
         {
             bool isServerHelthOK = false;
-            //client
-            SingleConnectionCable client = new SingleConnectionCable(new IPEndPoint(IPAddress.Parse(_IPAddress), Port), 7);
-            //client.ReceiveEventHandler += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
-            //client.ErrorEventHandler += new EventHandler<ErrorEventArgs>(ErrorEventHandler);
-            //client.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectEventHandler);
 
-
-            //---------基本类型 字符串明文消息发送-----------
-            string result = string.Empty;
             try
             {
-                //可以使用重载 设置连接超时时间
-                client.Connect(10 * 1000);
 
-                var buffer = Encoding.UTF8.GetBytes("ping");
-                var resultBytes = client.SyncSend((UInt32)MessageType.None, buffer);
-                result = Encoding.UTF8.GetString(resultBytes);
 
+                using (var conn = new SoapTcpConnection(IPAddress, Port))
+                {
+                    var pingResult = conn.Ping();
+                    if (pingResult == true)
+                    {
+                        Logger.Info("探针检测服务端返回正确：pong .");
+                    }
+                    isServerHelthOK = pingResult;
+                }
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
-            }
-            finally
-            {
-                client.Close();
-            }
 
-            if (!string.IsNullOrEmpty(result) && result.Equals("pong"))
-            {
-                Logger.Info("探针检测服务端返回正确：pong .");
-                isServerHelthOK = true;
+                Logger.Error(ex);
             }
 
             return isServerHelthOK;
+
         }
 
     }

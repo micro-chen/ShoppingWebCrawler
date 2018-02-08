@@ -204,7 +204,6 @@ namespace ShoppingWebCrawler.Host.AppStart
                     try
                     {
 
-
                         BaseWebPageService servieInstance = Activator.CreateInstance(itemPageService) as BaseWebPageService;
                         //静态属性访问一次 即可触发打开页面
                         var loader = servieInstance.RequestLoader;
@@ -215,6 +214,8 @@ namespace ShoppingWebCrawler.Host.AppStart
 
                         Logger.Error(ex);
                     }
+                 
+
                 }
             }
 

@@ -83,7 +83,7 @@ namespace ShoppingWebCrawler.Host.WindowService
 
                 Process p = new Process(); //实例一个Process类，启动一个独立进程
 
-                p.StartInfo.FileName = $"{ToMonitAppProcessName}.exe";  //设定程序名
+                p.StartInfo.FileName = $"./{ToMonitAppProcessName}.exe";  //设定程序名
                // p.StartInfo.Arguments = "/c " + command;  //设定程式执行参数   
                 p.StartInfo.UseShellExecute = false;    //关闭Shell的使用
                 //p.StartInfo.RedirectStandardInput = true;  //重定向标准输入
