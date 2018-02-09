@@ -106,7 +106,7 @@ namespace ShoppingWebCrawler.Host.WindowService.App_Start
                 }
                 x.UseLog4Net(log4ConfigFile);
                 //配置服务显示
-                x.SetDescription($"本项目用来监视 ShoppingWebCrawler ,监视运行健康情况！");
+                x.SetDescription($"本项目用来对 ShoppingWebCrawler 承载服务 ，监视运行健康情况！");
                 x.SetDisplayName(Service_Name);
                 x.SetServiceName(Service_Name);
 
