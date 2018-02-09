@@ -56,9 +56,11 @@ namespace ShoppingWebCrawler.Host.WindowService
             var result = false;
             try
             {
+                IsServiceRunning = false;
+
                 ScheduleTaskRunner.Instance.Stop();
                 StopWebCrawlerHostProcess();
-                IsServiceRunning = false;
+           
                 result = true;
             }
             catch (Exception ex)

@@ -151,7 +151,11 @@ namespace ShoppingWebCrawler.Host.WindowService.App_Start
                 {
                     Logger.Info("BeforeUninstall......");
                     ServiceController sc = new ServiceController(Service_Name);
-                    sc.Stop();
+                    if (sc.Status!= ServiceControllerStatus.Stopped)
+                    {
+                        sc.Stop();
+                    }
+                   
 
 
                 });

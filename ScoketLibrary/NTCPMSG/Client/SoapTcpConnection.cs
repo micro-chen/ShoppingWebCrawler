@@ -87,7 +87,6 @@ namespace NTCPMessage.Client
         public SoapTcpConnection()
         {
             this.State = ConnectionState.Closed;
-            //TimeOut = 30 * 1000;//设置默认连接超时时间
         }
         /// <summary>
         /// 构造函数
@@ -97,18 +96,18 @@ namespace NTCPMessage.Client
         ///<param name="timeOut">连接超时时间（秒）</param>
         public SoapTcpConnection(string address, int port,int timeOut=30) : this()
         {
-            this.State = ConnectionState.Closed;
+            
             this.IPAddress = address;
             this.Port = port;
-            this.TimeOut = timeOut * 1000;
+            this.TimeOut = timeOut;
         }
 
-        public SoapTcpConnection(ShoppingWebCrawlerSection.ConnectionStringConfig connectionString)
+        public SoapTcpConnection(ShoppingWebCrawlerSection.ConnectionStringConfig connectionString) : this()
         {
-            this.State = ConnectionState.Closed;
+        
             this.IPAddress = connectionString.Address;
             this.Port = connectionString.Port;
-            this.TimeOut = connectionString.TimeOut * 1000;
+            this.TimeOut = connectionString.TimeOut;
         }
 
         /// <summary>

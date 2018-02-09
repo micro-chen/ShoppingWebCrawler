@@ -80,7 +80,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
             {
 
 
-                using (var conn = new SoapTcpConnection(IPAddress, Port))
+                using (var conn = new SoapTcpConnection(IPAddress, Port,5))
                 {
                     var pingResult = conn.Ping();
                     if (pingResult == true)
