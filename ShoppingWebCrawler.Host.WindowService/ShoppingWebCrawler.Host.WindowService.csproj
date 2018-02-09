@@ -95,17 +95,17 @@
     <None Include="Configs\job_scheduling_data_2_0.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Configs\quartz.config">
+    <None Include="Configs\winSer\quartz.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Configs\Quartz_Jobs_002.xml">
+    <Content Include="Configs\winSer\Quartz_Jobs_002.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Configs\Quartz_Jobs_001.xml">
+    <Content Include="Configs\winSer\Quartz_Jobs_WinService001.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

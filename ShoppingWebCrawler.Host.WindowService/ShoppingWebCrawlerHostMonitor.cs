@@ -34,7 +34,7 @@ namespace ShoppingWebCrawler.Host.WindowService
                 StartWebCrawlerHostProcess();
                 IsServiceRunning = true;
                 ScheduleTaskRunner.Instance.Start();
-               
+
                 result = true;
             }
             catch (Exception ex)
@@ -60,7 +60,7 @@ namespace ShoppingWebCrawler.Host.WindowService
 
                 ScheduleTaskRunner.Instance.Stop();
                 StopWebCrawlerHostProcess();
-           
+
                 result = true;
             }
             catch (Exception ex)
@@ -76,8 +76,9 @@ namespace ShoppingWebCrawler.Host.WindowService
         /// <summary>
         /// 开启蜘蛛服务进程
         /// </summary>
-        public static void StartWebCrawlerHostProcess() {
-            
+        public static void StartWebCrawlerHostProcess()
+        {
+
             try
             {
                 //先杀死其他残留的进程 相当于重启
@@ -86,7 +87,7 @@ namespace ShoppingWebCrawler.Host.WindowService
                 Process p = new Process(); //实例一个Process类，启动一个独立进程
 
                 p.StartInfo.FileName = $"./{ToMonitAppProcessName}.exe";  //设定程序名
-               // p.StartInfo.Arguments = "/c " + command;  //设定程式执行参数   
+                                                                          // p.StartInfo.Arguments = "/c " + command;  //设定程式执行参数   
                 p.StartInfo.UseShellExecute = false;    //关闭Shell的使用
                 //p.StartInfo.RedirectStandardInput = true;  //重定向标准输入
                 //p.StartInfo.RedirectStandardOutput = true; //重定向标准输出  
@@ -102,6 +103,25 @@ namespace ShoppingWebCrawler.Host.WindowService
             {
 
                 Logger.Error(ex);
+            }
+        }
+
+        /// <summary>
+        /// 蜘蛛进程是否运行中
+        /// </summary>
+        public static bool IsWebCrawlerHostProcessRunnning
+        {
+            get
+            {
+                ////根据进程命获得指定的进程
+                Process[] ps = Process.GetProcessesByName(ToMonitAppProcessName);
+                if (ps.Length>0)
+                {
+                    return true;
+                }
+
+                return false;
+
             }
         }
         /// <summary>
@@ -121,7 +141,7 @@ namespace ShoppingWebCrawler.Host.WindowService
                         item.Kill(); //杀死进程
                     }
                 }
-               
+
             }
             catch (Exception ex)
             {

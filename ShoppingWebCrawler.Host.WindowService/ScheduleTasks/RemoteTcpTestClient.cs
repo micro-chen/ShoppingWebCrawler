@@ -79,7 +79,14 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
             try
             {
 
+                //1 首先检查蜘蛛进程是否运行 如果全部蜘蛛进程都挂掉 那么立刻返回false
+                var isCrawlerRun = ShoppingWebCrawlerHostMonitor.IsWebCrawlerHostProcessRunnning;
+                if (false==isCrawlerRun)
+                {
+                    return isServerHelthOK;
+                }
 
+                // 2 如果已经有了蜘蛛进程，那么监视主进程是否处于激活
                 using (var conn = new SoapTcpConnection(IPAddress, Port,5))
                 {
                     var pingResult = conn.Ping();

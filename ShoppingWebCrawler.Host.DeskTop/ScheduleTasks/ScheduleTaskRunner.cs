@@ -23,7 +23,7 @@ namespace ShoppingWebCrawler.Host.DeskTop.ScheduleTasks
         /// <summary>
         /// 配置文件路径
         /// </summary>
-        public static readonly string QuartzConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "quartz.config");
+        public static readonly string QuartzConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "desk", "quartz.config");
 
         private static ScheduleTaskRunner _instance;
         /// <summary>

@@ -23,7 +23,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
         /// <summary>
         /// 配置文件路径
         /// </summary>
-        public static readonly string QuartzConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "quartz.config");
+        public static readonly string QuartzConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configs", "winSer", "quartz.config");
 
         private static ScheduleTaskRunner _instance;
         /// <summary>
@@ -68,7 +68,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
         {
             ExeConfigurationFileMap filemap = new ExeConfigurationFileMap();
             filemap.ExeConfigFilename = QuartzConfigPath; 
-            var  config = ConfigurationManager.OpenMappedExeConfiguration(filemap, ConfigurationUserLevel.None);
+            var config = ConfigurationManager.OpenMappedExeConfiguration(filemap, ConfigurationUserLevel.None);
 
              
            var quartzProperties = new  NameValueCollection();

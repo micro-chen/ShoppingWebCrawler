@@ -202,8 +202,8 @@
     <None Include="Configs\log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Configs\quartz.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="Configs\desk\quartz.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Configs\redis.config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -227,8 +227,8 @@
       <Link>Configs\SupportPlatforms.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Configs\Quartz_Jobs_001.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="Configs\desk\Quartz_Jobs_DekTop001.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="readMe.txt" />
     <Content Include="Resources\Quartz配置.txt" />
@@ -260,7 +260,8 @@
 if not exist "$(TargetDir)libcef.dll" xcopy /s /e "$(SolutionDir)libs\$(PlatformName)\*.*" "$(TargetDir)"
 echo 'copy to host dir...'
 xcopy /s /e /y "$(TargetDir)$(TargetFileName)" "$(SolutionDir)ShoppingWebCrawler.Host\$(OutDir)" 
-xcopy /s /e /y "$(TargetDir)$(TargetFileName).config" "$(SolutionDir)ShoppingWebCrawler.Host\$(OutDir)"</PostBuildEvent>
+xcopy /s /e /y "$(TargetDir)$(TargetFileName).config" "$(SolutionDir)ShoppingWebCrawler.Host\$(OutDir)"
+xcopy /s /e /y "$(ProjectDir)Configs\desk\*" "$(SolutionDir)ShoppingWebCrawler.Host\$(OutDir)Configs\desk"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
