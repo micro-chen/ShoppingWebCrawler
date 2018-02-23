@@ -11,7 +11,7 @@ using Topshelf;
 
 namespace ShoppingWebCrawler.Host.WindowService
 {
-    public class ShoppingWebCrawlerHostMonitor : ServiceControl
+    public class ShoppingWebCrawlerHostService : ServiceControl
     {
         /// <summary>
         /// 监视的进程名称
@@ -31,8 +31,8 @@ namespace ShoppingWebCrawler.Host.WindowService
             var result = false;
             try
             {
-                StartWebCrawlerHostProcess();
                 IsServiceRunning = true;
+                StartWebCrawlerHostProcess();
                 ScheduleTaskRunner.Instance.Start();
 
                 result = true;
@@ -78,7 +78,10 @@ namespace ShoppingWebCrawler.Host.WindowService
         /// </summary>
         public static void StartWebCrawlerHostProcess()
         {
-
+            if (ShoppingWebCrawlerHostService.IsServiceRunning==false)
+            {
+                return;
+            }
             try
             {
                 //先杀死其他残留的进程 相当于重启
@@ -130,6 +133,9 @@ namespace ShoppingWebCrawler.Host.WindowService
         public static void StopWebCrawlerHostProcess()
         {
             Logger.Info("清理关闭 蜘蛛进程！");
+
+            ShoppingWebCrawlerHostService.IsServiceRunning = false;
+
             try
             {
                 ////根据进程命获得指定的进程

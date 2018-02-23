@@ -26,6 +26,7 @@ namespace ShoppingWebCrawler.Host.WindowService.App_Start
         /// </summary>
         public static bool IsTopshelfWinServiceInit { get; set; }
 
+     
 
         /// <summary>
         /// 初始化 当前WinService
@@ -57,11 +58,11 @@ namespace ShoppingWebCrawler.Host.WindowService.App_Start
 
 
                 //下面是通过编程的方式 自定义服务行为
-                x.Service<ShoppingWebCrawlerHostMonitor>(
+                x.Service<ShoppingWebCrawlerHostService>(
                      s =>
                  {
 
-                     s.ConstructUsing(name => new ShoppingWebCrawlerHostMonitor());
+                     s.ConstructUsing(name => new ShoppingWebCrawlerHostService());
                      s.WhenStarted((sc, control) =>
                      {
 

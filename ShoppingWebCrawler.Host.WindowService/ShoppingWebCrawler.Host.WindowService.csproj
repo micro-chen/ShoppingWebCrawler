@@ -82,7 +82,7 @@
     <Compile Include="ScheduleTasks\ServiceHelthCheckerJob.cs" />
     <Compile Include="ScheduleTasks\ScheduleTaskRunner.cs" />
     <Compile Include="ScheduleTasks\RemoteTcpTestClient.cs" />
-    <Compile Include="ShoppingWebCrawlerHostMonitor.cs" />
+    <Compile Include="ShoppingWebCrawlerHostService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ShoppingWebCrawler.Host\Configs\log4net.config">

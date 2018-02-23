@@ -22,14 +22,14 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
         {
             Logger.Info("ServiceHelthCheckerJob 被执行！");
 
-            if (ShoppingWebCrawlerHostMonitor.IsServiceRunning==true)
+            if (ShoppingWebCrawlerHostService.IsServiceRunning==true)
             {
                 var checkResult = RemoteTcpTestClient.TestPingSendMessage();
                 if (false == checkResult)
                 {
                     //一旦返回结果不对 那么重新启动host  进程
                     Logger.Info("开始重启蜘蛛 Host ！");
-                    ShoppingWebCrawlerHostMonitor.StartWebCrawlerHostProcess();
+                    ShoppingWebCrawlerHostService.StartWebCrawlerHostProcess();
 
                 }
             }

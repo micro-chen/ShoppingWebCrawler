@@ -80,7 +80,7 @@ namespace ShoppingWebCrawler.Host.WindowService.ScheduleTasks
             {
 
                 //1 首先检查蜘蛛进程是否运行 如果全部蜘蛛进程都挂掉 那么立刻返回false
-                var isCrawlerRun = ShoppingWebCrawlerHostMonitor.IsWebCrawlerHostProcessRunnning;
+                var isCrawlerRun = ShoppingWebCrawlerHostService.IsWebCrawlerHostProcessRunnning;
                 if (false==isCrawlerRun)
                 {
                     return isServerHelthOK;
