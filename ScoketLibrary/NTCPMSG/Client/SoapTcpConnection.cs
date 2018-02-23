@@ -151,7 +151,7 @@ namespace NTCPMessage.Client
                 repData = this.driver.SyncSend(
                               (UInt32)MessageType.Json,
                            data,
-                           this.TimeOut,
+                           this.TimeOut*1000,
                           iSendMessageSerializer);
             }
             catch (Exception ex)
@@ -254,7 +254,7 @@ namespace NTCPMessage.Client
                 }
                 if (!driver.Connected)
                 {
-                    driver.Connect(this.TimeOut);
+                    driver.Connect(this.TimeOut*1000);
                 }
               
                 this.State = ConnectionState.Open;
