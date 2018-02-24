@@ -108,6 +108,7 @@
     <Content Include="Configs\winSer\Quartz_Jobs_WinService001.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="readMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ScoketLibrary\NTCPMSG\NTCPMessage.csproj">
