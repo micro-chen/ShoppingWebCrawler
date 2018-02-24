@@ -95,7 +95,7 @@ namespace ShoppingWebCrawler.Host.WindowService.App_Start
 
 
                 //以服务承载
-                x.RunAsLocalSystem();
+                x.RunAsNetworkService();
 
 
 
