@@ -16,7 +16,7 @@ namespace System.Diagnostics
         /// <returns></returns>
         public static string GetCommandLine(this Process process)
         {
-            var commandLine = new StringBuilder(process.MainModule.FileName);
+            var commandLine = new StringBuilder();
 
             commandLine.Append(" ");
             using (var searcher = new ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id))
