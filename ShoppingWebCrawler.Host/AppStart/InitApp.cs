@@ -232,7 +232,8 @@ namespace ShoppingWebCrawler.Host.AppStart
             #endregion
 
 
-
+            //6 监视残留的render进程
+            AppBroker.MonitorClearRenderProcessByLifeTime();
             return 0;
         }
 

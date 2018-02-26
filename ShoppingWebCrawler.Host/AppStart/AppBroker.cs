@@ -13,7 +13,72 @@ namespace ShoppingWebCrawler.Host.AppStart
     public class AppBroker
     {
 
-        private static Timer _timer_supervisor = new Timer(1000);
+        private static Timer _timer_supervisor_main = new Timer(1000);
+        private static Timer _timer_supervisor_renderGC = new Timer(ConfigHelper.GetConfigInt("RenderProcessGCLifeTime")*1000);
+
+
+        public static void Start()
+        {
+            MonitorIsMasterCenterAlive();
+        }
+
+
+        #region 监视残留的render进程的broker
+
+
+
+       
+        private static object _locker_renderGC = new object();
+        /// <summary>
+        /// 定期回收清理残留的render 进程
+        /// </summary>
+        public static void MonitorClearRenderProcessByLifeTime()
+        {
+
+            lock (_locker_renderGC)
+            {
+
+
+                _timer_supervisor_renderGC.Elapsed += (s, e) =>
+                {
+                    try
+                    {
+
+                        Process mainProcess = Process.GetCurrentProcess();
+                        var appName = Assembly.GetExecutingAssembly().GetName().Name;
+                        var psArray = Process.GetProcessesByName(appName);
+                        foreach (var ps in psArray)
+                        {
+                            var cmdInfo = ps.GetCommandLine();
+                            if (!string.IsNullOrEmpty(cmdInfo)&&cmdInfo.Contains("--type=renderer"))
+                            {
+                                ps.Kill();//终止render进程
+                            }
+                           
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Common.Logging.Logger.Error(ex);
+
+                    }
+
+                };
+                _timer_supervisor_renderGC.Start();
+
+
+            
+
+
+            }
+        }
+
+        #endregion
+
+        #region 监视主进程的broker
+
+
+
         private static bool _isInit = false;
         private static object _locker = new object();
         /// <summary>
@@ -31,7 +96,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                     return;
                 }
 
-                _timer_supervisor.Elapsed += (s, e) =>
+                _timer_supervisor_main.Elapsed += (s, e) =>
                 {
                     try
                     {
@@ -52,7 +117,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                     }
 
                 };
-                _timer_supervisor.Start();
+                _timer_supervisor_main.Start();
 
 
                 _isInit = true;
@@ -60,6 +125,8 @@ namespace ShoppingWebCrawler.Host.AppStart
 
             }
         }
+
+        #endregion
 
         /// <summary>
         /// 清理同名的当前程序的其它残留进程
