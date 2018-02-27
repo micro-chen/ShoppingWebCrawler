@@ -21,6 +21,11 @@ namespace NTCPMessage.EntityPackage.Arguments
         {
             this.Tags = new List<KeyWordTag>();
         }
+        public KeyWordTagGroup(string groupName):this()
+        {
+            this._GroupName = groupName;
+        }
+
 
         private string _GroupName;
         /// <summary>
@@ -30,12 +35,16 @@ namespace NTCPMessage.EntityPackage.Arguments
         {
             get
             {
-                if (null != this.Tags && this.Tags.Count > 0)
+                if (string.IsNullOrEmpty(this._GroupName))
                 {
-                    //有一组同名的tag集合
-                    _GroupName = this.Tags[0].TagName;
+                    if (null != this.Tags && this.Tags.Count > 0)
+                    {
+                        //有一组同名的tag集合
+                        _GroupName = this.Tags[0].TagName;
 
+                    }
                 }
+             
                 return this._GroupName;
             }
         }
