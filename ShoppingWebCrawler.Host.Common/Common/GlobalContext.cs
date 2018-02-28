@@ -182,32 +182,32 @@ namespace ShoppingWebCrawler.Host.Common
 
                         var allPlatforms = SupportPlatformLoader.LoadConfig();
                         _SupportPlatforms = allPlatforms;
-                        //文件变更后 通知的事件委托
-                        EventHandler<SupportPlatformsChangedEventArgs> hander = null;
+                        //////////文件变更后 通知的事件委托
+                        ////////EventHandler<SupportPlatformsChangedEventArgs> hander = null;
 
-                        hander = (s, e) =>
-                          {
-                              if (null == e)
-                              {
-                                  return;
-                              }
-                              //不管有没有 都要清除掉
-                              if (null != _SupportPlatforms)
-                              {
-                                  _SupportPlatforms.Clear();
-                                  _SupportPlatforms = null;
-                              }
+                        ////////hander = (s, e) =>
+                        ////////  {
+                        ////////      if (null == e)
+                        ////////      {
+                        ////////          return;
+                        ////////      }
+                        ////////      //不管有没有 都要清除掉
+                        ////////      if (null != _SupportPlatforms)
+                        ////////      {
+                        ////////          _SupportPlatforms.Clear();
+                        ////////          _SupportPlatforms = null;
+                        ////////      }
 
-                              //if (null == e.CurrentSupportPlatforms || e.CurrentSupportPlatforms.Count <= 0)
-                              //{
-                              //    return;
-                              //}
-                              //_SupportPlatforms = e.CurrentSupportPlatforms;
+                        ////////      //if (null == e.CurrentSupportPlatforms || e.CurrentSupportPlatforms.Count <= 0)
+                        ////////      //{
+                        ////////      //    return;
+                        ////////      //}
+                        ////////      //_SupportPlatforms = e.CurrentSupportPlatforms;
 
-                              ////刷新完毕后 从新进入下个监听
-                              //SupportPlatformLoader.MonitorConfigFile(hander);
-                          };
-                        SupportPlatformLoader.MonitorConfigFile(hander);
+                        ////////      ////刷新完毕后 从新进入下个监听
+                        ////////      //SupportPlatformLoader.MonitorConfigFile(hander);
+                        ////////  };
+                        ////////SupportPlatformLoader.MonitorConfigFile(hander);
 
                     }
                 }

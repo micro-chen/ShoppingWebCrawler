@@ -68,6 +68,8 @@ namespace ShoppingWebCrawler.Host.PlatformCrawlers.WebPageService
         /// </summary>
         private static void BeginTryToLogin()
         {
+
+          
             if (null != _timer_refresh_login_cookie)
             {
                 //有定时任务进行监听的时候 不要重复定时监听
