@@ -74,6 +74,11 @@ namespace ShoppingWebCrawler.Host.MessageConvert
                         var args_registerPort = JsonConvert.DeserializeObject<RegisterPortArgument>(obj.Body);
                         result = this.RegisterSlavePort(args_registerPort.SlaveIdentity);
                         break;
+                    //case CommandConstants.CMD_ScanSoapServerSupportCluster:
+
+                    //    var args_serverCluter = JsonConvert.DeserializeObject<ScanServerInfoArgument>(obj.Body);
+                    //    result = this.ScanServerInfo(args_serverCluter);
+                    //    break;
                     default:
                         result = DataContainer.CreateNullDataContainer();
                         break;
@@ -148,6 +153,8 @@ namespace ShoppingWebCrawler.Host.MessageConvert
 
             return result;
         }
+
+
 
         /// <summary>
         /// 注册从节点的端口到主控节点

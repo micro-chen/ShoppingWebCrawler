@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Text;
@@ -132,6 +133,27 @@ namespace ShoppingWebCrawler.Host.AppStart
         }
         #endregion
 
+        /// <summary>
+        /// 返回全部处于激活的从节点的ip:端口的集合返回
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> GetAllActiveSlaveNodes()
+        {
+            var dataList = new List<string>();
+            if (_slaveNodes.IsNotEmpty())
+            {
+                dataList = _slaveNodes
+                    .Where(x=>x.IsActiveNode==true)
+                    .Select(
+                        (item) =>
+                        {
+                            return string.Concat(item.IpAddress, ":", item.Port);
+                        }
+                    ).ToList();
+            }
+            return dataList;
+        }
+
 
         /// <summary>
         /// 获取一个可用的节点端口
@@ -205,7 +227,7 @@ namespace ShoppingWebCrawler.Host.AppStart
         /// <summary>
         /// json 消息转换器
         /// </summary>
-        static JsonMessageConvert jsonConvertProcessor = new MasterJsonMessageConvert();
+        static JsonMessageConvert jsonConvertProcessor = new JsonMessageConvert();
 
 
 
@@ -267,7 +289,7 @@ namespace ShoppingWebCrawler.Host.AppStart
                 {
                     conn.Open();
                 }
-                if (conn.Ping()==false)
+                if (conn.Ping() == false)
                 {
                     return result;
                 }
@@ -338,7 +360,7 @@ namespace ShoppingWebCrawler.Host.AppStart
             //}
 
             return isBeUsed;
-           
+
         }
 
 

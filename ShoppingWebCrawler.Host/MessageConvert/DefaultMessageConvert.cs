@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NTCPMessage.Serialize;
+using ShoppingWebCrawler.Host.Common;
+using ShoppingWebCrawler.Host.AppStart;
 
 namespace ShoppingWebCrawler.Host.MessageConvert
 {
@@ -58,6 +60,7 @@ namespace ShoppingWebCrawler.Host.MessageConvert
             switch (obj)
             {
                 case "ping": result = this.PingCmdProcessor(); break;
+                case "info": result = this.ScanServerInfo(); break;
                 default:
                     result = string.Empty;
                     break;
@@ -75,6 +78,50 @@ namespace ShoppingWebCrawler.Host.MessageConvert
         private string PingCmdProcessor()
         {
             return  "pong";
+        }
+
+
+        /// <summary>
+        /// 查询服务端是信息
+        /// </summary>
+        /// <returns></returns>
+        protected virtual string ScanServerInfo()
+        {
+
+            var sb_info = new StringBuilder();
+
+            #region Server
+            sb_info.Append("# Server").AppendLine();
+            sb_info.Append("tcp_port:").Append(GlobalContext.MasterSocketPort).AppendLine();
+            sb_info.Append("process_id").Append(System.Diagnostics.Process.GetCurrentProcess().Id).AppendLine();
+
+
+            sb_info.Append(" ").AppendLine();
+            sb_info.Append(" ").AppendLine();
+
+            #endregion
+
+            #region Cluster
+
+
+            sb_info.Append("# Cluster").AppendLine();
+            sb_info.Append("cluster_mode:").Append(GlobalContext.IsConfigClusteringMode).AppendLine();
+            //查询集群节点信息
+            var slaveNodes = MasterRemoteServer.GetAllActiveSlaveNodes();
+            int couner = 0;
+            foreach (var item in slaveNodes)
+            {
+                sb_info.AppendFormat("cluster-{0}:",couner).Append(item).AppendLine();
+                couner += 1;
+            }
+
+            sb_info.Append(" ").AppendLine();
+            sb_info.Append(" ").AppendLine();
+            #endregion
+
+
+
+            return sb_info.ToString();
         }
 
 

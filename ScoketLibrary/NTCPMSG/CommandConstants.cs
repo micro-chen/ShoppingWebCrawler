@@ -37,5 +37,11 @@ namespace NTCPMessage
         /// 从节点注册端口到主节点
         /// </summary>
         public const string CMD_RegisterSlavePort = "register_port";
+
+        ///// <summary>
+        ///// 检索蜘蛛服务端的信息:info
+        ///// </summary>
+        //public const string CMD_ScanSoapServerSupportCluster= "server_cluster";
+
     }
 }

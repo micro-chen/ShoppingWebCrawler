@@ -102,7 +102,7 @@ namespace NTCPMessage.Client
             this.TimeOut = timeOut;
         }
 
-        public SoapTcpConnection(ShoppingWebCrawlerSection.ConnectionStringConfig connectionString) : this()
+        public SoapTcpConnection(WebCrawlerConnection connectionString) : this()
         {
         
             this.IPAddress = connectionString.Address;
@@ -241,7 +241,7 @@ namespace NTCPMessage.Client
             try
             {
 
-                var currentSettings = new ShoppingWebCrawlerSection.ConnectionStringConfig { Address = this.IPAddress, Port = this.Port, TimeOut= this.TimeOut };
+                var currentSettings = new WebCrawlerConnection { Address = this.IPAddress, Port = this.Port, TimeOut= this.TimeOut };
                 SoapTcpPool pool = SoapTcpPool.GetPool(currentSettings);
               
                 if (null != pool)
@@ -277,7 +277,7 @@ namespace NTCPMessage.Client
             if (this.State != ConnectionState.Closed && driver != null)
             {
                 //扔回连接池中
-                var currentSettings = new ShoppingWebCrawlerSection.ConnectionStringConfig { Address = this.IPAddress, Port = this.Port };
+                var currentSettings = new WebCrawlerConnection { Address = this.IPAddress, Port = this.Port };
                 SoapTcpPool pool = SoapTcpPool.GetPool(currentSettings);
                 if (null != pool)
                 {

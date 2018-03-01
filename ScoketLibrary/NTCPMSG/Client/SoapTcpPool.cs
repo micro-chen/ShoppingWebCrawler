@@ -21,7 +21,7 @@ namespace NTCPMessage.Client
         public static bool IsHasInitPoolManager = false;
         private static ConcurrentDictionary<string, SoapTcpPool> _poolManager = new ConcurrentDictionary<string, SoapTcpPool>();
         private ConcurrentQueue<SingleConnectionCable> _driverQueue;
-        private ShoppingWebCrawlerSection.ConnectionStringConfig _config;
+        private WebCrawlerConnection _config;
         private int _hasInitDriverCount = 0;
 
         private AutoResetEvent autoEvent;
@@ -42,7 +42,7 @@ namespace NTCPMessage.Client
         /// 初始化连接池管理器
         /// </summary>
         /// <param name="lstConfigs"></param>
-        public static void InitPoolManager(List<ShoppingWebCrawlerSection.ConnectionStringConfig> lstConfigs)
+        public static void InitPoolManager(List<WebCrawlerConnection> lstConfigs)
         {
             if (IsHasInitPoolManager == true)
             {
@@ -58,7 +58,7 @@ namespace NTCPMessage.Client
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static SoapTcpPool GetPool(ShoppingWebCrawlerSection.ConnectionStringConfig config)
+        public static SoapTcpPool GetPool(WebCrawlerConnection config)
         {
             SoapTcpPool _pool = null;
             var key = config.ToString();
@@ -80,7 +80,7 @@ namespace NTCPMessage.Client
         /// <summary>
         /// 初始化连接池
         /// </summary>
-        public void ConfigPool(ShoppingWebCrawlerSection.ConnectionStringConfig config)
+        public void ConfigPool(WebCrawlerConnection config)
         {
             if (null == config && !config.IsValidConfig())
             {

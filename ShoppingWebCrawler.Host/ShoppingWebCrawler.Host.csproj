@@ -145,6 +145,7 @@
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.2.0.txt" />
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService3.0.txt" />
     <Content Include="PlatformCrawlers\WebPageService\test\AlimamaWebPageService.4.0.txt" />
+    <Content Include="Doc\MasterJsonMessageConvert.cs.主节点转发模式.txt" />
     <Compile Include="MessageConvert\MasterJsonMessageConvert.cs" />
     <Compile Include="Model\PeekerClusterNode.cs" />
     <Compile Include="Model\YouhuiquanExistsTaskBuffer.cs" />
@@ -175,7 +176,9 @@
     <Compile Include="SetWindowPosFlags.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="app.manifest" />
     <None Include="Configs\log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

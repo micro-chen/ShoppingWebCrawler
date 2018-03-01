@@ -21,11 +21,8 @@ using ShoppingWebCrawler.Host.Model;
 namespace ShoppingWebCrawler.Host.MessageConvert
 {
     /// <summary>
-    /// **********************已经不再使用这种二次转发模式**********************
     /// 主节点的SOAP消息处理器
-    /// 在服务单进行主从模式的分发（不推荐这个，二次转发消息导致的网络延迟）
     /// </summary>
-    [Obsolete("不推荐这个，二次转发消息导致的网络延迟")]
     public class MasterJsonMessageConvert : JsonMessageConvert
     {
         /// <summary>

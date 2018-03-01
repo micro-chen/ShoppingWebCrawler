@@ -85,7 +85,8 @@
     <Compile Include="Client\BaseSoapTcpClient.cs" />
     <Compile Include="Client\ConnectionState.cs" />
     <Compile Include="Client\ProcessorCombine.cs" />
-    <Compile Include="Client\ShoppingWebCrawlerSection.cs" />
+    <Compile Include="Client\WebCrawlerCollection.cs" />
+    <Compile Include="Client\WebCrawlerSection.cs" />
     <Compile Include="Client\SingleConnection.cs" />
     <Compile Include="Client\SingleConnectionCable.cs" />
     <Compile Include="Client\SoapTcpConnection.cs" />
