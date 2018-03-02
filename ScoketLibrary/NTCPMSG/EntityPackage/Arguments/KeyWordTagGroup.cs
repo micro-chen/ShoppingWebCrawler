@@ -40,13 +40,14 @@ namespace NTCPMessage.EntityPackage.Arguments
                     if (null != this.Tags && this.Tags.Count > 0)
                     {
                         //有一组同名的tag集合
-                        _GroupName = this.Tags[0].TagName;
+                        _GroupName = this.Tags[0].GroupShowName;
 
                     }
                 }
              
                 return this._GroupName;
             }
+            set { this._GroupName = value; }
         }
 
         /// <summary>
