@@ -38,7 +38,7 @@ namespace NTCPMessage.Client
     /// <summary>
     /// This class provide one tcp connection link with multiple channel.
     /// </summary>
-    public class SingleConnection : IDisposable
+    public class SingleConnection : INTCPConnection, IDisposable
     {
         class SyncBlock
         {
@@ -553,6 +553,28 @@ namespace NTCPMessage.Client
         #region Events
 
         /// <summary>
+        /// Event occurred when this cable connected.
+        /// </summary>
+        public event EventHandler<Event.CableConnectedEventArgs> ConnectedEventHandler;
+
+        private void OnConnectedEvent()
+        {
+            EventHandler<Event.CableConnectedEventArgs> connectedEventHandler = ConnectedEventHandler;
+
+            if (connectedEventHandler != null)
+            {
+                try
+                {
+                    connectedEventHandler(this, new NTCPMessage.Event.CableConnectedEventArgs());
+                }
+                catch
+                {
+                }
+            }
+        }
+
+
+        /// <summary>
         /// Event occurred when some error raised during sending message.
         /// </summary>
         public event EventHandler<Event.ErrorEventArgs> ErrorEventHandler;
@@ -739,6 +761,8 @@ namespace NTCPMessage.Client
                 _SendMessageQueue = new SendMessageQueue(OnReadyToSend, setThreadAffinityMask);
 
                 Connected = true;
+
+                this.OnConnectedEvent();
             }
         }
 

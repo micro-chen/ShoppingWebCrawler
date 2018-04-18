@@ -25,7 +25,7 @@ namespace NTCPMessage.Client
     /// This class bind multiple single tcp connection as one 
     /// logic connection cable.
     /// </summary>
-    public class SingleConnectionCable : IDisposable
+    public class SingleConnectionCable : ISingleConnectionCable,IDisposable
     {
         #region Fields
 

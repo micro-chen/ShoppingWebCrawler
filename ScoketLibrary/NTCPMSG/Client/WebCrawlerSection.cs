@@ -19,7 +19,7 @@ namespace NTCPMessage.Client
         /// </summary>
         public WebCrawlerCollection ConnectionStringCollection { get; set; }
 
-       
+
 
     }
 
@@ -53,16 +53,60 @@ namespace NTCPMessage.Client
         /// </summary>
         public int TimeOut { get; set; }
 
-
         /// <summary>
-        /// 连接池最小阈值
+        /// 是否开启连接池模式
         /// </summary>
-        public int PoolingMinSize { get; set; }
+        public bool Pooling { get; set; }
 
+        private int _PoolingMinSize;
         /// <summary>
-        /// 连接池最大阈值
+        /// 连接池最小阈值，不能为小于1
         /// </summary>
-        public int PoolingMaxSize { get; set; }
+        public int PoolingMinSize
+        {
+            get
+            {
+                if (this._PoolingMinSize <= 0)
+                {
+                    this._PoolingMinSize = 1;
+                }
+                if (this.Pooling == false)
+                {
+                    //非连接池模式
+                    this._PoolingMinSize = 1;//必须=1
+                }
+                return this._PoolingMinSize;
+            }
+            set
+            {
+                this._PoolingMinSize = value;
+            }
+        }
+
+        private int _PoolingMaxSize;
+        /// <summary>
+        /// 连接池最大阈值；不能小于1
+        /// </summary>
+        public int PoolingMaxSize
+        {
+            get
+            {
+                if (this._PoolingMaxSize <= 0)
+                {
+                    this._PoolingMaxSize = 1;
+                }
+                if (this.Pooling == false)
+                {
+                    //非连接池模式
+                    this._PoolingMaxSize = 1;//必须=1
+                }
+                return this._PoolingMaxSize;
+            }
+            set
+            {
+                this._PoolingMaxSize = value;
+            }
+        }
 
 
         /// <summary>

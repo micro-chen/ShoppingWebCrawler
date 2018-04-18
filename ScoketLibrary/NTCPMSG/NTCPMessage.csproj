@@ -84,6 +84,8 @@
   <ItemGroup>
     <Compile Include="Client\BaseSoapTcpClient.cs" />
     <Compile Include="Client\ConnectionState.cs" />
+    <Compile Include="Client\INTCPConnection.cs" />
+    <Compile Include="Client\ISingleConnectionCable.cs" />
     <Compile Include="Client\ProcessorCombine.cs" />
     <Compile Include="Client\WebCrawlerCollection.cs" />
     <Compile Include="Client\WebCrawlerSection.cs" />

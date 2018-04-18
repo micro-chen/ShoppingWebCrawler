@@ -74,10 +74,66 @@ namespace NTCPMessage.Client
         /// </summary>
         public int TimeOut { get; set; }
 
+
+        /// <summary>
+        /// 是否开启连接池模式
+        /// </summary>
+        public bool Pooling { get; set; }
+
+        private int _PoolingMinSize;
+        /// <summary>
+        /// 连接池最小阈值，不能为小于1
+        /// </summary>
+        public int PoolingMinSize
+        {
+            get
+            {
+                if (this._PoolingMinSize <= 0)
+                {
+                    this._PoolingMinSize = 1;
+                }
+                if (this.Pooling == false)
+                {
+                    //非连接池模式
+                    this._PoolingMinSize = 1;//必须=1
+                }
+                return this._PoolingMinSize;
+            }
+            set
+            {
+                this._PoolingMinSize = value;
+            }
+        }
+
+        private int _PoolingMaxSize;
+        /// <summary>
+        /// 连接池最大阈值；不能小于1
+        /// </summary>
+        public int PoolingMaxSize
+        {
+            get
+            {
+                if (this._PoolingMaxSize <= 0)
+                {
+                    this._PoolingMaxSize = 1;
+                }
+                if (this.Pooling == false)
+                {
+                    //非连接池模式
+                    this._PoolingMaxSize = 1;//必须=1
+                }
+                return this._PoolingMaxSize;
+            }
+            set
+            {
+                this._PoolingMaxSize = value;
+            }
+        }
+
         /// <summary>
         /// socket 连接驱动
         /// </summary>
-        private SingleConnectionCable driver = null;
+        private INTCPConnection driver = null;
 
 
         /// <summary>
@@ -108,6 +164,9 @@ namespace NTCPMessage.Client
             this.IPAddress = connectionString.Address;
             this.Port = connectionString.Port;
             this.TimeOut = connectionString.TimeOut;
+            this.Pooling = connectionString.Pooling;
+            this.PoolingMinSize = connectionString.PoolingMinSize;
+            this.PoolingMaxSize = connectionString.PoolingMaxSize;
         }
 
         /// <summary>
@@ -241,7 +300,14 @@ namespace NTCPMessage.Client
             try
             {
 
-                var currentSettings = new WebCrawlerConnection { Address = this.IPAddress, Port = this.Port, TimeOut= this.TimeOut };
+                var currentSettings = new WebCrawlerConnection {
+                    Address = this.IPAddress,
+                    Port = this.Port,
+                    TimeOut = this.TimeOut,
+                    Pooling =this.Pooling,
+                    PoolingMinSize = this.PoolingMinSize,
+                    PoolingMaxSize = this.PoolingMaxSize,
+                };
                 SoapTcpPool pool = SoapTcpPool.GetPool(currentSettings);
               
                 if (null != pool)
@@ -250,7 +316,7 @@ namespace NTCPMessage.Client
                 }
                 if (driver == null)
                 {
-                    driver = SoapTcpPool.CreatNewConnection(this.IPAddress, this.Port);
+                    driver = SoapTcpPool.CreatNewConnection(this.IPAddress, this.Port,this.Pooling,this.PoolingMinSize);
                 }
                 if (!driver.Connected)
                 {

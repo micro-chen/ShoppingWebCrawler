@@ -20,7 +20,7 @@ namespace NTCPMessage.Client
         /// </summary>
         public static bool IsHasInitPoolManager = false;
         private static ConcurrentDictionary<string, SoapTcpPool> _poolManager = new ConcurrentDictionary<string, SoapTcpPool>();
-        private ConcurrentQueue<SingleConnectionCable> _driverQueue;
+        private ConcurrentQueue<INTCPConnection> _driverQueue;
         private WebCrawlerConnection _config;
         private int _hasInitDriverCount = 0;
 
@@ -35,7 +35,7 @@ namespace NTCPMessage.Client
         {
             autoEvent = new AutoResetEvent(false);
 
-            _driverQueue = new ConcurrentQueue<SingleConnectionCable>();
+            _driverQueue = new ConcurrentQueue<INTCPConnection>();
         }
 
         /// <summary>
@@ -88,20 +88,10 @@ namespace NTCPMessage.Client
             }
 
             _config = config;
-            if (_config.PoolingMinSize <= 0)
-            {
-                _config.PoolingMinSize = 1;//必须大于0
-            }
-            if (_config.PoolingMaxSize <= 0)
-            {
-                _config.PoolingMaxSize = 1;//必须大于0
-            }
+
             try
             {
-                for (int i = 0; i < _config.PoolingMinSize; i++)
-                {
-                    this.CreatOneConnectionToPool();
-                }
+                this.CreatOneConnectionToPool(_config.Pooling,_config.PoolingMinSize);
             }
             catch (Exception ex)
             {
@@ -111,11 +101,12 @@ namespace NTCPMessage.Client
         /// <summary>
         /// 创建一个连接，并压入队列
         /// </summary>
-        /// <param name="address"></param>
-        /// <param name="port"></param>
-        private SingleConnectionCable CreatOneConnectionToPool(bool isForceCreate = false)
+        /// <param name="pollCapacity"></param>
+        /// <param name="isForceCreate"></param>
+        /// <returns></returns>
+        private INTCPConnection CreatOneConnectionToPool(bool polling, int pollCapacity, bool isForceCreate = false)
         {
-            SingleConnectionCable driver = null;
+            INTCPConnection driver = null;//SingleConnectionCable
             if (isForceCreate == false && _hasInitDriverCount > this._config.PoolingMaxSize)
             {
                 return driver;
@@ -126,7 +117,7 @@ namespace NTCPMessage.Client
             int port = _config.Port;
             lock (_locker)
             {
-                driver = CreatNewConnection(address, port);
+                driver = CreatNewConnection(address, port, polling, pollCapacity);
                 if (null != driver)
                 {
                     //尝试打开驱动连接
@@ -149,11 +140,24 @@ namespace NTCPMessage.Client
         /// </summary>
         /// <param name="address"></param>
         /// <param name="port"></param>
+        /// <param name="isPolling"></param>
+        /// <param name="pollCapacity"></param>
         /// <returns></returns>
-        public static SingleConnectionCable CreatNewConnection(string address, int port)
+        public static INTCPConnection CreatNewConnection(string address, int port,bool isPolling,int pollCapacity)
         {
-            var endPoint = new IPEndPoint(IPAddress.Parse(address), port);
-            SingleConnectionCable driver = new SingleConnectionCable(endPoint, 7);
+            INTCPConnection driver = null;
+            var remoteEndPoint = new IPEndPoint(IPAddress.Parse(address), port);
+            if (isPolling==true)
+            {
+                //基于连接池的多窗口连接
+                 driver = new SingleConnectionCable(remoteEndPoint, pollCapacity);
+            }
+            else
+            {
+                //单连接
+                driver = new SingleConnection(remoteEndPoint);
+            }
+       
             return driver;
         }
 
@@ -161,7 +165,7 @@ namespace NTCPMessage.Client
         /// 释放连接到池子
         /// </summary>
         /// <param name="driver"></param>
-        public void ReleaseToPool(SingleConnectionCable driver)
+        public void ReleaseToPool(INTCPConnection driver)
         {
             if (null != driver)
             {
@@ -176,9 +180,9 @@ namespace NTCPMessage.Client
         /// 从连接池 获取一个连接对象
         /// </summary>
         /// <returns></returns>
-        public SingleConnectionCable GetConnection()
+        public INTCPConnection GetConnection()
         {
-            SingleConnectionCable driver = null;
+            INTCPConnection driver = null;
             if (null == _driverQueue)
             {
                 throw new Exception("未能正确初始化连接池！请检查配置！");
@@ -186,7 +190,7 @@ namespace NTCPMessage.Client
             //检测是否为空
             if (_driverQueue.IsEmpty)
             {
-                this.CreatOneConnectionToPool();
+                this.CreatOneConnectionToPool(this._config.Pooling,this._config.PoolingMinSize);
             }
 
             try
@@ -200,13 +204,13 @@ namespace NTCPMessage.Client
                     this._driverQueue.TryDequeue(out driver);
                     if (driver != null)
                     {
-
-                        if (driver.CableId!=0 &&driver.Connected == true)
+                        //等待可用的连接
+                        if (driver.Connected == true)
                         {
                             autoEvent.Set();
                             break;
                         }
-                         
+
                     }
 
                     // We have no tickets right now, lets wait for one.
@@ -217,7 +221,7 @@ namespace NTCPMessage.Client
                 //如果未能从池中检索出可用的连接，那么尝试创建新的连接
                 if (null == driver)
                 {
-                    var driverTryNew = CreatOneConnectionToPool();
+                    var driverTryNew = CreatOneConnectionToPool(this._config.Pooling,this._config.PoolingMinSize);
                     if (null == driverTryNew)
                     {
                         throw new Exception("连接池最大连接池数目已经被消耗完毕！未能正确获取连接对象！请及时关闭连接！");
@@ -237,7 +241,7 @@ namespace NTCPMessage.Client
                 {
 
                     this._hasInitDriverCount -= 1;//打开阈值开关 将当前驱动的引用 置为最新的连接实例
-                    driver = CreatOneConnectionToPool();
+                    driver = CreatOneConnectionToPool(this._config.Pooling, this._config.PoolingMinSize);
 
                 }
             }
