@@ -11,15 +11,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingWebCrawler.Host", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SocketLibrary", "SocketLibrary", "{AEE89147-A25D-4D62-8C6D-B01B34F652DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTCPMessage", "ScoketLibrary\NTCPMSG\NTCPMessage.csproj", "{D7F3E627-5EEF-4AAE-A23D-61E75627EF34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTCPMessage", "SocketLibrary\NTCPMSG\NTCPMessage.csproj", "{D7F3E627-5EEF-4AAE-A23D-61E75627EF34}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{3C3E6B83-DBD2-4C01-91BA-CC8A56B10BCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientTest", "ScoketLibrary\ClientTest\ClientTest.csproj", "{C8090CA1-69FA-40E3-85BF-81B44568317E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientTest", "SocketLibrary\ClientTest\ClientTest.csproj", "{C8090CA1-69FA-40E3-85BF-81B44568317E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTest", "ScoketLibrary\ServerTest\ServerTest.csproj", "{6CF2A7C8-6048-47A0-91E4-B3CC0C3375A4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerTest", "SocketLibrary\ServerTest\ServerTest.csproj", "{6CF2A7C8-6048-47A0-91E4-B3CC0C3375A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example2010", "ScoketLibrary\Example\Example2010.csproj", "{B7E3D4AE-DB59-46EC-AD92-004038FA3F6F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example2010", "SocketLibrary\Example\Example2010.csproj", "{B7E3D4AE-DB59-46EC-AD92-004038FA3F6F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShoppingWebCrawler.Client", "ShoppingWebCrawler.Client\ShoppingWebCrawler.Client.csproj", "{BF325389-3CB7-4A43-A150-088D1C8B10EA}"
 EndProject

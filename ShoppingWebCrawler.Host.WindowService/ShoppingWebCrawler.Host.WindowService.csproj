@@ -111,7 +111,7 @@
     <Content Include="readMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ScoketLibrary\NTCPMSG\NTCPMessage.csproj">
+    <ProjectReference Include="..\SocketLibrary\NTCPMSG\NTCPMessage.csproj">
       <Project>{d7f3e627-5eef-4aae-a23d-61e75627ef34}</Project>
       <Name>NTCPMessage</Name>
     </ProjectReference>
