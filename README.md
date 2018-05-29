@@ -22,6 +22,68 @@ This Project is a WebCrawler build by .net framework .
 
 6、集群模式，使用简易的多进程实现集群。开启不同的监听端口，实现采集任务的负载均衡，进而大幅度提升硬件服务器的使用效率。  
 
+# libcef 简介
+The Chromium Embedded Framework (CEF)－－－－Chromium嵌入式框架。CEF聚焦于使用第三方嵌入浏览器的应用程序。支持嵌入HTML5浏览器在现有的本地应用程序中。比如嵌入MFC窗口。创建一个轻量级sehll应用程序，渲染网页内容。
+libcef为为我们提供了CEF的运行时接口。为我们开发基于cef 运行时，提供了API。基于libcef 轻松创建基于html javascript的web 应用。就像打开网页一样。
+（注：本质就是浏览器）
+libcef的运行时体积略大，不方便推送到项目中，在下面的网址，百度云盘上，分享了32位和64位的运行时。
+https://pan.baidu.com/s/19WPAny7nqZR_UwINj9zfcQ
+
+下载后：解压到项目的根 libs目录：
+libs
+│  jint.dll
+│  libcef_runtime_3.2623.7z
+│  Newtonsoft.Json.dll
+│  System.Net.Http.dll
+│
+├─x64
+│  │  cef.pak
+│  │  cef_100_percent.pak
+│  │  cef_200_percent.pak
+│  │  cef_extensions.pak
+│  │  d3dcompiler_43.dll
+│  │  d3dcompiler_47.dll
+│  │  devtools_resources.pak
+│  │  icudtl.dat
+│  │  libcef.dll
+│  │  libcef.lib
+│  │  libEGL.dll
+│  │  libGLESv2.dll
+│  │  natives_blob.bin
+│  │  snapshot_blob.bin
+│  │  widevinecdmadapter.dll
+│  │
+│  └─locales
+│          en-GB.pak
+│          en-US.pak
+│          zh-CN.pak
+│          zh-TW.pak
+│
+└─x86
+    │  cef.pak
+    │  cef_100_percent.pak
+    │  cef_200_percent.pak
+    │  cef_extensions.pak
+    │  d3dcompiler_43.dll
+    │  d3dcompiler_47.dll
+    │  devtools_resources.pak
+    │  icudtl.dat
+    │  libcef.dll
+    │  libcef.lib
+    │  libEGL.dll
+    │  libGLESv2.dll
+    │  natives_blob.bin
+    │  snapshot_blob.bin
+    │  widevinecdmadapter.dll
+    │  wow_helper.exe
+    │
+    └─locales
+            en-GB.pak
+            en-US.pak
+            zh-CN.pak
+            zh-TW.pak
+
+
 
 # Xilium.CefGlue 简介
 
