@@ -27,63 +27,61 @@ The Chromium Embedded Framework (CEF)－－－－Chromium嵌入式框架。CEF�
 libcef为为我们提供了CEF的运行时接口。为我们开发基于cef 运行时，提供了API。基于libcef 轻松创建基于html javascript的web 应用。就像打开网页一样。
 （注：本质就是浏览器）
 libcef的运行时体积略大，不方便推送到项目中，在下面的网址，百度云盘上，分享了32位和64位的运行时。
-https://pan.baidu.com/s/19WPAny7nqZR_UwINj9zfcQ
-
-下载后：解压到项目的根 libs目录：
-libs
-│  jint.dll
-│  libcef_runtime_3.2623.7z
-│  Newtonsoft.Json.dll
-│  System.Net.Http.dll
-│
-├─x64
-│  │  cef.pak
-│  │  cef_100_percent.pak
-│  │  cef_200_percent.pak
-│  │  cef_extensions.pak
-│  │  d3dcompiler_43.dll
-│  │  d3dcompiler_47.dll
-│  │  devtools_resources.pak
-│  │  icudtl.dat
-│  │  libcef.dll
-│  │  libcef.lib
-│  │  libEGL.dll
-│  │  libGLESv2.dll
-│  │  natives_blob.bin
-│  │  snapshot_blob.bin
-│  │  widevinecdmadapter.dll
-│  │
-│  └─locales
-│          en-GB.pak
-│          en-US.pak
-│          zh-CN.pak
-│          zh-TW.pak
-│
-└─x86
-    │  cef.pak
-    │  cef_100_percent.pak
-    │  cef_200_percent.pak
-    │  cef_extensions.pak
-    │  d3dcompiler_43.dll
-    │  d3dcompiler_47.dll
-    │  devtools_resources.pak
-    │  icudtl.dat
-    │  libcef.dll
-    │  libcef.lib
-    │  libEGL.dll
-    │  libGLESv2.dll
-    │  natives_blob.bin
-    │  snapshot_blob.bin
-    │  widevinecdmadapter.dll
-    │  wow_helper.exe
-    │
-    └─locales
-            en-GB.pak
-            en-US.pak
-            zh-CN.pak
-            zh-TW.pak
-
-
+https://pan.baidu.com/s/19WPAny7nqZR_UwINj9zfcQ  
+  
+下载后：解压到项目的根 libs目录            
+ibs  
+│  jint.dll  
+│  libcef_runtime_3.2623.7z  
+│  Newtonsoft.Json.dll  
+│  System.Net.Http.dll  
+│  
+├─x64  
+│  │  cef.pak  
+│  │  cef_100_percent.pak  
+│  │  cef_200_percent.pak  
+│  │  cef_extensions.pak  
+│  │  d3dcompiler_43.dll  
+│  │  d3dcompiler_47.dll  
+│  │  devtools_resources.pak  
+│  │  icudtl.dat  
+│  │  libcef.dll  
+│  │  libcef.lib  
+│  │  libEGL.dll  
+│  │  libGLESv2.dll  
+│  │  natives_blob.bin  
+│  │  snapshot_blob.bin  
+│  │  widevinecdmadapter.dll  
+│  │  
+│  └─locales  
+│          en-GB.pak  
+│          en-US.pak  
+│          zh-CN.pak  
+│          zh-TW.pak  
+│  
+└─x86  
+    │  cef.pak  
+    │  cef_100_percent.pak  
+    │  cef_200_percent.pak  
+    │  cef_extensions.pak  
+    │  d3dcompiler_43.dll  
+    │  d3dcompiler_47.dll  
+    │  devtools_resources.pak  
+    │  icudtl.dat  
+    │  libcef.dll  
+    │  libcef.lib  
+    │  libEGL.dll  
+    │  libGLESv2.dll  
+    │  natives_blob.bin  
+    │  snapshot_blob.bin  
+    │  widevinecdmadapter.dll  
+    │  wow_helper.exe  
+    │  
+    └─locales  
+     │ en-GB.pak  
+     │ en-US.pak  
+     │ zh-CN.pak  
+     │ zh-TW.pak  
 
 # Xilium.CefGlue 简介
 
