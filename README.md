@@ -136,7 +136,7 @@ ShoppingWebCrawler.Host.WindowService.exe install 即可。如果想卸载，那
 # 联系作者
 MyBlog:http://www.cnblogs.com/micro-chen/
 <br/>
-DotNET Core技术群: 59196458
+QQ:1021776019
 # 赞助作者
 一个好的项目离不开大家的支持，您的赞助，将给我更加充沛的动力。
 <br/>
